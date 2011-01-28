@@ -1,4 +1,4 @@
-(function(){
+﻿(function(){
 	var QWDoc={},
 		data={
 		QW:{

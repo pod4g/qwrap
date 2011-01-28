@@ -1,4 +1,4 @@
-
+﻿
 //document.write('<script type="text/javascript" src="'+srcPath+'core/core_base.js"><\/script>');
 /*
 	Copyright (c) 2009, Baidu Inc. All rights reserved.
