@@ -12,7 +12,9 @@
 		EventTargetH = QW.EventTargetH,
 		JssTargetH = QW.JssTargetH,
 		DomU = QW.DomU,
-		NodeW = QW.NodeW;
+		NodeW = QW.NodeW,
+		AsyncH = QW.AsyncH;
+
 	/*
 	 * 用NodeH、EventTargetH、JssTargetH、ArrayH渲染NodeW
 	*/
@@ -22,6 +24,8 @@
 	NodeW.pluginHelper(JssTargetH, NodeC.wrapMethods, {
 		jss: ['', 'getJss', 'setJss']
 	});
+
+	NodeW.pluginHelper(AsyncH, 'operator');
 
 	var ah = QW.ObjectH.dump(QW.ArrayH, NodeC.arrayMethods);
 	ah = methodize(ah);

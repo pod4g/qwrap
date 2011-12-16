@@ -1,0 +1,78 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+
+  <script src="../../../../../apps/qwrap.src.js"></script>
+  <script src="../../../../../components/animation/anim.js"></script>
+  <script src="../../../../../adapters/jquery-1.6.2.adapter.js"></script>
+
+  <xscript src="../jquery-1.6.2.js"></script>
+
+ </head>
+
+ <body>
+  <div id="test" style="border:solid 1px;width:200px;height:300px;">abcedf</div>
+ </body>
+ <script type="text/javascript">
+	$(function(){
+		/*$('body').wait('abc',function(){
+			alert(1);
+		}).wait('abc', function(){
+			alert(2);
+		});
+		$('body').signal('abc').signal('abc');*/
+		$("#test").queue(function(){
+			$(this).animate({		
+				opacity : 0
+				,width: 300
+			}, {
+				queue: false,
+				step: function(now, fx){
+					//console.log([arguments,fx.state, fx.pos, fx.now, $.fx]);
+				},
+				complete : function(){
+					$.dequeue(this);	//QW适配时，这一句其实不起作用
+					console.log(this);
+					//W(this).dequeue();
+				},
+				duration : 1000
+			});
+		}).queue(function(){
+			$(this).animate({
+				opacity: 1
+			}, {
+				queue:false,
+				duration: 1000,
+				step: function(now, fx){
+					//console.log(fx);
+				}
+			});		
+			console.log('await');
+		});
+
+		$("#test");//.dequeue();
+
+		/*$("#test").animate({
+			opacity: 0
+		}, {
+			duration: 1000,
+		}).wait(function(signal){
+			console.log(3);
+			signal();
+		});
+		$("#test").animate({
+			opacity: 1
+		}, {
+			duration: 1000,
+		});
+		//$("#test").fadeIn();
+		$("#test").slideUp(1000);
+		$("#test").slideDown(1000);*/
+	});
+ </script>
+</html>

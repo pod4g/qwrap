@@ -152,9 +152,10 @@
 		 * @static
 		 * @param {Helper} helper Helper对象，如DateH
 		 * @param {optional} attr (Optional)属性
+		 * @param {boolean} reserveAttr (Optional) 是否保留Helper上的属性（非Function的成员），默认不保留
 		 * @return {Object} 方法已methodize化的对象
 		 */
-		methodize: function(helper, attr) {
+		methodize: function(helper, attr, reserveAttr) {
 			var ret = new Methodized(); //因为 methodize 之后gsetter和rwrap的行为不一样  
 
 			for (var i in helper) {
@@ -162,13 +163,35 @@
 
 				if (fn instanceof Function) {
 					ret[i] = FunctionH.methodize(fn, attr);
-				}else{
+				}else if(reserveAttr){
 					ret[i] = fn;
 				}
 			}
 			return ret;
-		}
+		},
+		/**
+		 * 针对Helper的方法做hook
+		 * @method hook
+		 * @static
+		 * @param {Helper} helper
+		 * @param {String} where
+		 * @param {Function} handler
+		 */
+		hook: function(helper, where, handler){
+			var ret = {};
 
+			for (var i  in helper){
+				var fn = helper[i];
+
+				if(fn instanceof Function){
+					ret[i] = FunctionH.hook(fn, where, handler);
+				}else{
+					ret[i] = fn;
+				}
+			}
+
+			return ret;
+		}
 	};
 
 	QW.HelperH = HelperH;

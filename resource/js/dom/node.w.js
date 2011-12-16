@@ -81,10 +81,11 @@
 	 * @param	{helper} helper 必须是一个针对Node（元素）的Helper	
 	 * @param	{string|json} wrapConfig	wrap参数
 	 * @param	{json} gsetterConfig	(Optional) gsetter 参数
+	 * @param	{boolean} override 强制覆盖，写adapter的时候可能会用到，将NodeW原有的函数覆盖掉
 	 * @return	{NodeW}	
 	 */
 
-	NodeW.pluginHelper = function(helper, wrapConfig, gsetterConfig) {
+	NodeW.pluginHelper = function(helper, wrapConfig, gsetterConfig, override) {
 		var HelperH = QW.HelperH;
 
 		helper = HelperH.mul(helper, wrapConfig); //支持第一个参数为array
@@ -94,14 +95,14 @@
 			st = HelperH.gsetter(st, gsetterConfig);
 		}
 
-		mix(NodeW, st); //应用于NodeW的静态方法
+		mix(NodeW, st, override); //应用于NodeW的静态方法
 
 		var pro = HelperH.methodize(helper, 'core');
 		pro = HelperH.rwrap(pro, NodeW, wrapConfig);
 		if (gsetterConfig) {
 			pro = HelperH.gsetter(pro, gsetterConfig);
 		}
-		mix(NodeW.prototype, pro);
+		mix(NodeW.prototype, pro, override);
 	};
 
 	mix(NodeW.prototype, {

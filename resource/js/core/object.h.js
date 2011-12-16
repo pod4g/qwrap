@@ -14,16 +14,29 @@
 
 (function() {
 	var escapeChars = QW.StringH.escapeChars;
+	
 	function getConstructorName(o) {
 		return o != null && Object.prototype.toString.call(o).slice(8, -1);
 	}
 	var ObjectH = {
+		/**
+		 * 尽可能精确获得一个对象的类型
+		 * @method getType
+		 * @static
+		 * @param {mixed} obj 目标变量
+		 * @returns {boolean}
+		 */
+		getType: function(obj){
+				return obj == null ?
+					String( obj ) :
+					getConstructorName(obj).toLowerCase() || "object";
+		},
 
 		/** 
 		 * 判断一个变量是否是string值或String对象
 		 * @method isString
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
 		isString: function(obj) {
@@ -34,7 +47,7 @@
 		 * 判断一个变量是否是function对象
 		 * @method isFunction
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
 		isFunction: function(obj) {
@@ -45,40 +58,41 @@
 		 * 判断一个变量是否是Array对象
 		 * @method isArray
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
 		isArray: function(obj) {
 			return getConstructorName(obj) == 'Array';
 		},
-
+		
 		/** 
-		 * 判断一个变量是否是typeof 'object'
-		 * @method isObject
+		 * 判断一个变量是否是Number对象
+		 * @method isArray
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
-		isObject: function(obj) {
-			return obj !== null && typeof obj == 'object';
+		isNumber: function(obj) {
+			return getConstructorName(obj) == 'Number';
 		},
-
+		
 		/** 
 		 * 判断一个变量是否是Array泛型，即:有length属性并且该属性是数值的对象
 		 * @method isArrayLike
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
 		isArrayLike: function(obj) {
-			return !!obj && typeof obj == 'object' && obj.nodeType != 1 && typeof obj.length == 'number';
+			return !!obj && !ObjectH.isArray(obj) && !ObjectH.isFunction(obj) 
+				&& !ObjectH.isElement(obj) && ObjectH.isNumber(obj.length);
 		},
 
 		/** 
 		 * 判断一个变量的constructor是否是Object。---通常可用于判断一个对象是否是{}或由new Object()产生的对象。
 		 * @method isPlainObject
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
 		isPlainObject: function(obj) {
@@ -89,7 +103,7 @@
 		 * 判断一个变量是否是Wrap对象
 		 * @method isWrap
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @param {string} coreName (Optional) core的属性名，默认为'core'
 		 * @returns {boolean} 
 		 */
@@ -101,11 +115,33 @@
 		 * 判断一个变量是否是Html的Element元素
 		 * @method isElement
 		 * @static
-		 * @param {any} obj 目标变量
+		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
 		isElement: function(obj) {
 			return !!obj && obj.nodeType == 1;
+		},
+		
+		/** 
+		 * 判断一个变量是否是Html的Document元素
+		 * @method isElement
+		 * @static
+		 * @param {mixed} obj 目标变量
+		 * @returns {boolean} 
+		 */
+		isDocument: function(obj) {
+			return !!obj && obj.nodeType == 9;
+		},
+
+		/** 
+		 * 判断一个变量是否是Window对象
+		 * @method isElement
+		 * @static
+		 * @param {mixed} obj 目标变量
+		 * @returns {boolean} 
+		 */
+		isWindow: function(obj){
+			return !!obj && "setInterval" in obj;
 		},
 
 		/** 
@@ -134,12 +170,12 @@
 				for (var i = 0; i < prop.length; i++) {
 					ObjectH.set(obj, prop[i], value[i]);
 				}
-			} else if (typeof prop == 'object') {
+			} else if (ObjectH.isPlainObject(prop)) {
 				//set(obj, propJson)
 				for (i in prop) {
 					ObjectH.set(obj, i, prop[i]);
 				}
-			} else if (typeof prop == 'function') { //getter
+			} else if (ObjectH.isFunction(prop)) { //getter
 				var args = [].slice.call(arguments, 1);
 				args[0] = obj;
 				prop.apply(null, args);
@@ -181,7 +217,7 @@
 				for (i = 0; i < prop.length; i++) {
 					ret[i] = ObjectH.get(obj, prop[i], nullSensitive);
 				}
-			} else if (typeof prop == 'function') { //getter
+			} else if (ObjectH.isFunction(prop)) { //getter
 				var args = [].slice.call(arguments, 1);
 				args[0] = obj;
 				return prop.apply(null, args);
@@ -339,7 +375,7 @@
 			if (obj.toJSON) {
 				obj = obj.toJSON();
 			}
-			var type = typeof obj;
+			var type = ObjectH.getType(obj);
 			switch (type) {
 			case 'string':
 				return '"' + escapeChars(obj) + '"';

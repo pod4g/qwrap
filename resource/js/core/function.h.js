@@ -51,7 +51,7 @@
 						return func.apply(this, arguments);
 					}
 					if (list.length) {
-						var args = [].slice.call(arguments, 0);
+						var args = [].slice.call(arguments);
 						args[0] = list[0];
 						return func.apply(this, args);
 					}
@@ -61,7 +61,7 @@
 			return function() {
 				var list = arguments[0];
 				if (list instanceof Array) {
-					var moreArgs = [].slice.call(arguments, 0),
+					var moreArgs = [].slice.call(arguments),
 						ret = [],
 						i = 0,
 						len = list.length,
@@ -99,6 +99,35 @@
 				}
 				return wrapper ? new wrapper(ret) : ret;
 			};
+		},
+		/**
+		 * 针对Function做拦截器
+		 * @method hook
+		 * @static
+		 * @param {Function} 要拦截的函数
+		 * @param {String} where，before和after
+		 * @param {Function} 拦截器： function(args|returnValue , callee , where)
+		 */
+		hook: function(func, where, handler){
+			//如果是before拦截器
+			if(where == "before"){
+				return function(){
+					var args = [].slice.call(arguments);
+					if(false !== handler.call(this, args, func, where)){
+						//如果return false，阻止后续的执行，否则执行
+						return func.apply(this, args);
+					}
+				}
+			}else if(where == "after"){
+				return function(){
+					var args = [].slice.call(arguments);
+					var ret = func.apply(this, args);
+					//返回after的返回值
+					return handler.call(this, ret, func, where);
+				}
+			}else{
+				throw new Error("unknow hooker:" + where);
+			}
 		},
 		/**
 		 * 绑定
@@ -155,10 +184,12 @@
 				timerId = setInterval(timer, ims);
 			return timerId;
 		},
-		
+		/**
+		 * 切换一组函数，每次调用时换下一个函数
+		 */
 		toggle: function(){
 			var i = 0,
-				funlist = Array.prototype.slice.call(arguments,0);
+				funlist = Array.prototype.slice.call(arguments);
 			return function(){
 				return funlist[i++%funlist.length].apply(this, arguments);
 			}
