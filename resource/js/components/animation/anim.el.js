@@ -4,9 +4,9 @@
 		g = QW.NodeH.g,
 		mix = QW.ObjectH.mix,
 		isFunction = QW.ObjectH.isFunction,
-		isArray = QW.ObjectH.isArray,
-		isPlainObject = QW.ObjectH.isPlainObject,
+		isString = QW.ObjectH.isString,
 		isElement = QW.DomU.isElement,
+		isPlainObject = QW.ObjectH.isPlainObject,
 		setStyle = QW.NodeH.setStyle,
 		getCurrentStyle = QW.NodeH.getCurrentStyle,
 		getStyle = QW.NodeH.getStyle,
@@ -19,39 +19,24 @@
 		this.el = el;
 		this.attr = attr;
 		this.anim = anim;
-
-		if(!isPlainObject(opts)){
-			if(isArray(opts)){
-				opts = {from:opts[0], to:opts[1]}; 
+		
+		//定义hook比直接设置值的办法更好，是因为hook可以延迟执行，到动画开始前才处理
+		//因为动画可能是异步的
+		if(isString(opts)){ //匹配hooks
+			if(opts in ElAnim.agentHooks){
+				opts = ElAnim.agentHooks[opts](opts, attr, el, anim);
 			}else{
-				opts = {to:opts};
+				opts = ElAnim.agentHooks._default(opts, attr, el, anim);
 			}
 		}
-
-		for(var prop in opts){
-			if(isFunction(opts[prop])){ //以function形式定义属性，是为了在动画开始前初始化（延迟执行，因为动画可能是异步的）
-				opts[prop](this);
-			}else{
-				opts[prop];
-			}
+		else if(isFunction(opts)){
+			opts = opts(opts, attr, el, anim); //global hookers
 		}
-
-		if(opts.to == "show"){	//如果是show动画，那么from=0,to=实际宽高
-			show(el);
-			opts.from = 0;	
-			opts.to = getCurrentStyle(el, attr);
-		}
-		if(opts.to == "hide"){
-			opts.to = 0;
-			var val = getCurrentStyle(el, attr);
-			anim.on("end", function(){	//如果是hide，动画结束后将属性值还原，只把display设置为none
-				setStyle(el, attr, val);
-				hide(el);
-			});				
+		else if(!isPlainObject(opts)){
+			opts = {to: opts};
 		}
 		
 		mix(this, opts);
-		ElAnim.cache(el, attr, this); //缓存agent对象，当动画结束时用来获得动画的初始属性
 		this.init();
 	}
 
@@ -307,17 +292,34 @@
 			});
 		},Anim);
 	
-	ElAnim.cache = function(el, attr, value){
-		el["__QW_ANIMAGENT"] = el["__QW_ANIMAGENT"] || {};
-		if(value){
-			el["__QW_ANIMAGENT"][attr] = value;
+	/**
+	 * 用来预处理agent属性的hooker
+	 */
+	ElAnim.agentHooks = {
+		//如果是show动画，那么show之后属性从0变到当前值
+		show: function(opts, attr, el, anim){
+			show(el);
+			return {from:0, to:getCurrentStyle(el, attr)}
+		},
+		//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
+		hide: function(opts, attr, el, anim){
+			var value = getCurrentStyle(el, attr);
+			anim.on("end", function(){	//如果是hide，动画结束后将属性值还原，只把display设置为none
+				setStyle(el, attr, value);
+				hide(el);
+			});	
+			return {from: value, to: 0}
+		},
+		//默认解析字符串空格分开
+		_default: function(opts, attr, el, anim){
+			var parts = opts.split(/\s+/g);
+			if(parts.length >= 2){
+				return {from: parts[0], to: parts[1]}; 
+			}else{
+				return {to: parts[0]};
+			}
 		}
-		return el["__QW_ANIMAGENT"][attr];
-	}
-
-	ElAnim.clearCache = function(el){
-		el["__QW_ANIMAGENT"] = null;
-	}
+	};
 
 	QW.provide("ElAnim", ElAnim);
 })();

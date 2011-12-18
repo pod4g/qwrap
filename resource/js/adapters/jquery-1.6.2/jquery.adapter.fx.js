@@ -96,19 +96,6 @@ jQuery.extend(aeh, {
 			options.easing = jQuery.easing[options.easing];
 		}
 
-		for(var attr in params){
-			var param = params[attr];
-			//支持缩写，如: {opacity:0}
-			//QW的动画也支持缩写，不过QW动画的缩写是数组不是空格分割的字符串
-			if(!jQuery.isPlainObject(param)){ 
-				var parts = param.toString().split(' ');
-				if(parts[1] != null)
-					param = {from: parts[0], to: parts[1]}; 
-				else param = {to: parts[0]};
-			}
-			params[attr] = param;
-		}
-
 		var fxs = {}; //存放当前动画所有的fx实例，一个属性动画hold一个实例 
 		function makeStep(handler){
 			return function(evt){ 

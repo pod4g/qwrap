@@ -458,7 +458,6 @@ jQueryNodeH = {
 		var cacheIndex = jQuery.expando + "_xdata";
 		el[cacheIndex] = null;
 		el.__custListeners && (el.__custListeners.length = 0);
-		QW.ElAnim.clearCache(el);
 		p = $(el).parentNode().removeChild(el);
 	}
 };
