@@ -20,8 +20,9 @@ jQuery = $ = function(selector, context){
 		return QW.Dom.ready(function(){
 			return selector.call(jQuery, jQuery);
 		});
+	}else{
+		return new QW.NodeW(selector, context); //否则是Wrap
 	}
-	return new QW.NodeW(selector, context); //否则是Wrap
 };
 
 jQuery.browser = QW.Browser;
@@ -30,19 +31,53 @@ jQuery.fn = QW.NodeW.prototype;
 
 jQuery.pluginHelper = function(helper, wrapConfig, gsetterConfig, override){
 	jQuery.extend(helper);
+	if(override !== false) override = true;
 	QW.NodeW.pluginHelper(helper, wrapConfig, gsetterConfig, override);
 }
 
 /**
- * 简化版的extend，不支持deepcopy
+ * 简化版的extend，mix不支持deepcopy
  * JQ的extend居然可以省略des，反正他框架里面这么用的，具体实现我看得不是很明白 =.=
  * 真不明白JQ绕啊绕啊有什么好，肿么不会将作者们自己绕晕掉。。。
  */
 jQuery.extend = function(des, src){
+	//jQuery.extend(deep, des, src); JQ还支持这种，没办法，只好实现一下，因为组件可能用到了
+	//这种思路其实不大好，js明明是弱类型的，框架里到处是依赖类型检查。。。
+	var deep = false;
 	if(src == null){
-		return QW.ObjectH.mix(jQuery, des, true);
+		src = des;
+		des = jQuery;
+	}else if(!!des === des /*is Boolean*/){
+		deep = !!des;
+		des = src;
+		src = [].slice.call(arguments, 2);
 	}else{
+		src = [].slice.call(arguments, 1); //支持多个src的情况
+	}
+
+	if(!deep){
 		return QW.ObjectH.mix(des, src, true);
+	}else{
+		for(var i = 0; i < src.length; i++){
+			var _src = src[i];
+			for(var prop in _src){
+				var source = _src[prop], target = des[prop];
+				
+				if(prop in des && target != source && 
+					(jQuery.isArray(target) && jQuery.isArray(source) 
+					|| jQuery.isPlainObject(target) && jQuery.isPlainObject(source))){ 
+					//只有des[prop]存在并且类型和_src[prop]相同，并且des[prop] != _src[prop]
+					//而且_src[prop]和des[prop]都为Array或PlainObject的时候
+					//才deepCopy
+					des[prop] = jQuery.extend(true, target, source); 
+				}else{
+					if(prop in _src){
+						des[prop] = _src[prop];
+					}
+				}
+			}
+		}
+		return des;
 	}
 };
 jQuery.fn.extend = QW.FunctionH.methodize(jQuery.extend);
@@ -63,6 +98,9 @@ jQuery.fn.extend({
 jQuery.extend(
 	{
 		expando: "jQuery" + ( jQuery.fn.jquery + Math.random() ).replace( /\D/g, "" ),
+		now: function(){
+			return (new Date()).getTime();
+		},
 		makeArray: function(obj){
 			if(jQuery.isArray(obj)){
 				return obj;
@@ -71,7 +109,8 @@ jQuery.extend(
 			}else{
 				return [obj];
 			}
-		}
+		},
+		inArray: QW.ArrayH.indexOf
 	}
 );
 
@@ -83,7 +122,9 @@ var jQueryArrayH = {
 	 */
 	each : function(arr, callback){
 		var signal = true;
-		QW.ArrayH.forEach(arr,
+		var iterator = jQuery.isArray(arr) || jQuery.isArrayLike(arr) ? QW.ArrayH.forEach : QW.ObjectH.map;
+
+		iterator(arr,
 			function(o, i, arr){
 				if(!signal) return; //noop 这样简单实现，但是效率上未免略受影响
 				var ret = callback.call(o, i, o);
@@ -92,6 +133,7 @@ var jQueryArrayH = {
 				}
 				return ret;
 			});
+
 		return arr;
 	},
 	/**
@@ -124,7 +166,6 @@ var jQueryArrayH = {
 				filter = [filter];
 			}
 		}
-
 		return $(QW.HashsetH.minus(arr, filter));
 	}
 }

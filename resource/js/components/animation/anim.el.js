@@ -3,24 +3,64 @@
 		extend = QW.ClassH.extend,
 		g = QW.NodeH.g,
 		mix = QW.ObjectH.mix,
+		isFunction = QW.ObjectH.isFunction,
+		isArray = QW.ObjectH.isArray,
+		isPlainObject = QW.ObjectH.isPlainObject,
 		isElement = QW.DomU.isElement,
 		setStyle = QW.NodeH.setStyle,
-		getStyle = QW.NodeH.getCurrentStyle,
-		map = Array.map || QW.ArrayH.map;
+		getCurrentStyle = QW.NodeH.getCurrentStyle,
+		getStyle = QW.NodeH.getStyle,
+		removeStyle = QW.NodeH.removeStyle,
+		map = Array.map || QW.ArrayH.map,
+		show = QW.NodeH.show,
+		hide = QW.NodeH.hide;
 	
-	function AnimAgent(el, opts, attr){ //用来辅助对opts进行标准化操作的私有类
+	function AnimAgent(el, opts, attr, anim){ //用来辅助对opts进行标准化操作的私有类
 		this.el = el;
 		this.attr = attr;
-		mix(this, opts[attr]);
+		this.anim = anim;
+
+		if(!isPlainObject(opts)){
+			if(isArray(opts)){
+				opts = {from:opts[0], to:opts[1]}; 
+			}else{
+				opts = {to:opts};
+			}
+		}
+
+		for(var prop in opts){
+			if(isFunction(opts[prop])){ //以function形式定义属性，是为了在动画开始前初始化（延迟执行，因为动画可能是异步的）
+				opts[prop](this);
+			}else{
+				opts[prop];
+			}
+		}
+
+		if(opts.to == "show"){	//如果是show动画，那么from=0,to=实际宽高
+			show(el);
+			opts.from = 0;	
+			opts.to = getCurrentStyle(el, attr);
+		}
+		if(opts.to == "hide"){
+			opts.to = 0;
+			var val = getCurrentStyle(el, attr);
+			anim.on("end", function(){	//如果是hide，动画结束后将属性值还原，只把display设置为none
+				setStyle(el, attr, val);
+				hide(el);
+			});				
+		}
+		
+		mix(this, opts);
+		ElAnim.cache(el, attr, this); //缓存agent对象，当动画结束时用来获得动画的初始属性
 		this.init();
 	}
 
-	mix(AnimAgent.prototype, { 
+	mix(AnimAgent.prototype, {
 		setValue : function(value){   //获得属性
 			setStyle(this.el, this.attr, value);
 		},
 		getValue : function(){
-			return getStyle(this.el, this.attr);
+			return getCurrentStyle(this.el, this.attr);
 		},
 		getUnit : function(attr){
 			if(this.unit) return this.unit;
@@ -53,7 +93,9 @@
 		}
 	});
 
-	var RectAgent = extend(function(){
+	var RectAgent = extend(function(el, opts, attr){
+		this.__overflow = getStyle(el, "overflow");
+		setStyle(el, "overflow", "hidden");
 		RectAgent.$super.apply(this, arguments);
 	},AnimAgent);
 
@@ -65,7 +107,10 @@
 			if(value)
 				return value.toString().replace(/^[+-]?[\d\.]+/g,'');
 			return 'px';
-		}	
+		},
+		finished : function(){
+			if(this.__overflow) setStyle(this.el, "overflow", this.__overflow);
+		}
 	}, true);
 
 	var ScrollAgent = extend(
@@ -169,7 +214,7 @@
 		 * @return {string} 颜色值
 		 */
 		getValue : function() {
-			var color = getStyle(this.el, this.attr);
+			var color = getCurrentStyle(this.el, this.attr);
 			return this.parseColor(color);
 		},
 
@@ -202,9 +247,9 @@
 	 * 相关的数据处理器，返回处理器
 	 */
 	var _agentPattern = { 
-		"color" : ColorAgent, 
-		"scroll" : ScrollAgent,
-		"width|height|top$|bottom$|left$|right$" : RectAgent,
+		"color$" : ColorAgent, 
+		"^scroll" : ScrollAgent,
+		"width$|height$|top$|bottom$|left$|right$" : RectAgent,
 		"easing" : null,  //这些属性没有agent
 		".*" : AnimAgent
 	};
@@ -219,27 +264,6 @@
 		return null;
 	};
 	
-	function _makeAgent(el, opts, easing){
-		return function(evt){
-			for(var attr in opts){
-				var agent = opts[attr].agent;
-				if(!agent){
-					var Agent = _patternFilter(_agentPattern, attr);
-					opts[attr].agent = agent = new Agent(el, opts, attr);
-				}
-				agent.easing = agent.easing || easing;
-			}
-		}		
-	}
-
-	function _makeAction(el, opts, easing /* 默认的easing，如果每个属性里面没有设置的话生效 */){
-		return function(per){
-			for(var attr in opts){
-				opts[attr].agent.action(per);
-			}
-		}
-	}
-	
 	var ElAnim = extend(
 		function(el, opts, dur, easing){
 			el = g(el);
@@ -249,17 +273,51 @@
 
 			easing = easing || function(p, d) {return d * p};		
 
-			var action = _makeAction(el, opts, easing);
-
-			this.elem = el;
 			this.options = opts;
+			var agents = [];
+
+			var action = function(per){
+				for(var i = 0; i < agents.length; i++){
+					agents[i].action(per);		
+				}
+			}
+			
+			this.agents = agents;
 
 			ElAnim.$super.call(this, action, dur);
 			
 			//放在开始动画的时候才初始化Agent是因为动画可能是异步的（比如等待上一个动画结束）
 			//如果立即初始化Agent，那么之后播放的时候，元素里面的属性变化了就捕获不到
-			this.on("beforestart", _makeAgent(el, opts, easing));	
+			this.on("beforestart",function(evt){
+				for(var attr in opts){
+					var Agent = _patternFilter(_agentPattern, attr);
+					agent = new Agent(el, opts[attr], attr, evt.target);
+					agent.easing = agent.easing || easing;
+					agents.push(agent);
+				}
+			}); 
+
+			this.on("end", function(evt){
+				for(var i = 0; i < agents.length; i++){
+					var agent = agents[i];
+					if(agent && agent.finished){
+						agent.finished();
+					}
+				}			
+			});
 		},Anim);
+	
+	ElAnim.cache = function(el, attr, value){
+		el["__QW_ANIMAGENT"] = el["__QW_ANIMAGENT"] || {};
+		if(value){
+			el["__QW_ANIMAGENT"][attr] = value;
+		}
+		return el["__QW_ANIMAGENT"][attr];
+	}
+
+	ElAnim.clearCache = function(el){
+		el["__QW_ANIMAGENT"] = null;
+	}
 
 	QW.provide("ElAnim", ElAnim);
 })();

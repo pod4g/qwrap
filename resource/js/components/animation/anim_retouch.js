@@ -11,24 +11,18 @@
 		return {
 			fadeIn : function(el, dur, complete, easing) {
 				var params = {
-					"opacity" : {
-						from  : 0,
-						to    : 1
-					}				
+					"opacity" : "show"
 				};
 				var options = {
 					duration : dur,
 					complete : complete,
 					easing	 : easing
 				};
-				AnimElH.animate(el, params, options).on("beforestart", function(){W(el).css('opacity',0).show()});
+				AnimElH.animate(el, params, options);
 			},
 			fadeOut : function(el, dur, complete, easing) {
 				var params = {
-					"opacity" : {
-						from  : 1,
-						to    : 0
-					}				
+					"opacity" : "hide"
 				};
 				var options = {
 					duration : dur,
@@ -36,23 +30,15 @@
 					easing	 : easing
 				};
 
-				AnimElH.animate(el, params, options).on('end', function(){W(el).css('opacity',1).hide()});
+				AnimElH.animate(el, params, options);
 			},
 			/* 淡入/淡出切换 */
 			/*fadeToggle: function(el, dur, complete) {
 				AnimElH[el.offsetHeight ? 'fadeOut' : 'fadeIn'](el, dur, complete);
 			},*/
 			slideUp : function(el, dur, complete, easing) {
-				var elW = W(el);
-				var height = elW.get('offsetHeight'),
-					css_height = elW.getStyle('height');
-				elW.attr('data--height', height);
-
 				var params = {
-					"height" : {
-						from : height,
-						to  : 0
-					}
+					"height" : "hide"
 				};
 
 				var options = {
@@ -62,26 +48,11 @@
 				};
 
 				var anim = AnimElH.animate(el, params, options);
-				anim.on("beforestart", function(){
-					elW.css('overflow', 'hidden');				
-				});
-				anim.on("end", function(){
-					elW.hide();
-					if( !css_height ) { elW.removeStyle('height'); }
-					elW.setStyle('overflow', '');
-				});
 			},
 			slideDown : function(el, dur, complete, easing) {
-				var elW = W(el);
-				elW.show();
-				var height = elW.get('offsetHeight') || elW.attr('data--height'),
-					css_height = elW.getStyle('height');		
-
+				
 				var params = {
-					"height" : {
-						from : 0,
-						to : height
-					}
+					"height" : "show"
 				};
 
 				var options = {
@@ -91,14 +62,6 @@
 				};
 
 				var anim = AnimElH.animate(el, params, options);
-				anim.on("beforestart", function(){
-					elW.show();
-					elW.setStyle('overflow', 'hidden');
-				});
-				anim.on("end", function(){
-					elW.setStyle('overflow', '');
-					if( !css_height ) { elW.removeStyle('height'); }
-				});
 			},
 			/*slideToggle: function(el, dur, complete) {
 				AnimElH[el.offsetHeight ? 'slideUp' : 'slideDown'](el, dur, complete);

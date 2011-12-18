@@ -24,6 +24,9 @@
 		if (!core) {//用法：var w=NodeW(null);	返回null
 			return null;
 		}
+		if(core instanceof NodeW){	//core是W的话要直接返回，不然的话W(W(el))会变成只有一个元素
+			return core;
+		}
 		var arg1 = arguments[1];
 		if (isString(core)) {
 			if (/^</.test(core)) { //用法：var w=NodeW(html); 
@@ -140,6 +143,7 @@
 		 */
 		filter: function(callback, pThis) {
 			if (typeof callback == 'string') {
+				//el, match, pos
 				callback = QW.Selector.selector2Filter(callback);
 			}
 			return NodeW(ArrayH.filter(this, callback, pThis));

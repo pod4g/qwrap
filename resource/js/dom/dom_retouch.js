@@ -25,12 +25,25 @@
 		jss: ['', 'getJss', 'setJss']
 	});
 
-	NodeW.pluginHelper(AsyncH, 'operator');
-
 	var ah = QW.ObjectH.dump(QW.ArrayH, NodeC.arrayMethods);
 	ah = methodize(ah);
 	ah = rwrap(ah, NodeW, NodeC.wrapMethods);
 	mix(NodeW.prototype, ah); //ArrayH的某些方法
+	
+	//异步方法
+	NodeW.pluginHelper(AsyncH, 'operator');
+	NodeW.pluginHelper({
+		setTimeout : function(el, delay, fn){
+			setTimeout(function(){
+				fn.call(el);
+			}, delay);
+		},
+		setInterval: function(el, interval, fn){
+			var id = setInterval(function(){
+				fn.call(el, id);
+			}, interval);
+		}
+	});
 
 	/**
 	 * @class Dom 将QW.DomU与QW.NodeH合并到QW.Dom里，以跟旧的代码保持一致

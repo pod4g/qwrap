@@ -271,29 +271,248 @@ jQuery.support = (function() {
 	return support;
 })();
 
+jQueryNodeH = {
+	insert : function(el, sWhere, newEl){
+		var newEl = $(newEl).core;
+		if(jQuery.isArray(newEl)){
+			for(var i = 0, len = newEl.length; i<len; i++){
+				jQueryNodeH.insert(el, sWhere, newEl[i]);
+			}
+		}
+		else{
+			QW.NodeH.insert(el, sWhere, newEl);
+		}
+	},
+	append : function(el, newEl){
+		return jQueryNodeH.insert(el, "beforeend", newEl);
+	},
+	prepend : function(el, newEl){
+		return jQueryNodeH.insert(el, "afterbegin", newEl);
+	}, 
+	before : function(el, newEl){
+		return jQueryNodeH.insert(el, "beforebegin", newEl);
+	},
+	after : function(el, newEl){
+		return jQueryNodeH.insert(el, "afterend", newEl);
+	},
+	/*
+		JQ的DOM操作和QWrap的有个很大的区别就是JQ有copy元素的规则
+		例如： $(el).appendTo(els);
+		如果els是多个元素而el只有一个，JQ真的会把el给copy成多个
+		append、prepend那些也会
+		总之JQ有潜规则，这些潜规则做了很多事情，能带来方便，不过也可能产生麻烦
+	 */
+	appendTo : function(el, newEl){
+		var newElW = $(newEl);
+		if(newElW.length > 1){
+			for(var i = 0; i < newElW.length; i++){
+				$(newElW[i]).append(el.cloneNode(true));
+			}
+			return true;
+		}
+		return newElW.append(el);
+	},
+	prependTo : function(el, newEl){
+		var newElW = $(newEl);
+		if(newElW.length > 1){
+			for(var i = 0; i < newElW.length; i++){
+				$(newElW[i]).prepend(el.cloneNode(true));
+			}
+			return true;
+		}
+		return newElW.prepend(el);
+	},
+	insertBefore : function(el, newEl){
+		var newElW = $(newEl);
+		if(newElW.length > 1){
+			for(var i = 0; i < newElW.length; i++){
+				$(newElW[i]).before(el.cloneNode(true));
+			}
+			return true;
+		}
+		return newElW.before(el);
+	},
+	insertAfter : function(el, newEl){
+		var newElW = $(newEl);
+		if(newElW.length > 1){
+			for(var i = 0; i < newElW.length; i++){
+				$(newElW[i]).after(el.cloneNode(true));
+			}
+			return true;
+		}
+		return newElW.after(el);
+	},
+	offset : function(el){
+		var xy = QW.NodeH.getXY(el);
+		return {left:xy[0], top:xy[1]};
+	},
+	next : function(el, selector){	//下一个elem邻居
+		do{
+			el = QW.NodeH.nextSibling(el, selector);
+		}while(el && !jQuery.isElement(el));
+		
+		return el;
+	},
+	prev : function(el, selector){	//下一个elem邻居
+		do{
+			el = QW.NodeH.previousSibling(el, selector);
+		}while(el && !jQuery.isElement(el));
+		
+		return el;
+	},
+	//一级parentNode
+	parent: QW.NodeH.parentNode,
+	/**
+	 * closest查找最近的祖先节点
+	 * 由于QWrap的parentNode是只支持简版的selector
+	 * 因此对于一些复合+组合的情况，QWrap的parentNode无法处理，只好按下面的方法来进行
+	 */
+	closest: function(el, selector){ 
+		//这样查找效率可能不高，但是这是最方便的实现
+		if(/[, >+~]/.test(QW.StringH.trim(selector))){
+			var ret = [];
+			//先找出所有符合条件的节点
+			var nodes = $(selector).core;
+			//再找出节点的全部祖先（按照从远到近排序）
+			var parents = $(el).parents().core;
+			
+			for(var i = 0, len = parents.length; i < len; i++){
+				if(QW.ArrayH.contains(nodes, parents[i]))
+					return parents[i];		//找到了，返回
+			}
+			return [];
+		}else{
+			//如果是简单查询，直接用QWrap原生的
+			return QW.NodeH.parentNode(el, selector) || [];
+		}
+		return []; //找不到
+	},
+	/**
+	 * 找到当前el到某一级selector的全部祖先们
+	 * 不支持复杂的selector
+	 */
+	parents:function(el, selector) {
+		//如果没有selector，默认到body
+		var fcheck = QW.Selector.selector2Filter(selector || 'body');
+		el = QW.Dom.g(el);
+		var els = [], hit = false;
+		//否则查找parents直到发现匹配元素
+		do {
+			els.push(el.parentNode);
+			el = el.parentNode;
+		} while (el && !(hit = fcheck(el)));
+		if(hit){
+			return els;
+		}
+		else{ 
+			return []; //如果都不匹配，返回空
+		}
+	},
+	find : function(el, selector){
+		selector = selector || "";
+		return QW.NodeH.query(el, selector);  	
+	},
+	children : function(el, selector){
+		selector = selector || "*";		//children()与find()差别是children()只返回元素节点
+		return QW.NodeH.query(el, ">"+selector);  
+	},
+	index : function(el, selector){
+		if(!selector){
+			var elems = $(el).parent().children();
+		}else{
+			var elems = $(selector);
+		}
+		return jQuery.inArray(el, elems);
+	},
+	//JQ的addClass和removeClass支持空格分隔的classes
+	addClass : function(el, className){
+		var classes = className.split(/\s+/g);
+		jQuery.each(classes, function(i, o){
+			QW.NodeH.addClass(el, o);
+		});
+	},
+	removeClass: function(el, className){
+		var classes = className.split(/\s+/g);
+		jQuery.each(classes, function(i, o){
+			QW.NodeH.removeClass(el, o);
+		});	
+	},
+	//JQ有innerText的gsetter
+	text : function(el, text){
+		if(text != null){
+			QW.NodeH.setHtml(el, '');
+			QW.NodeH.appendChild(el, document.createTextNode(text));
+		}else{
+			var ret = '';
+			if ( el.nodeType === 3 || el.nodeType === 4 ) {
+				ret += el.nodeValue;
+			}else if ( el.nodeType !== 8 ) {
+				for(var i = 0; i < el.childNodes.length; i++){
+					ret += jQueryNodeH.text( el.childNodes[i] );
+				}
+			}
+			return ret;
+		}
+	},
+	remove: function(el){
+		var cacheIndex = jQuery.expando + "_xdata";
+		el[cacheIndex] = null;
+		el.__custListeners && (el.__custListeners.length = 0);
+		QW.ElAnim.clearCache(el);
+		p = $(el).parentNode().removeChild(el);
+	}
+};
+
+var jQueryNodeC = {
+	insert		:   "operator",
+	append		:   "operator",
+	prepend		:	"operator",
+	before		:	"operator",	
+	after		:	"operator",
+	
+	appendTo		:   "operator",
+	prependTo		:	"operator",
+	insertBefore	:	"operator",
+	insertAfter		:	"operator",
+	addClass		:	"operator",
+	removeClass		:	"operator",
+
+	find		:	"queryer",
+	children	:	"queryer",
+	next		:	"queryer",
+	prev		:	"queryer",
+	parent		:	"queryer",
+	closest		:	"queryer",
+	parents		:	"queryer",
+
+	offset		:	"getter_first_all",
+	index		:	"getter_first",
+	text		:	"getter"
+};
+
+jQuery.pluginHelper(jQueryNodeH, jQueryNodeC);
+
+//要实现坑爹的end()方法。。。
+var AllNodeC = jQuery.extend({}, jQueryNodeC, QW.NodeC.wrapMethods); //取出所有NodeC
+var QueryNodeC = QW.ObjectH.filter(AllNodeC, function(o, key){ //取出所有queryer的NodeC
+	return o == "queryer";
+});
+//注意：each不是queryer
+var fns = jQuery.hook(jQuery.dump(jQuery.fn,jQuery.keys(QueryNodeC).concat(["map","not", "first", "last", "item", "filter"])), "after", function(returnValue){
+	returnValue.prevObject = this;	//让所有queryer方法返回的Wrap保存当前Wrap，这样就实现了一个堆栈
+	return returnValue;
+});
+jQuery.fn.extend(fns);
+
 /**
  * 添加一些和QWrap不一样的Node节点方法
  */
 jQuery.fn.extend({
-	find : jQuery.fn.query,
-	append : function(child){
-		var childs = $(child).core;
-		if(!(childs instanceof Array)) 
-			childs = [childs];
-		for(var i = 0, len = childs.length; i<len; i++){
-		 	$(this).appendChild(childs[i]);
-		}
-		return this;
-	},
-	before : function(el){
-		return $(this).insert('beforebegin', QW.Dom.g(el));
-	},
-	after : function(el){
-		return $(this).insert('afterend', QW.Dom.g(el));
-	},
-	offset : function(){
-		var xy = this.getXY();
-		return {left:xy[0], top:xy[1]};
+	//JQ的end很好很强大，但是QWrap的机制很难实现之，而且虽然这个特性很强大，但也不是必须的
+	//从上面的做法可以得到让QWrap也支持end的retouch办法
+	//但为这个浪费代码是否值得呢？
+	end: function() {
+		return this.prevObject || this.constructor(null);
 	},
 	attr: (function(attr){
 		return function(key, value){
@@ -327,7 +546,12 @@ jQuery.fn.extend({
 		}
 	})(jQuery.fn.css),
 	is : function(selector){
-		return QW.Selector.filter(QW.Dom.g(this),selector).length > 0;
+		return QW.Selector.filter($.g(this),selector).length > 0;
+	},
+	add: function(selector){
+		var toAdd = $(selector);
+		this.core = QW.ArrayH.union(this.core, toAdd.core);
+		return this;
 	}
 });
 
@@ -374,9 +598,16 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 
 		// Get or set width or height on the element
 		} else if ( size === undefined ) {
-			var orig = jQuery.css( elem, type ),
-				ret = parseFloat( orig );
-
+			//JQ的智能判断visibility和overflow以及display让开发者都养成坏习惯了 =.=
+			if(!this.isVisible()){
+				this.show();	//如果display:none的话，先show再hide
+				var orig = jQuery.css( elem, type ),
+					ret = parseFloat( orig );
+				this.hide();
+			}else{
+				var orig = jQuery.css( elem, type ),
+					ret = parseFloat( orig );
+			}
 			return isNaN( ret ) ? orig : ret;
 
 		// Set the width or height on the element (default to pixels if value is unitless)

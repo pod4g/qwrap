@@ -1,5 +1,20 @@
 /**
  * 使用非阻塞消息机制，实现异步响应队列
+ * 这个模块通常有两种用法——
+ * wait(owner, handler); 如果当前队列为空，将立即处理handler,否则等待信号
+ * wait(owner, type, handler); 立即进入等待状态，等待type信号
+ * 通常用法（假设retouch过后）：
+	W(el).fadeOut(500)
+		.wait(function(){W(this).html('changed'); W(this).signal();}) //fadeOut之后才改变el中的文字
+		.fadeIn(500);
+	
+	W(el).slideDown().wait().slideUp();
+	W(el2).on("click", function(){W(el).signal()});	//用el2的click控制el的动画阶段暂停
+
+	Ajax.options({sequence:true}).get(url, function(data){do sth...}).get(url, function(... //序列的Ajax请求（默认wait）
+
+	W(el).wait("foobar",function(){dosth}).setTimeout(500, function(){W(el).signal("foobar")}); //延迟500ms后执行任务
+ * 
  */
 (function(){
 

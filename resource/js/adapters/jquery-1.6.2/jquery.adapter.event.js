@@ -11,6 +11,24 @@
 
 (function(){
 
+//标准化DOM Event对象
+jQuery.Event = function(evt, props){
+	//evt = QW.EventH.standardize(evt);
+	
+	evt = new CustEvent(null, evt, props);
+
+	// Events bubbling up the document may have been marked as prevented
+	// by a handler lower down the tree; reflect the correct value.
+	evt.isDefaultPrevented = (evt.defaultPrevented || evt.returnValue === false ||
+		evt.getPreventDefault && evt.getPreventDefault()) ? function(){return true} : function(){return false};
+
+	if(props){
+		jQuery.extend(evt, props);
+	}
+
+	return evt;
+}
+
 /**
  * event相关的适配，在JQ中标准的Dom Event也可以传自定义的属性过去
  * 在QWrap看来这么做很麻烦实现起来很绕，而且大多数情况下用不着，因此QWrap对标准的Dom Event不支持自定义属性
@@ -18,28 +36,42 @@
  * 
  * 适配器支持bind和trigger的DOM自定义事件参数，用到jQueryH.data
  */
+var jQEVT_NAMESPACE = ".__JQEVT_NAMESPACE";
 jQueryEventH = {
 	bind: function(el, type, data, handler){
-		if(jQuery.isFunction(data)){
+		if(jQuery.isFunction(data)){ //handler和data顺序可以调换
 			var tmp = handler;
 			handler = data;
 			data = tmp;
 		}
+
+		namespace = type + jQEVT_NAMESPACE;
+		type = namespace.split('.')[0]; //JQ有事件命名空间的设计
+		
+		if(handler && namespace){
+			el[namespace] = el[namespace] || [];
+			el[namespace].push(handler);
+		}
+		
 		if(handler && data){
-			handler.__realHandler = function(evt){
-				var fireEventArgs = jQueryH.data(el, '__custEventData');
-				jQueryH.data(el, '__custEventData', null); //用过以后及时清除
-				if(data){
-					QW.ObjectH.mix(evt, data);
+			handler.__realHandler = (function(handler){
+				return function(evt){
+					var fireEventArgs = jQuery.data(el, '__custEventData');
+					jQuery.data(el, '__custEventData', null); //用过以后及时清除
+					if(data){
+						QW.ObjectH.mix(evt, data);
+					}
+					if(fireEventArgs){
+						QW.ObjectH.mix(evt, fireEventArgs);
+					}
+					return handler.call(el, evt);
 				}
-				if(fireEventArgs){
-					QW.ObjectH.mix(evt, fireEventArgs);
-				}
-				return handler.call(el, evt);
-			}
+			})(handler);
 			handler = handler.__realHandler;
 		}
-		if((QW.Dom.isElement(el) || el.nodeType == 9 /*is document*/) && el['on' + type] !== undefined 
+
+		if((QW.Dom.isElement(el) || el.nodeType == 9 /*is document*/) 
+			&& (el['on' + type] !== undefined )
 			&& (!el.__custListeners || !el.__custListeners[type])){ //事件存在并且不是自定义的
 			//是dom原生事件，不支持data
 			return QW.EventTargetH.on(el, type, handler);			
@@ -53,11 +85,17 @@ jQueryEventH = {
 	 * JQ有实现这种只执行一次的事件
 	 */
 	one: function(el, type, data, handler){
+		if(jQuery.isFunction(data)){ //handler和data顺序可以调换
+			var tmp = handler;
+			handler = data;
+			data = tmp;
+		}
+
 		var realHandler = function(evt){
 			handler.call(el, evt);
-			jQuery.EventH.unbind(realHandler);
+			jQueryEventH.unbind(el, type, realHandler);
 		}
-		return jQueryEventH.bind(el, type, data, realHandler);
+		jQueryEventH.bind(el, type, data, realHandler);
 	},
 	//事件代理
 	delegate: function(el, selector, types, data, handler) {
@@ -68,17 +106,19 @@ jQueryEventH = {
 			data = tmp;
 		}
 		if(handler && data){
-			handler.__realHandler = function(evt){
-				var fireEventArgs = jQueryH.data(el, '__custEventData');
-				jQueryH.data(el, '__custEventData', null); //用过以后及时清除
-				if(data){
-					QW.ObjectH.mix(evt, data);
+			handler.__realHandler = (function(handler){
+				return function(evt){
+					var fireEventArgs = jQuery.data(el, '__custEventData');
+					jQuery.data(el, '__custEventData', null); //用过以后及时清除
+					if(data){
+						QW.ObjectH.mix(evt, data);
+					}
+					if(fireEventArgs){
+						QW.ObjectH.mix(evt, fireEventArgs);
+					}
+					return handler.call(el, evt);
 				}
-				if(fireEventArgs){
-					QW.ObjectH.mix(evt, fireEventArgs);
-				}
-				return handler.call(el, evt);
-			}
+			})(handler);
 			handler = handler.__realHandler;
 		}
 
@@ -99,6 +139,12 @@ jQueryEventH = {
 		return el;
 	},
 	unbind: function(el, type, handler){
+		var elNamespace = el[type + jQEVT_NAMESPACE];
+		if(!handler && elNamespace){	//unbind整个名字空间
+			for(var i = 0; i < elNamespace.length; i++){
+				jQueryEventH.unbind(el, type, elNamespace[i]);
+			}
+		}
 		if(handler && handler.__realHandler){
 			handler = handler.__realHandler;
 		}
@@ -111,15 +157,25 @@ jQueryEventH = {
 		}
 	},
 	trigger: function(el, type, data){
-		if(el.__custListeners && el.__custListeners[type]){
-			//如果是自定义的
-			return QW.CustEventTargetH.fire(el, type, data);
+		if((QW.Dom.isElement(el) || el.nodeType == 9 /*is document*/)
+			&& (el['on' + type] !== undefined )
+			&& (!el.__custListeners || !el.__custListeners[type])){ //事件存在并且不是自定义的
+			if(data){
+				jQuery.data(el, '__custEventData', data);
+			}
+
+			return QW.EventTargetH.fire(el, type);
 		}
 		else{
-			if(data){
-				jQueryH.data(el, '__custEventData', data);
+			//如果是自定义的
+			if(type){
+				if('target' in type && type['target'] == null){
+					type['target'] = el;
+				}
+				type = type.type || type;
+				QW.CustEvent.createEvents(el, type);
 			}
-			return QW.EventTargetH.fire(el, type);
+			return QW.CustEventTargetH.fire(el, type, data);
 		}
 	}
 };
@@ -137,12 +193,23 @@ QW.ArrayH.forEach(("blur focus focusin focusout load resize scroll unload click 
 			//focusin、focusout等价于focus和blur
 			//也不知道对不对，先试试看，看看有没有坑
 			//JQ蛋疼
+			var data = {};
+
 			if(o == "focusin") o = "focus";
 			if(o == "focusout") o = "blur";
-			
+
+			if(o == "mouseenter"){
+				data.withinElement = this;
+				o = "mouseover";
+			}
+			if(o == "mouseleave"){
+				data.withinElement = this;
+				o = "mouseout";
+			}
+
 			//这个更无语，把on和fire混为一谈。。。
 			if(handler){
-				this.bind(o, handler);
+				this.bind(o, data, handler);
 			}
 			else{ 
 				this.trigger(o);

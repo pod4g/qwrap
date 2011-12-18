@@ -92,15 +92,24 @@ jQuery.extend(aeh, {
 			}
 		}
 		options.easing = options.easing || jQuery.easing.swing;
-		for(var attr in params){
-			if(!jQuery.isPlainObject(params[attr])){ //支持缩写，如: {opacity:0}
-				var parts = params[attr].toString().split(' ');
-				if(parts[1] != null)
-					params[attr] = {from: parts[0], to: parts[1]}; 
-				else params[attr] = {to: parts[0]};
-			}
+		if(jQuery.isString(options.easing)){
+			options.easing = jQuery.easing[options.easing];
 		}
 
+		for(var attr in params){
+			var param = params[attr];
+			//支持缩写，如: {opacity:0}
+			//QW的动画也支持缩写，不过QW动画的缩写是数组不是空格分割的字符串
+			if(!jQuery.isPlainObject(param)){ 
+				var parts = param.toString().split(' ');
+				if(parts[1] != null)
+					param = {from: parts[0], to: parts[1]}; 
+				else param = {to: parts[0]};
+			}
+			params[attr] = param;
+		}
+
+		var fxs = {}; //存放当前动画所有的fx实例，一个属性动画hold一个实例 
 		function makeStep(handler){
 			return function(evt){ 
 				/*
@@ -119,37 +128,35 @@ jQuery.extend(aeh, {
 				evt.preventDefault();
 				
 				var target = evt.target,
-					options = target.options,
-					elem = target.elem;
-				
-				for(var each in options){
-					var option = options[each],
-						agent = option.agent;
+					agents = target.agents;
+
+				for(var i = 0; i < agents.length; i++){
+					var agent = agents[i];
+					var attr = agent.attr;
 						//JQ和QWrap的easing算法不一样
 						//QWrap的很简单，只有 from + easing(per, diff)
 						//当然JQ的复杂，不过灵活一些
-						var from = agent.from;
-						if(jQuery.isArray(from)){
-							var cur = jQuery.each(from, function(i, arr){
-								return agent.easing(target.per, target.per * target.dur, agent.from[i], agent.by[i], target.dur); //当前绝对的值
-							});
-						}else{
-							var cur = agent.easing(target.per, target.per * target.dur, agent.from, agent.by, target.dur); //当前绝对的值
-						}
+						//var from = agent.from;
+						var cur = agent.easing(target.per, target.per * target.dur, agent.from, agent.by, target.dur); //当前绝对的值
 						var pos = agent.easing(target.per, target.per * target.dur, 0, 1, target.dur);
-
-					var fx = {
-						elem	:	elem,				//动画元素
-						prop	:	agent.attr,			//动画改变的属性
-						pos		:	pos,				//动画进行的阶段 0-1
-						start	:	agent.from,			//动画开始的属性
-						end		:	agent.to,			//动画结束的属性
-						now		:	cur,				//动画当前的属性值
-						state	:	target.per,			//动画当前的桢时（好混乱，又是pos又是state）
-						unit	:   agent.unit,			//动画属性的单位
-						options	:	options[each],		//这个里面的不做适配了
-						agent	:	agent				//QWrap适配多出来这个属性，留着玩。。。
+					
+					fx = fxs[attr] = fxs[attr] || {
+						elem	:	agent.el,		//动画元素
+						prop	:	agent.attr,		//动画改变的属性
+						start	:	agent.from,		//动画开始的属性
+						end		:	agent.to,		//动画结束的属性
+						unit	:	agent.unit,		//动画属性的单位
+						options	:	agent			//这个里面的不做适配了
 					};
+
+					//这里为什么这样写（分成初始化fx和jQuery.extend添加其他属性到fx）是因为避免每次step生成一个新的fx实例
+					//因为动画过程中可以改写fx的某些属性
+					//事实上jQuery ui在处理颜色动画的时候就是那样做的
+					jQuery.extend(fx,{
+						pos		:	pos,				//动画进行的阶段 0-1
+						now		:	cur,				//动画当前的属性值
+						state	:	target.per,			//动画当前的桢时（好混乱，又是pos又是state）。
+					});
 
 					handler.call(this, cur, fx);
 					defaultStep = jQuery.fx.step[agent.attr] || jQuery.fx.step._default;
@@ -170,7 +177,7 @@ jQuery.extend(aeh, {
 });
 QW.AnimElH.animate = aeh.animate;
 
-jQuery.pluginHelper(aeh, 'operator', undefined, true);
+jQuery.pluginHelper(aeh, 'operator');
 
 jQuery.fn.extend({
 	/**
@@ -178,9 +185,10 @@ jQuery.fn.extend({
 	 */
 	show: function(speed, complete, easing){
 		if(speed != null){
-			this.fadeIn(speed, complete, easing);
+			return this.fadeIn(speed, complete, easing);
 		}else{
 			QW.NodeH.show(QW.Dom.g(this));
+			return this;
 		}
 	},
 	/**
@@ -188,9 +196,10 @@ jQuery.fn.extend({
 	 */
 	hide: function(speed, complete, easing){
 		if(speed != null){
-			this.fadeOut(speed, complete, easing);
+			return this.fadeOut(speed, complete, easing);
 		}else{
 			QW.NodeH.hide(QW.Dom.g(this));
+			return this;
 		}		
 	},
 	/**

@@ -294,6 +294,24 @@
 			return ret;
 		},
 		/**
+		 * 在对象中的每个属性项上运行一个函数，用该函数的返回值决定是否复制该属性到返回对象。
+		 * @method map
+		 * @static
+		 * @param {Object} obj 被操作的对象
+		 * @param {function} fn 迭代计算每个属性的算子，该算子迭代中有三个参数value-属性值，key-属性名，obj，当前对象
+		 * @param {Object} thisObj (Optional)迭代计算时的this
+		 * @return {Object} 返回包含这个对象中所有属性计算结果的对象
+		 */
+		filter: function(obj, fn, thisObj){
+			var ret = {};
+			for (var key in obj) {
+				if(fn.call(thisObj, obj[key], key, obj)){
+					ret[key] = obj[key];
+				}
+			}
+			return ret;		
+		},
+		/**
 		 * 得到一个对象中所有可以被枚举出的属性的列表
 		 * @method keys
 		 * @static
