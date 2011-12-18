@@ -25,8 +25,8 @@
 		encodeURIForm = QW.NodeH.encodeURIForm,
 		stringify = (typeof JSON!= 'undefined') && JSON.stringify ? JSON.stringify : QW.ObjectH.stringify,
 		CustEvent = QW.CustEvent,
-		HeplerH = QW.HelperH,
-		Async = QW.Async;
+		HelperH = QW.HelperH,
+		AsyncH = QW.AsyncH;
 
 	var _jsonp_id = 0;
 	

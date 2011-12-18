@@ -32,5 +32,5 @@
 		}
 	};
 
-	NodeW.pluginHelper(FormH, 'operator');
+	W.pluginHelper(FormH, 'operator');
 })();
