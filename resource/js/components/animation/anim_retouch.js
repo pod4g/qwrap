@@ -18,7 +18,7 @@
 					complete : complete,
 					easing	 : easing
 				};
-				AnimElH.animate(el, params, options);
+				return AnimElH.animate(el, params, options);
 			},
 			fadeOut : function(el, dur, complete, easing) {
 				var params = {
@@ -30,7 +30,7 @@
 					easing	 : easing
 				};
 
-				AnimElH.animate(el, params, options);
+				return AnimElH.animate(el, params, options);
 			},
 			/* 淡入/淡出切换 */
 			/*fadeToggle: function(el, dur, complete) {
@@ -47,7 +47,7 @@
 					easing	 : easing
 				};
 
-				var anim = AnimElH.animate(el, params, options);
+				return AnimElH.animate(el, params, options);
 			},
 			slideDown : function(el, dur, complete, easing) {
 				
@@ -61,24 +61,33 @@
 					easing	 : easing
 				};
 
-				var anim = AnimElH.animate(el, params, options);
+				return AnimElH.animate(el, params, options);
 			},
 			/*slideToggle: function(el, dur, complete) {
 				AnimElH[el.offsetHeight ? 'slideUp' : 'slideDown'](el, dur, complete);
 			},*/
 			shine4Error : function(el, dur, complete, easing) {			
-				var anim = new Anim(el, {
+				
+				var params = {
 					"backgroundColor" : {
 						from : "#f33",
 						to	 : "#fff"
-					}
-				}, dur, easing);
+					}				
+				};
+				
+				var options = {
+					duration : dur,
+					complete : complete,
+					easing	 : easing				
+				};
+
+				var anim = AnimElH.animate(el, params, options);
 
 				anim.on("end", function(){
 					W(el).setStyle("backgroundColor", "");
 				});
-				if(complete) anim.on("end", complete);
-				anim.start();
+
+				return anim;
 			},
 			/**
 			 * Animate a HTML element or SVG element wrapper

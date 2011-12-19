@@ -40,7 +40,7 @@ var AsyncH = {
 		}
 		fn = fn || function(){};
 
-		seq = AsyncH.getSequence(owner, type);
+		var seq = AsyncH.getSequence(owner, type);
 		args = [].slice.call(arguments, 2);
 		
 		seq.push(fn);	//把需要执行的动作加入队列
@@ -74,10 +74,10 @@ var AsyncH = {
 		return sequences[id][type];
 	},
 	clearSequence: function(owner, type){
-		type = type || "_default";
-		owner[propId] = owner[propId] || [];
-		owner[propId][type] = [];
-		return true;
+		var seq = AsyncH.getSequence(owner, type);
+		var len = seq.length;
+		seq.length = 0;
+		return !!len;
 	}
 }
 

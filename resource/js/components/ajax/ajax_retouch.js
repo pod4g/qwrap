@@ -32,5 +32,5 @@
 		}
 	};
 
-	W.pluginHelper(FormH, 'operator');
+	QW.NodeW.pluginHelper(FormH, 'operator');
 })();
