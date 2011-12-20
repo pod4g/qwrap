@@ -11,12 +11,14 @@
 
 (function(){
 
+var cssShow = { visibility: "hidden", display: "block" };
+
 /**
  * 简化版jQuery.css，省略了个extra参数
- * 话说，JQ的这个静态方法，最后一个参数木有详细说明，看不懂 =.=
+ * 话说，JQ的这个静态方法，最后一个参数木有详细说明，看不懂（貌似大致是加上某些修正值，根据hooks来） =.=
  */
 jQuery.css = function(elem, name){
-	return QW.NodeW.css(elem, name);
+	return $(elem).css(name);
 };
 jQuery.curCSS = jQuery.css;
 
@@ -351,14 +353,14 @@ jQueryNodeH = {
 			el = QW.NodeH.nextSibling(el, selector);
 		}while(el && !jQuery.isElement(el));
 		
-		return el;
+		return el||[];
 	},
 	prev : function(el, selector){	//下一个elem邻居
 		do{
 			el = QW.NodeH.previousSibling(el, selector);
 		}while(el && !jQuery.isElement(el));
 		
-		return el;
+		return el||[];
 	},
 	//一级parentNode
 	parent: QW.NodeH.parentNode,
@@ -459,6 +461,32 @@ jQueryNodeH = {
 		el[cacheIndex] = null;
 		el.__custListeners && (el.__custListeners.length = 0);
 		p = $(el).parentNode().removeChild(el);
+	},
+	//removeAttribute1: QW.NodeH.removeAttr,
+	swap: function( elem, options, callback ) {
+		var old = {};
+
+		// Remember the old values, and insert the new ones
+		for ( var name in options ) {
+			old[ name ] = elem.style[ name ];
+			elem.style[ name ] = options[ name ];
+		}
+
+		var ret = callback.call( elem );
+
+		// Revert the old values
+		for ( name in options ) {
+			elem.style[ name ] = old[ name ];
+		}
+		return ret;
+	},
+	offsetParent: function(el){
+		var offsetParent = el.offsetParent || document.body;
+		while ( offsetParent && (!rroot.test(offsetParent.nodeName) 
+				&& jQuery.css(offsetParent, "position") === "static") ) {
+			offsetParent = offsetParent.offsetParent;
+		}
+		return offsetParent;	
 	}
 };
 
@@ -475,7 +503,10 @@ var jQueryNodeC = {
 	insertAfter		:	"operator",
 	addClass		:	"operator",
 	removeClass		:	"operator",
+	removeAttribute : 	"operator",
 
+	swap 		: 	"getter_first",
+ 
 	find		:	"queryer",
 	children	:	"queryer",
 	next		:	"queryer",
@@ -483,7 +514,9 @@ var jQueryNodeC = {
 	parent		:	"queryer",
 	closest		:	"queryer",
 	parents		:	"queryer",
+	offsetParent: 	"queryer",
 
+	css 		: 	"getter_first",
 	offset		:	"getter_first_all",
 	index		:	"getter_first",
 	text		:	"getter"
@@ -496,12 +529,15 @@ var AllNodeC = jQuery.extend({}, jQueryNodeC, QW.NodeC.wrapMethods); //取出所
 var QueryNodeC = QW.ObjectH.filter(AllNodeC, function(o, key){ //取出所有queryer的NodeC
 	return o == "queryer";
 });
+
 //注意：each不是queryer
 var fns = jQuery.hook(jQuery.dump(jQuery.fn,jQuery.keys(QueryNodeC).concat(["map","not", "first", "last", "item", "filter"])), "after", function(returnValue){
 	returnValue.prevObject = this;	//让所有queryer方法返回的Wrap保存当前Wrap，这样就实现了一个堆栈
 	return returnValue;
 });
 jQuery.fn.extend(fns);
+
+var rroot = /^(?:body|html)$/i;
 
 /**
  * 添加一些和QWrap不一样的Node节点方法
@@ -512,6 +548,16 @@ jQuery.fn.extend({
 	//但为这个浪费代码是否值得呢？
 	end: function() {
 		return this.prevObject || this.constructor(null);
+	},
+	andSelf: function(){
+		var core = this.core || [];
+		if(!jQuery.isArray(core)) core = [core];
+		var prev = this.prevObject && this.prevObject || [];
+		if(!jQuery.isArray(prev)) prev = [prev];
+
+		var elW = $(QW.HashsetH.union(core, prev));
+		elW.prevObject = this;
+		return elW;
 	},
 	attr: (function(attr){
 		return function(key, value){
@@ -538,6 +584,11 @@ jQuery.fn.extend({
 				return this;
 			}else{
 				if(value == null){
+					if(key == "width" || key == "height"){
+						return this.swap(cssShow, function(){
+							return css.call($(this) ,key);
+						});
+					}
 					return css.call(this, key);
 				}
 				return css.call(this, key, value);
@@ -551,6 +602,15 @@ jQuery.fn.extend({
 		var toAdd = $(selector);
 		this.core = QW.ArrayH.union(this.core, toAdd.core);
 		return this;
+	},
+	eq: function(i){
+		return i !== -1 ? $(this[i]) : $(this[this.length - 1]);
+	},
+	first: function(){
+		return this.eq(0);
+	},
+	last: function(){
+		return this.eq(-1);
 	}
 });
 
@@ -560,18 +620,21 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 
 	var type = name.toLowerCase();
 
-	// innerHeight and innerWidth
-	// 不知道对不对，JQ原来的看不懂 =.=
+	// innerHeight and innerWidth  -计算curCss+padding的宽高
+	// 不知道对不对
 	jQuery.fn[ "inner" + name ] = function() {
 		var elem = this[0];
-		return QW.NodeH.getStyle(elem, type);
+		var extra = QW.NodeH.paddingWidth(elem);
+
+		return parseFloat(QW.NodeH.getCurrentStyle(elem, type)) + extra[0+i] + extra[2+i];
 	};
 
-	// outerHeight and outerWidth
+	// outerHeight and outerWidth -计算margin或border的宽高
 	// 也不知道对不对，JQ的很复杂 =.=
 	jQuery.fn[ "outer" + name ] = function( margin ) {
 		var elem = this[0];
-		return QW.NodeH.getSize(elem)[type];
+		var extra = margin ? QW.NodeH.marginWidth(elem) : [0,0,0,0];
+		return QW.NodeH.getSize(elem)[type] + extra[0+i] + extra[2+i];
 	};
 	
 	//用JQ原来的
@@ -599,10 +662,8 @@ jQuery.each([ "Height", "Width" ], function( i, name ) {
 		} else if ( size === undefined ) {
 			//JQ的智能判断visibility和overflow以及display让开发者都养成坏习惯了 =.=
 			if(!this.isVisible()){
-				this.show();	//如果display:none的话，先show再hide
 				var orig = jQuery.css( elem, type ),
 					ret = parseFloat( orig );
-				this.hide();
 			}else{
 				var orig = jQuery.css( elem, type ),
 					ret = parseFloat( orig );

@@ -30,7 +30,7 @@
 			data = data || {};
 
 			eventTarget.createEvents([type]);	//如果有需要，创建对应类型的事件
-			eventTarget.fire(type, mix(data, {sender:target, type:type}, true));
+			eventTarget.fire(type, mix(data, {sender:target}));
 		},
 		receive : function(target, type, callback){
 			var list = receiveMap[type] = receiveMap[type] || []; //创建对应事件的hash表

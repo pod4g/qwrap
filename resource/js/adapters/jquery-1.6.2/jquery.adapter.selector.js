@@ -84,7 +84,7 @@ if ( jQuery.expr && jQuery.expr.filters ) {
 			return !elem.firstChild;
 		},
 
-		has: function( elem, i, match ) {
+		has: function( elem, match, i ) {
 			return !!Sizzle( match[3], elem ).length;
 		},
 

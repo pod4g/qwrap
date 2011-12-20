@@ -7,7 +7,7 @@
 
 	QW.NodeC = {
 		getterType: getter_first,
-		arrayMethods: 'map,forEach,toArray'.split(','),
+		arrayMethods: 'filter,map,forEach'.split(','),
 		//部分Array的方法也会集成到NodeW里
 		wrapMethods: {
 			//queryer “返回值”的包装结果
@@ -89,7 +89,9 @@
 			removeJss: operator,
 
 			//ArrayH系列
-			forEach: operator
+			forEach: operator,
+			map: operator,
+			filter: queryer
 		},
 		gsetterMethods: { //在此json里的方法，会是一个getter与setter的混合体
 			val: ['getValue', 'setValue'],

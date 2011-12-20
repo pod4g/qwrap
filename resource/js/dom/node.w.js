@@ -12,6 +12,7 @@
 		mix = ObjectH.mix,
 		isString = ObjectH.isString,
 		isArray = ObjectH.isArray,
+		toArray = QW.ArrayH.toArray,
 		push = Array.prototype.push,
 		NodeH = QW.NodeH,
 		g = NodeH.g,
@@ -134,19 +135,8 @@
 		item: function(i) {
 			return NodeW(this[i]);
 		},
-		/** 
-		 * 在NodeW的每个项上运行一个函数，并将函数返回真值的项组成数组，包装成NodeW返回。
-		 * @method filter
-		 * @param {Function|String} callback 需要执行的函数，也可以是css selector字符串
-		 * @param {Object} pThis (Optional) 指定callback的this对象.
-		 * @return {NodeW}
-		 */
-		filter: function(callback, pThis) {
-			if (typeof callback == 'string') {
-				//el, match, pos
-				callback = QW.Selector.selector2Filter(callback);
-			}
-			return NodeW(ArrayH.filter(this, callback, pThis));
+		toArray: function(){
+			return toArray(this);
 		}
 	});
 

@@ -16,7 +16,7 @@
 	var escapeChars = QW.StringH.escapeChars;
 	
 	function getConstructorName(o) {
-		return o != null && Object.prototype.toString.call(o).slice(8, -1);
+		return o != null && o.constructor != null && Object.prototype.toString.call(o).slice(8, -1);
 	}
 	var ObjectH = {
 		/**
@@ -400,13 +400,13 @@
 			case 'number':
 			case 'boolean':
 				return obj.toString();
+			case 'date' :
+				return 'new Date(' + obj.getTime() + ')';
+			case 'array' :
+				var ar = [];
+				for (var i = 0; i < obj.length; i++) {ar[i] = ObjectH.stringify(obj[i]); }
+				return '[' + ar.join(',') + ']';
 			case 'object':
-				if (obj instanceof Date) {return 'new Date(' + obj.getTime() + ')'; }
-				if (obj instanceof Array) {
-					var ar = [];
-					for (var i = 0; i < obj.length; i++) {ar[i] = ObjectH.stringify(obj[i]); }
-					return '[' + ar.join(',') + ']';
-				}
 				if (ObjectH.isPlainObject(obj)) {
 					ar = [];
 					for (i in obj) {

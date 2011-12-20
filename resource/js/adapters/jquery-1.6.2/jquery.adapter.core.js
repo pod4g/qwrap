@@ -110,7 +110,8 @@ jQuery.extend(
 				return [obj];
 			}
 		},
-		inArray: QW.ArrayH.indexOf
+		inArray: QW.ArrayH.indexOf,
+		trim : QW.StringH.trim
 	}
 );
 
