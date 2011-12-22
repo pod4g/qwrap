@@ -45,7 +45,7 @@ jQuery.extend = function(des, src){
 	//这种思路其实不大好，js明明是弱类型的，框架里到处是依赖类型检查。。。
 	var deep = false;
 	if(src == null){
-		src = des;
+		src = [].concat(des);
 		des = jQuery;
 	}else if(!!des === des /*is Boolean*/){
 		deep = !!des;
@@ -55,35 +55,32 @@ jQuery.extend = function(des, src){
 		src = [].slice.call(arguments, 1); //支持多个src的情况
 	}
 
-	if(!deep){
-		return QW.ObjectH.mix(des, src, true);
-	}else{
-		for(var i = 0; i < src.length; i++){
-			var _src = src[i];
-			for(var prop in _src){
-				var source = _src[prop], target = des[prop];
-				
-				if(prop in des && target != source && 
-					(jQuery.isArray(target) && jQuery.isArray(source) 
-					|| jQuery.isPlainObject(target) && jQuery.isPlainObject(source))){ 
-					//只有des[prop]存在并且类型和_src[prop]相同，并且des[prop] != _src[prop]
-					//而且_src[prop]和des[prop]都为Array或PlainObject的时候
-					//才deepCopy
-					des[prop] = jQuery.extend(true, target, source); 
-				}else{
-					if(prop in _src){
-						des[prop] = _src[prop];
-					}
+	for(var i = 0; i < src.length; i++){
+		var _src = src[i];
+		for(var prop in _src){
+			var source = _src[prop], target = des[prop];
+			
+			if(deep && (prop in des && target != source && 
+				(QW.ObjectH.isArray(target) && QW.ObjectH.isArray(source) 
+				|| QW.ObjectH.isPlainObject(target) && QW.ObjectH.isPlainObject(source)))){ 
+				//只有des[prop]存在并且类型和_src[prop]相同，并且des[prop] != _src[prop]
+				//而且_src[prop]和des[prop]都为Array或PlainObject的时候
+				//才deepCopy
+				des[prop] = jQuery.extend(true, target, source); 
+			}else{
+				if(prop in _src && _src[prop] !== undefined){ //JQ的extend不会复制undefined的属性
+					des[prop] = _src[prop];
 				}
 			}
 		}
-		return des;
 	}
+	return des;
 };
 jQuery.fn.extend = QW.FunctionH.methodize(jQuery.extend);
 
 //将ObjectH的静态方法给jQuery空间
 jQuery.extend(QW.ObjectH);
+
 //将HelperH的静态方法给jQuery空间
 jQuery.extend(QW.HelperH);
 //将DomU的静态方法（包括NodeH、EventTargetH、JssTargetH）给jQuery空间
@@ -143,7 +140,7 @@ var jQueryArrayH = {
 	map : function(arr, callback){	//jQuery脑残。。参数顺序换来换去
 		return QW.ArrayH.map(arr,
 			function(o, i, arr){
-				return callback.call(o, o, i)[0];	
+				return callback.call(o, o, i);	
 			});
 	},
 	/**
@@ -168,6 +165,15 @@ var jQueryArrayH = {
 			}
 		}
 		return $(QW.HashsetH.minus(arr, filter));
+	},
+	grep: function(arr, filter, invert){
+		var _filter = filter;
+		if(invert){
+			_filter = function(){
+				return !filter.apply(this, arguments);
+			}
+		}
+		return QW.ArrayH.filter(arr, _filter);
 	}
 }
 
@@ -192,7 +198,6 @@ var jQueryH = {
 				for(each in key){
 					this.data(each, key[each]);
 				}
-				return $(el);
 			}
 			else if(arguments.length >= 3){ //act as setter
 				if(_id == null){
@@ -202,7 +207,6 @@ var jQueryH = {
 				var src = {};
 				src[key] = value;
 				jQuery.extend(cache[_id], src);
-				return $(el);
 			}else{ //act as getter
 				return cache[_id] ? cache[_id][key] : null;
 			}
@@ -219,6 +223,7 @@ var jQueryH = {
 };
 
 jQuery.pluginHelper(jQueryH, {
+	data  : "gsetter",
 	queue : "operator",
 	dequeue : "operator"
 });

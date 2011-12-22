@@ -47,11 +47,33 @@ if ( jQuery.expr && jQuery.expr.filters ) {
 			//奇怪的是因为i从0开始，所以even的意思并不是偶数行，而是偶数下标，即奇数行
 			return i%2 === 0;
 		},
+		
 		odd : function(elem, match, i){
 			return i%2 === 1;
 		},
+		
 		eq : function(elem, match, i){
 			return parseInt(match) == i;
+		},
+
+		first: function( elem, match, i) {
+			return i === 0;
+		},
+
+		last: function( elem, match, i, array ) {
+			return i === array.length - 1;
+		},
+
+		lt: function( elem, match, i ) {
+			return i < match - 0;
+		},
+
+		gt: function( elem, match, i ) {
+			return i > match - 0;
+		},
+
+		nth: function( elem, match, i ) {
+			return match - 0 === i;
 		}
 	},{
 		enabled: function( elem ) {
@@ -85,7 +107,8 @@ if ( jQuery.expr && jQuery.expr.filters ) {
 		},
 
 		has: function( elem, match, i ) {
-			return !!Sizzle( match[3], elem ).length;
+			//QW的match和JQ的不同，JQ的是伪类匹配正则结果的数组，而QW的只是match伪类括号里面的内容
+			return !!$( match, elem ).length;
 		},
 
 		header: function( elem ) {

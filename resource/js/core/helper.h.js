@@ -55,17 +55,18 @@
 						wrapType = wrapConfig[i] || '';
 					}
 					if ('queryer' == wrapType) { //如果方法返回查询结果，对返回值进行包装
-						ret[i] = FunctionH.rwrap(fn, wrapper, -1);
-					} else if ('operator' == wrapType || 'methodized' == wrapType) { //如果方法只是执行一个操作
-						if (helper instanceof Methodized || 'methodized' == wrapType) { //如果是methodized后的,对this直接返回
-							ret[i] = (function(fn) {
-								return function() {
-									fn.apply(this, arguments);
-									return this;
-								};
-							}(fn));
+						ret[i] = FunctionH.rwrap(fn, wrapper, "returnValue");
+					} else if ('operator' == wrapType) { //如果方法只是执行一个操作
+						if (helper instanceof Methodized) { //如果是methodized后的,对this直接返回
+							ret[i] = FunctionH.rwrap(fn, wrapper, "this");
 						} else {
 							ret[i] = FunctionH.rwrap(fn, wrapper, 0); //否则对第一个参数进行包装，针对getter系列
+						}
+					} else if('gsetter' == wrapType){
+						if (helper instanceof Methodized){
+							ret[i] = FunctionH.rwrap(fn, wrapper, "this", true);					
+						}else{
+							ret[i] = FunctionH.rwrap(fn, wrapper, 0, true);							
 						}
 					}
 				}else{
@@ -120,6 +121,11 @@
 			var ret = create(helper);
 			mulConfig = mulConfig || {};
 
+		
+			var getFirst = 1,
+				joinLists = 2,
+				getFirstValued = 3;
+
 			for (var i in helper) {
 				var fn = helper[i];
 				if (fn instanceof Function) {
@@ -130,15 +136,17 @@
 
 					if ("getter" == mulType || "getter_first" == mulType || "getter_first_all" == mulType) {
 						//如果是配置成gettter||getter_first||getter_first_all，那么需要用第一个参数
-						ret[i] = FunctionH.mul(fn, 1);
+						ret[i] = FunctionH.mul(fn, getFirst);
 					} else if ("getter_all" == mulType) {
-						ret[i] = FunctionH.mul(fn, 0);
+						ret[i] = FunctionH.mul(fn);
+					} else if ("gsetter" == mulType) {
+						ret[i] = FunctionH.mul(fn, getFirstValued);
 					} else {
-						ret[i] = FunctionH.mul(fn, 2); //operator、queryer的话需要join返回值，把返回值join起来的说
+						ret[i] = FunctionH.mul(fn, joinLists); //operator、queryer的话需要join返回值，把返回值join起来的说
 					}
 					if ("getter" == mulType || "getter_first_all" == mulType) {
 						//如果配置成getter||getter_first_all，那么还会生成一个带All后缀的方法
-						ret[i + "All"] = FunctionH.mul(fn, 0);
+						ret[i + "All"] = FunctionH.mul(fn);
 					}
 				}else{
 					ret[i] = fn;

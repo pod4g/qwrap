@@ -14,8 +14,13 @@
 //标准化DOM Event对象
 jQuery.Event = function(evt, props){
 	//evt = QW.EventH.standardize(evt);
-	
-	evt = new CustEvent(null, evt, props);
+	if(evt && !jQuery.isString(evt)){
+		var _originalEvent = evt;
+		evt = new QW.CustEvent(null, evt.type, props);
+		evt.originalEvent = _originalEvent;
+	}else{
+		evt = new QW.CustEvent(null, evt, props);
+	}
 
 	// Events bubbling up the document may have been marked as prevented
 	// by a handler lower down the tree; reflect the correct value.
@@ -28,6 +33,16 @@ jQuery.Event = function(evt, props){
 
 	return evt;
 }
+
+//因为JQ ui有很多用异步传event参数的应用，而IE的event不支持异步传参，因为它在事件流结束后被销毁了
+//因此要hook一下fireHandler
+var neth = jQuery.hook(jQuery.dump(QW.EventTargetH, ["fireHandler"]), "before", function(args){
+	if(jQuery.browser.msie){
+		args[1] = jQuery.extend({}, args[1]);
+	}
+});
+
+jQuery.extend(QW.EventTargetH, neth);
 
 jQuery.event = {
 	/**
@@ -45,6 +60,13 @@ jQuery.event = {
 	 */
 	special : {
 	},
+	/**
+	 * mix Event用的，因为简单的for in在IE的 event对象上有问题
+	 * IE貌似有一种保护机制，不让读取从参数中传入的event对象属性（可能是因为window.event事件已经过期）
+	 * 说到这个，顺便提一下，Wrap是一种比mix更高效率的机制，因为mix每个对象都要copy一次属性
+	 * 而Wrap只需要Wrap一次方法到prototype上
+	 */
+	props: "altKey attrChange attrName bubbles button cancelable charCode clientX clientY ctrlKey currentTarget data detail eventPhase fromElement handler keyCode layerX layerY metaKey newValue offsetX offsetY pageX pageY prevValue relatedNode relatedTarget screenX screenY shiftKey srcElement target toElement view wheelDelta which".split(" "),
 	handle: function(event){
 		if(event._customType){
 			QW.CustEventTargetH.fire(this, event._customType, event);
@@ -163,7 +185,6 @@ jQueryEventH = {
 	},
 	//事件代理
 	delegate: function(el, selector, types, data, handler) {
-
 		if(jQuery.isFunction(data)){
 			var tmp = handler;
 			handler = data;

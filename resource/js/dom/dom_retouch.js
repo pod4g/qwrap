@@ -38,13 +38,13 @@
 	*/
 	ah = hook(ah, "before", function(args, func){
 		//args[0] - array, args[1] - callback
-		var core = args[0] || [], _callback = args[1];
+		var _callback = args[1];
 		
 		if(func == ArrayH.filter && isString(_callback)){	//让filter支持selector的伪类
 			//function(el, i){return __SltPsds(el, "somevalue", i)} etc.
 			_callback = QW.Selector.selector2Filter(_callback);
 		}
-		args[0] = core;
+
 		args[1] = function(){
 			return _callback.apply(arguments[0], arguments);
 		}
@@ -57,8 +57,8 @@
 	NodeW.pluginHelper(AsyncH, 'operator');
 	NodeW.pluginHelper({
 		setTimeout : function(el, delay, fn){
-			setTimeout(function(){
-				fn.call(el);
+			var id = setTimeout(function(){
+				fn.call(el, id);
 			}, delay);
 		},
 		setInterval: function(el, interval, fn){

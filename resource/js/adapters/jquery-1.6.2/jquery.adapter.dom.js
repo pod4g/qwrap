@@ -344,7 +344,7 @@ jQueryNodeH = {
 		}
 		return newElW.after(el);
 	},
-	offset : function(el){
+	offset : function(el, position){
 		var xy = QW.NodeH.getXY(el);
 		return {left:xy[0], top:xy[1]};
 	},
@@ -355,13 +355,35 @@ jQueryNodeH = {
 		
 		return el||[];
 	},
-	prev : function(el, selector){	//下一个elem邻居
+	prev : function(el, selector){	//上一个elem邻居
 		do{
 			el = QW.NodeH.previousSibling(el, selector);
 		}while(el && !jQuery.isElement(el));
 		
 		return el||[];
 	},
+	nextAll : function(el, selector){	
+		var ret = [];
+		do{
+			el = QW.NodeH.nextSibling(el, selector);
+			if(jQuery.isElement(el)){
+				ret.push(el);
+			}
+		}while(el);
+		
+		return ret;
+	},
+	prevAll : function(el, selector){	
+		var ret = [];
+		do{
+			el = QW.NodeH.previousSibling(el, selector);
+			if(jQuery.isElement(el)){
+				ret.push(el);
+			}
+		}while(el);
+		
+		return ret;
+	},	
 	//一级parentNode
 	parent: QW.NodeH.parentNode,
 	/**
@@ -370,21 +392,25 @@ jQueryNodeH = {
 	 * 因此对于一些复合+组合的情况，QWrap的parentNode无法处理，只好按下面的方法来进行
 	 */
 	closest: function(el, selector){ 
+		var ret;
 		//这样查找效率可能不高，但是这是最方便的实现
 		if(/[, >+~]/.test(QW.StringH.trim(selector))){
-			var ret = [];
-			//先找出所有符合条件的节点
-			var nodes = $(selector).core;
-			//再找出节点的全部祖先（按照从远到近排序）
-			var parents = $(el).parents().core;
+			ret = [];
+
+			//再找出节点自己和它的全部祖先（按照从近到远排序）
+			var parents = $(el).parents().andSelf().core;
 			
 			for(var i = 0, len = parents.length; i < len; i++){
-				if(QW.ArrayH.contains(nodes, parents[i]))
+				if(QW.Selector.filter($(parents[i]), selector).length){
 					return parents[i];		//找到了，返回
+				}
 			}
 			return [];
 		}else{
 			//如果是简单查询，直接用QWrap原生的
+			if(QW.Selector.filter($(el), selector).length){
+				return el;
+			}
 			return QW.NodeH.parentNode(el, selector) || [];
 		}
 		return []; //找不到
@@ -412,11 +438,11 @@ jQueryNodeH = {
 	},
 	find : function(el, selector){
 		selector = selector || "";
-		return QW.NodeH.query(el, selector);  	
+		return QW.NodeH.query(el, selector).toArray();  	
 	},
 	children : function(el, selector){
 		selector = selector || "*";		//children()与find()差别是children()只返回元素节点
-		return QW.NodeH.query(el, ">"+selector);  
+		return QW.NodeH.query(el, ">"+selector).toArray();  
 	},
 	index : function(el, selector){
 		if(!selector){
@@ -511,15 +537,17 @@ var jQueryNodeC = {
 	children	:	"queryer",
 	next		:	"queryer",
 	prev		:	"queryer",
+	nextAll		:	"queryer",
+	prevAll		:	"queryer",
 	parent		:	"queryer",
 	closest		:	"queryer",
 	parents		:	"queryer",
 	offsetParent: 	"queryer",
 
-	css 		: 	"getter_first",
 	offset		:	"getter_first_all",
 	index		:	"getter_first",
-	text		:	"getter"
+
+	text		:	"gsetter"
 };
 
 jQuery.pluginHelper(jQueryNodeH, jQueryNodeC);
@@ -550,12 +578,12 @@ jQuery.fn.extend({
 		return this.prevObject || this.constructor(null);
 	},
 	andSelf: function(){
-		var core = this.core || [];
+		var core = [].concat(this.core || []);
 		if(!jQuery.isArray(core)) core = [core];
-		var prev = this.prevObject && this.prevObject || [];
-		if(!jQuery.isArray(prev)) prev = [prev];
+		var prev = this.prevObject && [].concat(this.prevObject.core) || [];
+		//if(!jQuery.isArray(prev)) prev = [prev];
 
-		var elW = $(QW.HashsetH.union(core, prev));
+		var elW = $(QW.HashsetH.union(prev, core));
 		elW.prevObject = this;
 		return elW;
 	},
@@ -579,10 +607,13 @@ jQuery.fn.extend({
 		return function(key, value){
 			if(!(jQuery.isString(key))){	//批量操作
 				for(var each in key){
-					css.call(this, each, key[each]);
+					arguments.callee.call(this, each, key[each]);
 				}
 				return this;
 			}else{
+				if(jQuery.isNumber(value) && !jQuery.cssNumber[key]){
+					value += "px";		//JQ自动给css加上默认的px单位，感觉这个也做得太过了。。
+				}
 				if(value == null){
 					if(key == "width" || key == "height"){
 						return this.swap(cssShow, function(){
@@ -596,7 +627,7 @@ jQuery.fn.extend({
 		}
 	})(jQuery.fn.css),
 	is : function(selector){
-		return QW.Selector.filter($.g(this),selector).length > 0;
+		return QW.Selector.filter([].concat($(this).core),selector).length > 0;
 	},
 	add: function(selector){
 		var toAdd = $(selector);
@@ -611,6 +642,20 @@ jQuery.fn.extend({
 	},
 	last: function(){
 		return this.eq(-1);
+	}
+});
+
+jQuery.extend({
+	// Exclude the following css properties to add px
+	cssNumber: {
+		"fillOpacity": true,
+		"fontWeight": true,
+		"lineHeight": true,
+		"opacity": true,
+		"orphans": true,
+		"widows": true,
+		"zIndex": true,
+		"zoom": true
 	}
 });
 
