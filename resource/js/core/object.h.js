@@ -249,7 +249,8 @@
 				return des;
 			}
 			for (i in src) {
-				if (override || !(i in des)) {
+				//这里要加一个des[i]，是因为要照顾一些不可枚举的属性
+				if (override || !(des[i] || (i in des))) { 
 					des[i] = src[i];
 				}
 			}
