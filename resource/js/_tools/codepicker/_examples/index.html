@@ -1,8 +1,80 @@
-//document.write('<script type="text/javascript" src="' + srcPath + 'core/core_base.js"><\/script>');
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<title>QWrap Code Picker</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
+	<script type="text/javascript" src="tool.js"></script>
+	<script type="text/javascript" src="qwrap.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+</head>
+<body>
+	<div>
+		<h1>Qwrap核心库代码选取器</h1>
+		<p><a href="http://dev.qwrap.com/resource/js/_docs/_youa/" target="_blank">各方法详细说明请参考本文档</a></p>
+		<h2>一、选择需要用到的模块/方法</h2>
+		<div id="container">
+			加载中，请稍后...
+		</div>
+		<h2>二、Retouch配置</h2>
+		<div>
+			<label><input type="checkbox" value="1" id="chkCodeRetouch" /> Core Retouch（String、Date、Array原型及静态方法，Function、Object静态方法）</label>
+		</div>
+		<h2>三、提取方法</h2>
+		<div>
+			<input type="button" value="得到选取的方法列表" id="getmodule" /> <br /><br />
+			用到的方法（可以把方法列表保存起来多次使用）：<br />
+			<textarea id="hardCode" style="width:100%;height:200px;margin:10px 10px 0 0;"></textarea>
+		</div>
+		<h2>四、获取最终代码</h2>
+		<div>
+			<input type="button" value="得到最终代码" id="getcode" /> <br /><br />
+			<textarea id="result" style="display:none;width:100%;height:460px;margin:10px 10px 0 0;">
+
+			</textarea>
+		</div>
+		<div id="default" style="display:none;">
+			<fieldset id='Default'>
+				<legend>不能拆分的模块<!--<a href="#" class="toggle">折叠/展开</a>--><a href="#" class="chkall">全选</a><a href="#" class="chknone">全不选</a><a href="#" class="chkreverse">反选</a></legend>
+					<ul class="list cls">
+						<li><label><input type="checkbox" value="QW.Browser">Browser</label></li>
+						<li><label><input type="checkbox" value="QW.Selector">Selector</label></li>
+						<li><label><input type="checkbox" value="QW.CustEvent">CustEvent</label></li>
+					</ul>
+			</fieldset>
+		</div>
+		<div id="tpl" style="display:none;">
+			<fieldset id='{0}'>
+				<legend>{0}<!--<a href="#" class="toggle">折叠/展开</a>--><a href="#" class="chkall">全选</a><a href="#" class="chknone">全不选</a><a href="#" class="chkreverse">反选</a></legend>
+					<ul class="list cls">
+						{1}
+					</ul>
+			</fieldset>
+		</div>
+	<textarea id="coreretouch" style="display:none;">(function() {
+	var methodize = QW.HelperH.methodize,
+		mix = QW.ObjectH.mix;
+
+	mix(Object, QW.ObjectH);
+
+	mix(QW.ArrayH, QW.HashsetH);
+	mix(Array, QW.ArrayH);
+	mix(Array.prototype, methodize(QW.ArrayH));
+
+	mix(QW.FunctionH, QW.ClassH);
+	mix(Function, QW.FunctionH);
+
+	mix(Date, QW.DateH);
+	mix(Date.prototype, methodize(QW.DateH));
+
+	mix(String, QW.StringH);
+	mix(String.prototype, methodize(QW.StringH));
+}());</textarea>
+	<textarea id="comboresult" style="display:none;">//document.write('<script type="text/javascript" src="' + srcPath + 'core/core_base.js"><\/script>');
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: QWrap 月影、CC、JK
 */
 
@@ -15,14 +87,14 @@
 	var QW = {
 		/**
 		 * @property {string} VERSION 脚本库的版本号
-		 * @default 1.0.2
+		 * @default $version$
 		 */
-		VERSION: "1.0.2",
+		VERSION: "$version$",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2011-12-18
+		 * @default $release$
 		 */
-		RELEASE: "2011-12-18",
+		RELEASE: "$release$",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -179,7 +251,7 @@
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: JK
 */
 
@@ -426,7 +498,7 @@
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: JK
 */
 
@@ -472,7 +544,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: JK
 */
 
@@ -888,7 +960,7 @@ if (QW.Browser.ie) {
 		 alert("<input value='"+encode4HtmlValue(s)+"'>");
 		 */
 		encode4HtmlValue: function(s) {
-			return StringH.encode4Html(s).replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+			return StringH.encode4Html(s).replace(/"/g, "&amp;quot;").replace(/'/g, "&amp;#039;");
 		},
 
 		/** 
@@ -973,7 +1045,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: 月影、JK
 */
 
@@ -1368,7 +1440,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: JK
 */
 
@@ -1748,7 +1820,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: 月影
 */
 
@@ -1853,7 +1925,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: JK
 */
 
@@ -1909,7 +1981,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: 月影、JK
 */
 
@@ -2084,7 +2156,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: 月影
 */
 
@@ -2149,7 +2221,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: 月影、JK
 */
 
@@ -2337,7 +2409,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: JK
 */
 
@@ -2534,7 +2606,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: JK
 */
 
@@ -5189,7 +5261,7 @@ if (QW.Browser.ie) {
 
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.0.2 2011-12-18 released
+	version: $version$ $release$ released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -5912,241 +5984,13 @@ if (QW.Browser.ie) {
 }());
 
 
-//document.write('<script type="text/javascript" src="' + srcPath + 'dom/node.c.js"><\/script>');
+</textarea>
+	</div>
 
-(function() {
-	var queryer = 'queryer',
-		operator = 'operator',
-		getter_all = 'getter_all',
-		getter_first = 'getter_first',
-		getter_first_all = 'getter_first_all';
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3Fd3e1eba0494bcd7966888ebcb823e8e4' type='text/javascript'%3E%3C/script%3E"));
 
-	QW.NodeC = {
-		getterType: getter_first,
-		arrayMethods: 'map,forEach,toArray'.split(','),
-		//部分Array的方法也会集成到NodeW里
-		wrapMethods: {
-			//queryer “返回值”的包装结果
-			//operator 如果是静态方法，返回第一个参数的包装，如果是原型方法，返回本身
-			//getter_all 如果是array，则每一个执行，并返回
-			//getter_first 如果是array，则返回第一个执行的返回值
-			//getter_first_all 同getter，产出两个方法，一个是getterFirst，一个是getterAll
-			//NodeH系列
-			g: queryer,
-			one: queryer,
-			query: queryer,
-			getElementsByClass: queryer,
-			outerHTML: getter_first,
-			hasClass: getter_first,
-			addClass: operator,
-			removeClass: operator,
-			replaceClass: operator,
-			toggleClass: operator,
-			show: operator,
-			hide: operator,
-			toggle: operator,
-			isVisible: getter_first,
-			getXY: getter_first_all,
-			setXY: operator,
-			setSize: operator,
-			setInnerSize: operator,
-			setRect: operator,
-			setInnerRect: operator,
-			getSize: getter_first_all,
-			getRect: getter_first_all,
-			nextSibling: queryer,
-			previousSibling: queryer,
-			ancestorNode: queryer,
-			parentNode: queryer,
-			firstChild: queryer,
-			lastChild: queryer,
-			contains: getter_first,
-			insertAdjacentHTML: operator,
-			insertAdjacentElement: operator,
-			insert: operator,
-			insertTo: operator,
-			appendChild: operator,
-			insertSiblingBefore: operator,
-			insertSiblingAfter: operator,
-			insertBefore: operator,
-			insertAfter: operator,
-			replaceNode: operator,
-			replaceChild: operator,
-			removeNode: operator,
-			empty: operator,
-			removeChild: operator,
-			get: getter_first_all,
-			set: operator,
-			getAttr: getter_first_all,
-			setAttr: operator,
-			removeAttr: operator,
-			getValue: getter_first_all,
-			setValue: operator,
-			getHtml: getter_first_all,
-			setHtml: operator,
-			encodeURIForm: getter_first,
-			isFormChanged: getter_first,
-			cloneNode: queryer,
-			getStyle: getter_first_all,
-			getCurrentStyle: getter_first_all,
-			setStyle: operator,
-			removeStyle: operator,
-			borderWidth: getter_first,
-			paddingWidth: getter_first,
-			marginWidth: getter_first,
-			tmpl: getter_first_all,
-
-			//TargetH系列
-			//……
-			//JssTargetH系列
-			getOwnJss: getter_first_all,
-			getJss: getter_first_all,
-			setJss: operator,
-			removeJss: operator,
-
-			//ArrayH系列
-			forEach: operator
-		},
-		gsetterMethods: { //在此json里的方法，会是一个getter与setter的混合体
-			val: ['getValue', 'setValue'],
-			html: ['getHtml', 'setHtml'],
-			attr: ['', 'getAttr', 'setAttr'],
-			css: ['', 'getCurrentStyle', 'setStyle'],
-			size: ['getSize', 'setInnerSize'],
-			xy: ['getXY', 'setXY']
-		}
-	};
-
-}());
-
-
-//document.write('<script type="text/javascript" src="' + srcPath + 'core/core_retouch.js"><\/script>');
-
-(function() {
-	var methodize = QW.HelperH.methodize,
-		mix = QW.ObjectH.mix;
-	/**
-	 * @class Object 扩展Object，用ObjectH来修饰Object，特别说明，未对Object.prototype作渲染，以保证Object.prototype的纯洁性
-	 * @usehelper QW.ObjectH
-	 */
-	mix(Object, QW.ObjectH);
-
-	/**
-	 * @class Array 扩展Array，用ArrayH/HashsetH来修饰Array
-	 * @usehelper QW.ArrayH,QW.HashsetH
-	 */
-	mix(QW.ArrayH, QW.HashsetH);
-	mix(Array, QW.ArrayH);
-	mix(Array.prototype, methodize(QW.ArrayH));
-
-	/**
-	 * @class Function 扩展Function，用FunctionH/ClassH来修饰Function
-	 * @usehelper QW.FunctionH
-	 */
-	mix(QW.FunctionH, QW.ClassH);
-	mix(Function, QW.FunctionH);
-	//	mix(Function.prototype, methodize(QW.FunctionH));
-
-	/**
-	 * @class Date 扩展Date，用DateH来修饰Date
-	 * @usehelper QW.DateH
-	 */
-	mix(Date, QW.DateH);
-	mix(Date.prototype, methodize(QW.DateH));
-
-
-	/**
-	 * @class String 扩展String，用StringH来修饰String
-	 * @usehelper QW.StringH
-	 */
-	mix(String, QW.StringH);
-	mix(String.prototype, methodize(QW.StringH));
-}());
-
-
-//document.write('<script type="text/javascript" src="' + srcPath + 'dom/dom_retouch.js"><\/script>');
-
-/*
-	Copyright (c) Baidu Youa Wed QWrap
-	author: 好奇、JK
-*/
-
-(function() {
-	var mix = QW.ObjectH.mix,
-		methodize = QW.HelperH.methodize,
-		rwrap = QW.HelperH.rwrap,
-		NodeC = QW.NodeC,
-		NodeH = QW.NodeH,
-		EventTargetH = QW.EventTargetH,
-		JssTargetH = QW.JssTargetH,
-		DomU = QW.DomU,
-		NodeW = QW.NodeW;
-	/*
-	 * 用NodeH、EventTargetH、JssTargetH、ArrayH渲染NodeW
-	*/
-
-	NodeW.pluginHelper(NodeH, NodeC.wrapMethods, NodeC.gsetterMethods);
-	NodeW.pluginHelper(EventTargetH, 'operator');
-	NodeW.pluginHelper(JssTargetH, NodeC.wrapMethods, {
-		jss: ['', 'getJss', 'setJss']
-	});
-
-	var ah = QW.ObjectH.dump(QW.ArrayH, NodeC.arrayMethods);
-	ah = methodize(ah);
-	ah = rwrap(ah, NodeW, NodeC.wrapMethods);
-	mix(NodeW.prototype, ah); //ArrayH的某些方法
-
-	/**
-	 * @class Dom 将QW.DomU与QW.NodeH合并到QW.Dom里，以跟旧的代码保持一致
-	 * @singleton 
-	 * @namespace QW
-	 */
-	var Dom = QW.Dom = {};
-	mix(Dom, [DomU, NodeH, EventTargetH, JssTargetH]);
-}());
-
-
-//document.write('<script type="text/javascript" src="' + srcPath + 'apps/youa_retouch.js"><\/script>');
-
-/*
- * 防重复点击
-*/
-(function() {
-	var F = function(el, e) {
-		var ban = (el.getAttribute && el.getAttribute('data--ban')) | 0;
-		if (ban) {
-			if (!el.__BAN_preTime || (new Date() - el.__BAN_preTime) > ban) {
-				setTimeout(function(){//月影：setTimeout来避免“在el上注册多个事件时只能执行第一个”。
-					el.__BAN_preTime = new Date() * 1;
-				});
-				return true;
-			}
-			QW.EventH.preventDefault(e);
-			return;
-		}
-		return true;
-	};
-	QW.EventTargetH._DelegateHooks.click = QW.EventTargetH._EventHooks.click = {
-		'click': F
-	};
-	QW.EventTargetH._EventHooks.submit = {
-		'submit': F
-	};
-}());
-
-/*
- * 增加别名
-*/
-QW.g = QW.NodeH.g;
-QW.W = QW.NodeW;
-
-/*
- * 将直属于QW的方法与命名空间上提一层到window
-*/
-QW.ObjectH.mix(window, QW);
-
-/*
- * 增加provide的产出
-*/
-QW.ModuleH.provideDomains.push(window);
-
+</script>
+</body>
+</html>
