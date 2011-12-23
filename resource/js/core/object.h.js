@@ -13,11 +13,15 @@
  */
 
 (function() {
-	var escapeChars = QW.StringH.escapeChars;
+	var escapeChars = QW.StringH.escapeChars,
+		capitalize = QW.StringH.capitalize;
 	
-	function getConstructorName(o) {
+	function getConstructorName(o) { 
+		//加o.constructor是因为IE下的window和document
 		return o != null && o.constructor != null && Object.prototype.toString.call(o).slice(8, -1);
 	}
+	//注意类型判断如果用.constructor比较相等和用instanceof都会有跨iframe的问题，因此尽量避免
+	//用typeof和Object.prototype.toString不会有这些问题
 	var ObjectH = {
 		/**
 		 * 尽可能精确获得一个对象的类型
@@ -77,15 +81,25 @@
 		},
 		
 		/** 
-		 * 判断一个变量是否是Array泛型，即:有length属性并且该属性是数值的对象
+		 * 判断一个变量是否是Array泛型（Array或类Array类型），即:有length属性并且该属性是数值的对象
 		 * @method isArrayLike
 		 * @static
 		 * @param {mixed} obj 目标变量
 		 * @returns {boolean} 
 		 */
 		isArrayLike: function(obj) {
-			return !!obj && !ObjectH.isArray(obj) && !ObjectH.isFunction(obj) 
-				&& !ObjectH.isElement(obj) && ObjectH.isNumber(obj.length);
+			return !!obj && typeof obj == 'object' && obj.nodeType != 1 && typeof obj.length == 'number';
+		},
+
+		/** 
+		 * 判断一个变量是否是typeof 'object'
+		 * @method isObject
+		 * @static
+		 * @param {any} obj 目标变量
+		 * @returns {boolean} 
+		 */
+		isObject: function(obj) {
+			return obj !== null && typeof obj == 'object';
 		},
 
 		/** 
@@ -256,7 +270,93 @@
 			}
 			return des;
 		},
+		/**
+		 * 将gsetter格式的json串转为相应的gsetter过的helper
+		 * gsetter格式的json串为：
+		 *    var gsetterConf = { 
+		 *			"attr" :{ //这一种是有key的
+		 *				key : true,
+		 *				get : function(self, key){
+		 *					//getter	
+		 *				},
+		 *				set : function(self, key, value){
+		 *					//setter
+		 *				}
+		 *			},
+		 *			"val" :{ //这一种是没有key的
+		 *				get : function(self){
+		 *					//getter	
+		 *				},
+		 *				set : function(self, value){
+		 *					//setter
+		 *				}
+		 *			}
+		 *		}
+		 *
+		 *    ObjectH.gsetter(gsetterConf); //返回 {attr:function(){...}, val:function(){...}}
+		 *
+		 * 通常getter比setter的参数个数多 1
+		 *
+		 * @param obj {json} 要转换的对象
+		 * @param withSeperate {boolean} 是否保留getXxx setXxx 
+		 */
+		gsetter: function(obj, withSeperate){
+			var ret = {};
 
+			for(var attr in obj){
+				var prop = obj[attr], setter, getter;
+				
+				if(prop && (getter = prop['get']) && (setter = prop['set']))
+				{
+					/*
+						通用的ObjectH.gsetter
+						推荐用这个版本代替Helper的gsetter
+						但这个版本必须在pluginHelper之前mix进去
+						因为这个依赖于函数定义时的形参数量
+						所以对retouch过的函数无效
+						例子：（这样设置更语义化）
+							//init gsetters
+							mix(NodeH,
+								gsetter({
+									css: {
+										key: true,
+										get: NodeH.getCurrentStyle,
+										set: NodeH.setStyle
+									},
+									size: {
+										get: NodeH.getSize,
+										set: NodeH.setInnerSize
+									}	
+								})
+							);
+							这样在node.c中要设置css、size的类型为gsetter
+					*/				
+					ret[attr] = function(){
+						var hasKey = !!prop.key, key, len = arguments.length;
+						//console.log(hasKey);
+						if( len == getter.length && 
+							(!hasKey || (key = arguments[len - 1])
+							&& !ObjectH.isPlainObject(key))){
+							//如果有key，key不能是JSON，如果key是JSON，认为是批量setter
+							//如果不需要让key作为JSON的时候批量操作，可以不设key这个参数
+							return getter.apply(this, arguments);
+						}else{
+							return setter.apply(this, arguments);
+						}
+					};
+				}
+				else{
+					throw new Error('obj is not a valid gsetter!');
+				}
+
+				if(withSeperate){
+					var _attr = capitalize(attr);
+					ret["get" + _attr] = getter;
+					ret["set" + _attr] = setter;
+				}
+			}
+			return ret;
+		},		
 		/**
 		 * <p>输出一个对象里面的内容</p>
 		 * <p><strong>如果属性被"."分隔，会取出深层次的属性</strong>，例如:</p>

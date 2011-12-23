@@ -295,6 +295,15 @@
 				.replace(/([^\x00-\xff]) /g, "$1") + tail; //还原
 		},
 
+		/**
+		 * 将字符串首字母大写
+		 */
+		capitalize: function(s){
+			return s.replace(/^(\w)/ig, function(a, b) {
+				return b.toUpperCase();
+			});
+		},
+
 		/** 
 		 * 驼峰化字符串。将“ab-cd”转化为“abCd”
 		 * @method camelize

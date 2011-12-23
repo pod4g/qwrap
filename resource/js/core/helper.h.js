@@ -31,6 +31,8 @@
 
 	var FunctionH = QW.FunctionH,
 		create = QW.ObjectH.create,
+		isPlainObject = QW.ObjectH.isPlainObject,
+		gsetter = QW.ObjectH.gsetter,
 		Methodized = function() {};
 
 	var HelperH = {
@@ -66,11 +68,11 @@
 						if (helper instanceof Methodized){
 							ret[i] = FunctionH.rwrap(fn, wrapper, "this", true);					
 						}else{
-							ret[i] = FunctionH.rwrap(fn, wrapper, 0, true);							
+							ret[i] = FunctionH.rwrap(fn, wrapper, 0, true);						
 						}
 					}
 				}else{
-					ret[i] = fn;
+					ret[i] = fn;	//非Function属性会原样保留
 				}
 			}
 			return ret;
@@ -88,27 +90,19 @@
 			gsetterConfig = gsetterConfig || {};
 
 			for (var i in gsetterConfig) {
-				if (helper instanceof Methodized) {
-					ret[i] = (function(config) {
-						return function() {
-							var argsLen = arguments.length;
-							if (isPlainObject(arguments[0])) { //如果第一个参数是json，则当作setter
-								argsLen++;
-							}
-							return ret[config[Math.min(argsLen, config.length - 1)]].apply(this, arguments);
-						};
-					}(gsetterConfig[i]));
-				} else {
-					ret[i] = (function(config) {
-						return function() {
-							var argsLen = arguments.length;
-							if (isPlainObject(arguments[1])) { //如果第一个参数是json，则当作setter
-								argsLen++;
-							}
-							return ret[config[Math.min(argsLen, config.length) - 1]].apply(null, arguments);
-						};
-					}(gsetterConfig[i]));
-				}
+				ret[i] = (function(config, extra) {
+					return function() {
+						var offset = arguments.length,
+							lastArg = arguments[offset - 1];
+						
+						//如果没有methodize过，那么多出来的第一个参数要扣减回去	
+						offset -= extra;	
+						if (isPlainObject(arguments[extra])) { 
+							offset++; //如果第一个参数是json，则当作setter，所以offset+1
+						}
+						return ret[config[Math.min(offset, config.length - 1)]].apply(this, arguments);
+					};
+				}(gsetterConfig[i], helper instanceof Methodized ? 0 : 1 )); 
 			}
 			return ret;
 		},
@@ -157,7 +151,7 @@
 						ret[i + "All"] = FunctionH.mul(fn);
 					}
 				}else{
-					ret[i] = fn;
+					ret[i] = fn; //非Function属性会原样保留
 				}
 			}
 			return ret;
@@ -168,10 +162,10 @@
 		 * @static
 		 * @param {Helper} helper Helper对象，如DateH
 		 * @param {optional} attr (Optional)属性
-		 * @param {boolean} reserveAttr (Optional) 是否保留Helper上的属性（非Function的成员），默认不保留
+		 * @param {boolean} reserveEveryProps (Optional) 是否保留Helper上的属性（非Function的成员），默认不保留
 		 * @return {Object} 方法已methodize化的对象
 		 */
-		methodize: function(helper, attr, reserveAttr) {
+		methodize: function(helper, attr, reserveEveryProps) {
 			var ret = new Methodized(); //因为 methodize 之后gsetter和rwrap的行为不一样  
 
 			for (var i in helper) {
@@ -179,7 +173,9 @@
 
 				if (fn instanceof Function) {
 					ret[i] = FunctionH.methodize(fn, attr);
-				}else if(reserveAttr){
+				}else if(reserveEveryProps){	
+					//methodize默认不保留非Function类型的成员
+					//如特殊情况需保留，可将reserveEveryProps设为true
 					ret[i] = fn;
 				}
 			}
@@ -202,11 +198,11 @@
 				if(fn instanceof Function){
 					ret[i] = FunctionH.hook(fn, where, handler);
 				}else{
-					ret[i] = fn;
+					ret[i] = fn; //非Function属性会原样保留
 				}
 			}
 
-			return ret;
+			return ret; 
 		}
 	};
 
