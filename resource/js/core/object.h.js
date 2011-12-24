@@ -272,6 +272,9 @@
 		},
 		/**
 		 * 将gsetter格式的json串转为相应的gsetter过的helper
+		 * 把gsetter形式规范成一种特殊的数据类型
+		 * 即形如 {name: {get:..., set:...},...}的结构
+		 * gsetter就是转换这种结构为function的
 		 * gsetter格式的json串为：
 		 *    var gsetterConf = { 
 		 *			"attr" :{ //这一种是有key的
@@ -341,12 +344,15 @@
 							//如果不需要让key作为JSON的时候批量操作，可以不设key这个参数
 							return getter.apply(this, arguments);
 						}else{
-							return setter.apply(this, arguments);
+							//gsetter当作为setter时不return
+							//特意的，为了支持config里的"gsetter"，那个通过mul的getFirstDefined实现
+							//也就是说gsetter必然抛弃setter中的返回值
+							setter.apply(this, arguments); 
 						}
 					};
 				}
 				else{
-					throw new Error('obj is not a valid gsetter!');
+					throw new Error('object is not a valid gsetter!');
 				}
 
 				if(withSeperate){

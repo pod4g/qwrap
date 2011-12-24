@@ -32,41 +32,49 @@ var AsyncH = {
 	/**
 	 * 等待一个自定义事件（信号），当这个事件处理完成之后，继续处理某个动作
 	 * W(el).fadeIn().wait(dosth);
+	 *
+	 * @param {mixed} owner thisObj
+	 * @param {string} type 信号类型
+	 * @param {Function} handler 处理器，有一个参数，是{Function} signal，调用它立即发一个信号
 	 */
-	wait: function(owner, type, fn){
+	wait: function(owner, type, handler){
 		if(!isString(type)){
-			fn = type;
+			handler = type;
 			type = "_default";
 		}
-		fn = fn || function(){};
+		handler = handler || function(){};
 
 		var seq = AsyncH.getSequence(owner, type);
-		args = [].slice.call(arguments, 2);
-		
-		seq.push(fn);	//把需要执行的动作加入队列
+
+		seq.push(handler);	//把需要执行的动作加入队列
 
 		if(seq.length <= 1){ //如果之前序列是空的，说明可以立即执行
 			if(type != "_default"){	//如果type不是默认的
-				fn = function(){};	//多unshift进一个空的function
-				seq.unshift(fn);
+				handler = function(){};	//多unshift进一个空的function
+				seq.unshift(handler);
 			}
-			fn.apply(owner, args);	//队列空，立即执行当前处理器
+			handler.call(owner, function(){
+				AsyncH.signal(owner);
+			});	//队列空，立即执行当前处理器
 		}
 	},
 	signal: function(owner, type){
 		type = type || "_default";
 		var seq = AsyncH.getSequence(owner, type);
 		var fn = seq.shift();
-		if(fn && seq[0]){		//如果队列顶部有新的，可以继续执行
+		if(seq[0]){		//如果队列顶部有新的，可以继续执行
 			(function(handler){
 				handler.call(owner, function(){
 					AsyncH.signal(owner);
 				});
 			})(seq[0]);
 		}
+		return !!fn;
 	},
 	getSequence: function(owner, type){
+		owner = owner || window;
 		type = type || "_default";
+
 		var id = propId in owner ? owner[propId] : seed++;
 		sequences[id] = sequences[id] || [];
 		owner[propId] = id;

@@ -38,15 +38,15 @@
 		 * @param {bite} opt 操作配置项，缺省 0 表示默认，
 		 1 表示getFirst  将只操作第一个元素，
 		 2 表示joinLists 如果第一个参数是数组，将操作的结果扁平化返回
-		 3 表示getFirstValued 将操作到返回一个非undefined的结果为止
-		 hint: getFirstValued配合wrap的keepReturnValue可以实现gsetter
+		 3 表示getFirstDefined 将操作到返回一个非undefined的结果为止
+		 hint: getFirstDefined 配合wrap的 keepReturnValue 可以实现gsetter
 		       还可以考虑通过增加getAllValued功能来实现gsetter_all，暂时没有需求，所以不予实现
 		 * @return {Object} 已集化的函数
 		 */
 		mul: function(func, opt) {
 			var getFirst = opt == 1,
 				joinLists = opt == 2,
-				getFirstValued = opt == 3;
+				getFirstDefined = opt == 3;
 
 			if (getFirst) {
 				return function() {
@@ -78,7 +78,7 @@
 								ret = ret.concat(r);
 							}
 						} 
-						else if(getFirstValued) {
+						else if(getFirstDefined) {
 							if (r !== undefined){
 								return r;
 							}	
@@ -87,7 +87,7 @@
 							ret.push(r);
 						}
 					}
-					return getFirstValued?undefined:ret;
+					return getFirstDefined?undefined:ret;
 				} else {
 					return func.apply(this, arguments);
 				}
@@ -189,12 +189,22 @@
 		lazyApply: function(fun, thisObj, argArray, ims, checker) {
 			checker = checker || function() {return true; };
 			var timer = function() {
-					var verdict = checker();
-					if (verdict == 1) {
-						fun.apply(thisObj, argArray || []);
-					}
-					if (verdict == 1 || verdict == -1) {
+					try{
+						/*
+							因为这里采用了异步轮询机制，这里如果不try...catch的话
+							当checker或fun有异常抛出，并且在更上层被捕获的话
+							那么interval就不会被clear，于是会一直抛异常
+						*/
+						var verdict = checker();
+						if (verdict == 1) {
+							fun.apply(thisObj, argArray || []);
+						}
+						if (verdict == 1 || verdict == -1) {
+							clearInterval(timerId);
+						}
+					}catch(ex){
 						clearInterval(timerId);
+						throw ex;
 					}
 				},
 				timerId = setInterval(timer, ims);
