@@ -185,29 +185,6 @@
 				}
 			}
 			return ret;
-		},
-		/**
-		 * 针对Helper的方法做hook
-		 * @method hook
-		 * @static
-		 * @param {Helper} helper
-		 * @param {String} where
-		 * @param {Function} handler
-		 */
-		hook: function(helper, where, handler){
-			var ret = {};
-
-			for (var i  in helper){
-				var fn = helper[i];
-
-				if(fn instanceof Function){
-					ret[i] = FunctionH.hook(fn, where, handler);
-				}else{
-					ret[i] = fn; //非Function属性会原样保留
-				}
-			}
-
-			return ret; 
 		}
 	};
 
