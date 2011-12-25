@@ -46,7 +46,8 @@
 		 * @return {Object} 方法已rwrap化的<strong>新的</strong>Helper
 		 */
 		rwrap: function(helper, wrapper, wrapConfig) {
-			var ret = create(helper);
+			//create以helper为原型生成了一个新的对象，相当于复制了helper的所有属性，不过新对象属性方法的改变不会对helper产生影响
+			var ret = create(helper); 
 			wrapConfig = wrapConfig || 'operator';
 
 			for (var i in helper) {
@@ -71,8 +72,6 @@
 							ret[i] = FunctionH.rwrap(fn, wrapper, 0, true);						
 						}
 					}
-				}else{
-					ret[i] = fn;	//非Function属性会原样保留
 				}
 			}
 			return ret;
@@ -86,6 +85,7 @@
 		 * @return {Object} 方法已gsetter化的<strong>新的</strong>helper
 		 */
 		gsetter: function(helper, gsetterConfig) {
+			//create以helper为原型生成了一个新的对象，相当于复制了helper的所有属性，不过新对象属性方法的改变不会对helper产生影响
 			var ret = create(helper);
 			gsetterConfig = gsetterConfig || {};
 
@@ -120,6 +120,7 @@
 		 * @return {Object} 方法已mul化的<strong>新的</strong>Helper
 		 */
 		mul: function(helper, mulConfig) {
+			//create以helper为原型生成了一个新的对象，相当于复制了helper的所有属性，不过新对象属性方法的改变不会对helper产生影响
 			var ret = create(helper);
 			mulConfig = mulConfig || {};
 
@@ -155,8 +156,6 @@
 						//如果配置成getter||getter_first_all，那么还会生成一个带All后缀的方法
 						ret[i + "All"] = FunctionH.mul(fn, getAll);
 					}
-				}else{
-					ret[i] = fn; //非Function属性会原样保留
 				}
 			}
 			return ret;
