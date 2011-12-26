@@ -7,6 +7,7 @@
 		isString = QW.ObjectH.isString,
 		isElement = QW.DomU.isElement,
 		isPlainObject = QW.ObjectH.isPlainObject,
+		isVisible = QW.NodeH.isVisible,
 		setStyle = QW.NodeH.setStyle,
 		getCurrentStyle = QW.NodeH.getCurrentStyle,
 		getStyle = QW.NodeH.getStyle,
@@ -22,14 +23,14 @@
 		
 		//定义hook比直接设置值的办法更好，是因为hook可以延迟执行，到动画开始前才处理
 		//因为动画可能是异步的
-		if(isString(opts)){ //匹配hooks
+		if(isString(opts)){ //如果参数是字符串，匹配hooks
 			if(opts in ElAnim.agentHooks){
 				opts = ElAnim.agentHooks[opts](opts, attr, el, anim);
 			}else{
 				opts = ElAnim.agentHooks._default(opts, attr, el, anim);
 			}
 		}
-		else if(isFunction(opts)){
+		else if(isFunction(opts)){ //如果参数是function，那么是全局的hooks
 			opts = opts(opts, attr, el, anim); //global hookers
 		}
 		else if(!isPlainObject(opts)){
@@ -309,6 +310,14 @@
 				hide(el);
 			});	
 			return {from: value, to: 0}
+		},
+		//如果是toggle动画，那么根据el是否可见判断执行show还是hide
+		toggle: function(opts, attr, el, anim){
+			if(!isVisible(el)){
+				return ElAnim.agentHooks.show.apply(this, arguments);
+			}else{
+				return ElAnim.agentHooks.hide.apply(this, arguments);
+			}	
 		},
 		//默认解析字符串空格分开
 		_default: function(opts, attr, el, anim){

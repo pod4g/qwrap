@@ -189,22 +189,12 @@
 		lazyApply: function(fun, thisObj, argArray, ims, checker) {
 			checker = checker || function() {return true; };
 			var timer = function() {
-					try{
-						/*
-							因为这里采用了异步轮询机制，这里如果不try...catch的话
-							当checker或fun有异常抛出，并且在更上层被捕获的话
-							那么interval就不会被clear，于是会一直抛异常
-						*/
-						var verdict = checker();
-						if (verdict == 1) {
-							fun.apply(thisObj, argArray || []);
-						}
-						if (verdict == 1 || verdict == -1) {
-							clearInterval(timerId);
-						}
-					}catch(ex){
+					var verdict = checker();
+					if (verdict == 1) {
+						fun.apply(thisObj, argArray || []);
+					}
+					if (verdict == 1 || verdict == -1) {
 						clearInterval(timerId);
-						throw ex;
 					}
 				},
 				timerId = setInterval(timer, ims);

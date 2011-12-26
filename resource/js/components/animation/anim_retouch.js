@@ -32,6 +32,18 @@
 
 				return AnimElH.animate(el, params, options);
 			},
+			fadeToggle : function(el, dur, complete, easing) {
+				var params = {
+					"opacity" : "toggle"
+				};
+				var options = {
+					duration : dur,
+					complete : complete,
+					easing	 : easing
+				};
+
+				return AnimElH.animate(el, params, options);
+			},
 			/* 淡入/淡出切换 */
 			/*fadeToggle: function(el, dur, complete) {
 				AnimElH[el.offsetHeight ? 'fadeOut' : 'fadeIn'](el, dur, complete);
@@ -53,6 +65,20 @@
 				
 				var params = {
 					"height" : "show"
+				};
+
+				var options = {
+					duration : dur,
+					complete : complete,
+					easing	 : easing
+				};
+
+				return AnimElH.animate(el, params, options);
+			},
+			slideToggle : function(el, dur, complete, easing) {
+				
+				var params = {
+					"height" : "toggle"
 				};
 
 				var options = {
@@ -126,12 +152,6 @@
 			}
 		};
 	})();
-
-	//过程抽象，比数据抽象更严谨，也有不好的地方，是只能从slideUp/fadeOut开始
-	mix(AnimElH, {
-		slideToggle: QW.FunctionH.toggle(AnimElH.slideUp, AnimElH.slideDown), 
-		fadeToggle: QW.FunctionH.toggle(AnimElH.fadeOut, AnimElH.fadeIn)
-	});
 
 	QW.NodeW.pluginHelper(AnimElH, 'operator');
 	if (QW.Dom) {
