@@ -81,23 +81,6 @@ jQuery.fn.extend = QW.FunctionH.methodize(jQuery.extend);
 //将ObjectH的静态方法给jQuery空间
 jQuery.extend(QW.ObjectH);
 
-//给HelperH添加一个hook方法
-QW.HelperH.hook = function(helper, where, handler){
-	var ret = {};
-
-	for (var i  in helper){
-		var fn = helper[i];
-
-		if(fn instanceof Function){
-			ret[i] = FunctionH.hook(fn, where, handler);
-		}else{
-			ret[i] = fn; //非Function属性会原样保留
-		}
-	}
-
-	return ret; 
-};
-
 //将HelperH的静态方法给jQuery空间
 jQuery.extend(QW.HelperH);
 //将DomU的静态方法（包括NodeH、EventTargetH、JssTargetH）给jQuery空间

@@ -18,24 +18,15 @@
 	
 	function getConstructorName(o) { 
 		//加o.constructor是因为IE下的window和document
-		return o != null && o.constructor != null && Object.prototype.toString.call(o).slice(8, -1);
+		if(o != null && o.constructor != null){
+			return  Object.prototype.toString.call(o).slice(8, -1);
+		}else{
+			return '';
+		}
 	}
 	//注意类型判断如果用.constructor比较相等和用instanceof都会有跨iframe的问题，因此尽量避免
 	//用typeof和Object.prototype.toString不会有这些问题
 	var ObjectH = {
-		/**
-		 * 尽可能精确获得一个对象的类型
-		 * @method getType
-		 * @static
-		 * @param {mixed} obj 目标变量
-		 * @returns {boolean}
-		 */
-		getType: function(obj){
-				return obj == null ?
-					String( obj ) :
-					getConstructorName(obj).toLowerCase() || "object";
-		},
-
 		/** 
 		 * 判断一个变量是否是string值或String对象
 		 * @method isString
@@ -67,17 +58,6 @@
 		 */
 		isArray: function(obj) {
 			return getConstructorName(obj) == 'Array';
-		},
-		
-		/** 
-		 * 判断一个变量是否是Number对象
-		 * @method isArray
-		 * @static
-		 * @param {mixed} obj 目标变量
-		 * @returns {boolean} 
-		 */
-		isNumber: function(obj) {
-			return getConstructorName(obj) == 'Number';
 		},
 		
 		/** 
@@ -136,28 +116,6 @@
 			return !!obj && obj.nodeType == 1;
 		},
 		
-		/** 
-		 * 判断一个变量是否是Html的Document元素
-		 * @method isElement
-		 * @static
-		 * @param {mixed} obj 目标变量
-		 * @returns {boolean} 
-		 */
-		isDocument: function(obj) {
-			return !!obj && obj.nodeType == 9;
-		},
-
-		/** 
-		 * 判断一个变量是否是Window对象
-		 * @method isElement
-		 * @static
-		 * @param {mixed} obj 目标变量
-		 * @returns {boolean} 
-		 */
-		isWindow: function(obj){
-			return !!obj && "setInterval" in obj;
-		},
-
 		/** 
 		 * 为一个对象设置属性，支持以下三种调用方式:
 		 set(obj, prop, value)
@@ -269,100 +227,8 @@
 				}
 			}
 			return des;
-		},
-		/**
-		 * 将gsetter格式的json串转为相应的gsetter过的helper
-		 * 把gsetter形式规范成一种特殊的数据类型
-		 * 即形如 {name: {get:..., set:...},...}的结构
-		 * gsetter就是转换这种结构为function的
-		 * gsetter格式的json串为：
-		 *    var gsetterConf = { 
-		 *			"attr" :{ //这一种是有key的
-		 *				key : true,
-		 *				get : function(self, key){
-		 *					//getter	
-		 *				},
-		 *				set : function(self, key, value){
-		 *					//setter
-		 *				}
-		 *			},
-		 *			"val" :{ //这一种是没有key的
-		 *				get : function(self){
-		 *					//getter	
-		 *				},
-		 *				set : function(self, value){
-		 *					//setter
-		 *				}
-		 *			}
-		 *		}
-		 *
-		 *    ObjectH.gsetter(gsetterConf); //返回 {attr:function(){...}, val:function(){...}}
-		 *
-		 * 通常getter比setter的参数个数多 1
-		 *
-		 * @param obj {json} 要转换的对象
-		 * @param withSeperate {boolean} 是否保留getXxx setXxx 
-		 */
-		gsetter: function(obj, withSeperate){
-			var ret = {};
+		},	
 
-			for(var attr in obj){
-				var prop = obj[attr], setter, getter;
-				
-				if(prop && (getter = prop['get']) && (setter = prop['set']))
-				{
-					/*
-						通用的ObjectH.gsetter
-						推荐用这个版本代替Helper的gsetter
-						但这个版本必须在pluginHelper之前mix进去
-						因为这个依赖于函数定义时的形参数量
-						所以对retouch过的函数无效
-						例子：（这样设置更语义化）
-							//init gsetters
-							mix(NodeH,
-								gsetter({
-									css: {
-										key: true,
-										get: NodeH.getCurrentStyle,
-										set: NodeH.setStyle
-									},
-									size: {
-										get: NodeH.getSize,
-										set: NodeH.setInnerSize
-									}	
-								})
-							);
-							这样在node.c中要设置css、size的类型为gsetter
-					*/				
-					ret[attr] = function(){
-						var hasKey = !!prop.key, key, len = arguments.length;
-						//console.log(hasKey);
-						if( len == getter.length && 
-							(!hasKey || (key = arguments[len - 1])
-							&& !ObjectH.isPlainObject(key))){
-							//如果有key，key不能是JSON，如果key是JSON，认为是批量setter
-							//如果不需要让key作为JSON的时候批量操作，可以不设key这个参数
-							return getter.apply(this, arguments);
-						}else{
-							//gsetter当作为setter时不return
-							//特意的，为了支持config里的"gsetter"，那个通过mul的getFirstDefined实现
-							//也就是说gsetter必然抛弃setter中的返回值
-							setter.apply(this, arguments); 
-						}
-					};
-				}
-				else{
-					throw new Error('object is not a valid gsetter!');
-				}
-
-				if(withSeperate){
-					var _attr = capitalize(attr);
-					ret["get" + _attr] = getter;
-					ret["set" + _attr] = setter;
-				}
-			}
-			return ret;
-		},		
 		/**
 		 * <p>输出一个对象里面的内容</p>
 		 * <p><strong>如果属性被"."分隔，会取出深层次的属性</strong>，例如:</p>
@@ -384,6 +250,7 @@
 			}
 			return ret;
 		},
+
 		/**
 		 * 在对象中的每个属性项上运行一个函数，并将函数返回值作为属性的值。
 		 * @method map
@@ -400,24 +267,7 @@
 			}
 			return ret;
 		},
-		/**
-		 * 在对象中的每个属性项上运行一个函数，用该函数的返回值决定是否复制该属性到返回对象。
-		 * @method map
-		 * @static
-		 * @param {Object} obj 被操作的对象
-		 * @param {function} fn 迭代计算每个属性的算子，该算子迭代中有三个参数value-属性值，key-属性名，obj，当前对象
-		 * @param {Object} thisObj (Optional)迭代计算时的this
-		 * @return {Object} 返回包含这个对象中所有属性计算结果的对象
-		 */
-		filter: function(obj, fn, thisObj){
-			var ret = {};
-			for (var key in obj) {
-				if(fn.call(thisObj, obj[key], key, obj)){
-					ret[key] = obj[key];
-				}
-			}
-			return ret;		
-		},
+
 		/**
 		 * 得到一个对象中所有可以被枚举出的属性的列表
 		 * @method keys
@@ -436,24 +286,6 @@
 		},
 
 		/**
-		 * 以keys/values数组的方式添加属性到一个对象<br/>
-		 * <strong>如果values的长度大于keys的长度，多余的元素将被忽略</strong>
-		 * @method fromArray
-		 * @static
-		 * @param {Object} obj 被操作的对象
-		 * @param {Array} keys 存放key的数组
-		 * @param {Array} values 存放value的数组
-		 * @return {Object} 返回添加了属性的对象
-		 */
-		fromArray: function(obj, keys, values) {
-			values = values || [];
-			for (var i = 0, len = keys.length; i < len; i++) {
-				obj[keys[i]] = values[i];
-			}
-			return obj;
-		},
-
-		/**
 		 * 得到一个对象中所有可以被枚举出的属性值的列表
 		 * @method values
 		 * @static
@@ -469,6 +301,7 @@
 			}
 			return ret;
 		},
+
 		/**
 		 * 以某对象为原型创建一个新的对象 （by Ben Newman）
 		 * @method create
@@ -485,6 +318,7 @@
 			ctor.prototype = proto;
 			return new ctor(props);
 		},
+
 		/** 
 		 * 序列化一个对象(只序列化String,Number,Boolean,Date,Array,Json对象和有toJSON方法的对象,其它的对象都会被序列化成null)
 		 * @method stringify
@@ -500,27 +334,27 @@
 			if (obj.toJSON) {
 				obj = obj.toJSON();
 			}
-			var type = ObjectH.getType(obj);
+			var type = getConstructorName(obj).toLowerCase();
 			switch (type) {
-			case 'string':
-				return '"' + escapeChars(obj) + '"';
-			case 'number':
-			case 'boolean':
-				return obj.toString();
-			case 'date' :
-				return 'new Date(' + obj.getTime() + ')';
-			case 'array' :
-				var ar = [];
-				for (var i = 0; i < obj.length; i++) {ar[i] = ObjectH.stringify(obj[i]); }
-				return '[' + ar.join(',') + ']';
-			case 'object':
-				if (ObjectH.isPlainObject(obj)) {
-					ar = [];
-					for (i in obj) {
-						ar.push('"' + escapeChars(i) + '":' + ObjectH.stringify(obj[i]));
+				case 'string':
+					return '"' + escapeChars(obj) + '"';
+				case 'number':
+				case 'boolean':
+					return obj.toString();
+				case 'date' :
+					return 'new Date(' + obj.getTime() + ')';
+				case 'array' :
+					var ar = [];
+					for (var i = 0; i < obj.length; i++) {ar[i] = ObjectH.stringify(obj[i]); }
+					return '[' + ar.join(',') + ']';
+				case 'object':
+					if (ObjectH.isPlainObject(obj)) {
+						ar = [];
+						for (i in obj) {
+							ar.push('"' + escapeChars(i) + '":' + ObjectH.stringify(obj[i]));
+						}
+						return '{' + ar.join(',') + '}';
 					}
-					return '{' + ar.join(',') + '}';
-				}
 			}
 			return null; //无法序列化的，返回null;
 		},

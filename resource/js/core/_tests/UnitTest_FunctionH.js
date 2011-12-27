@@ -191,28 +191,6 @@
 			FunctionH.lazyApply(f, null, [], 500, function(){
 				return (v = 1);
 			});
-			
-			//等价的方式 - 用 AsyncH 实现：
-			//AsyncH采用回调，因此不是用setInterval轮询
-			//如果是轮询判断状态的方式，可以选择lazyApply或AsyncH+setInterval
-
-			QW.AsyncH.wait(null,'my_signal_id', f);
-			setTimeout(function(){
-				QW.AsyncH.signal(null, 'my_signal_id');
-			}, 500);
-		},
-		'toggle' : function(){
-			function a(){ return 1 }
-			function b(){ return 2 }
-			function c(){ return 3 }
-
-			var d = FunctionH.toggle(a,b,c);
-
-			value_of(d()).should_be(1);
-			value_of(d()).should_be(2);
-			value_of(d()).should_be(3);
-
-			value_of(d()).should_be(1);
 		}
 	});
 

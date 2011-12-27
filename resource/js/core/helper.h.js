@@ -32,7 +32,6 @@
 	var FunctionH = QW.FunctionH,
 		create = QW.ObjectH.create,
 		isPlainObject = QW.ObjectH.isPlainObject,
-		gsetter = QW.ObjectH.gsetter,
 		Methodized = function() {};
 
 	var HelperH = {

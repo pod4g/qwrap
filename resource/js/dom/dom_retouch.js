@@ -6,12 +6,12 @@
 (function() {
 	var mix = QW.ObjectH.mix,
 		dump = QW.ObjectH.dump,
+		map = QW.ObjectH.map,
 		isString = QW.ObjectH.isString,
-		isArray = QW.ObjectH.isArray,
 		ArrayH = QW.ArrayH,
 		methodize = QW.HelperH.methodize,
 		rwrap = QW.HelperH.rwrap,
-		hook = QW.HelperH.hook,
+		hook = QW.FunctionH.hook,
 		NodeC = QW.NodeC,
 		NodeH = QW.NodeH,
 		EventTargetH = QW.EventTargetH,
@@ -36,37 +36,26 @@
 		修正this，修正Wrap
 	    这样和别的NodeW方法一致，否则之前那样很奇怪的
 	*/
-	ah = hook(ah, "before", function(args, func){
-		//args[0] - array, args[1] - callback
-		var _callback = args[1];
-		
-		if(func == ArrayH.filter && isString(_callback)){	//让filter支持selector的伪类
-			//function(el, i){return __SltPsds(el, "somevalue", i)} etc.
-			_callback = QW.Selector.selector2Filter(_callback);
-		}
+	ah = map(ah, function(fun){
+		return hook(fun, "before", function(args, func){
+			//args[0] - array, args[1] - callback
+			var _callback = args[1];
+			
+			if(func == ArrayH.filter && isString(_callback)){	//让filter支持selector的伪类
+				//function(el, i){return __SltPsds(el, "somevalue", i, els)} etc.
+				_callback = QW.Selector.selector2Filter(_callback);
+			}
 
-		args[1] = function(){
-			return _callback.apply(arguments[0], arguments);
-		}
+			args[1] = function(){
+				//修正this
+				return _callback.apply(arguments[0], arguments);
+			}
+		})
 	});
+
 	ah = methodize(ah);
 	ah = rwrap(ah, NodeW, NodeC.wrapMethods);
 	mix(NodeW.prototype, ah); //ArrayH的某些方法
-	
-	//异步方法
-	NodeW.pluginHelper(AsyncH, 'operator');
-	NodeW.pluginHelper({
-		setTimeout : function(el, delay, fn){
-			var id = setTimeout(function(){
-				fn.call(el, id);
-			}, delay);
-		},
-		setInterval: function(el, interval, fn){
-			var id = setInterval(function(){
-				fn.call(el, id);
-			}, interval);
-		}
-	});
 
 	/**
 	 * @class Dom 将QW.DomU与QW.NodeH合并到QW.Dom里，以跟旧的代码保持一致

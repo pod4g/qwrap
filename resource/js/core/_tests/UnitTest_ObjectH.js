@@ -158,30 +158,6 @@
 				"b": [1, 2]
 			};
 			value_of(ObjectH.encodeURIJson(json)).should_be('a=1&b=1&b=2');
-		},
-		'gsetter' : function(){
-			var gsetter = ObjectH.gsetter({
-				attr : {
-					key : true,
-					get : function(obj, key){
-						return obj[key];
-					},
-					set : function(obj, key, value){
-						if(typeof key == "object"){
-							for(var attr in key){
-								obj[attr] = key[attr];
-							}
-						}
-						obj[key] = value;
-					}
-				}
-			});
-			var o = {};
-			gsetter.attr(o, "abc", 1);
-			value_of(gsetter.attr(o, "abc")).should_be(1);
-
-			gsetter.attr(o, {"x": 2});
-			value_of(gsetter.attr(o, "x")).should_be(2);
 		}
 	});
 
