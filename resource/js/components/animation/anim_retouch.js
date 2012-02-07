@@ -141,7 +141,7 @@
 				function animate(){
 					anim.start();
 				}
-				if(options.sequence !== false){	//如果异步序列执行，wait
+				if(QW.Async && options.sequence !== false){	//如果支持异步序列执行，wait
 					W(el).wait(function(){
 						setTimeout(animate);
 					});
