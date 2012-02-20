@@ -4,7 +4,7 @@
 
 ## async - 异步非阻塞管理组件
 
-## ajax - ajax组件
+## ajax - Ajax组件
 
 ## animation - 动画组件
 
@@ -12,3 +12,4 @@
 
 ## twitter - 消息推送组件
 
+## zencoding - Zencoding组件

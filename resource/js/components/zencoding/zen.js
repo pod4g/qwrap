@@ -12,7 +12,6 @@
  */
 var trim = StringH.trim,
 	W = QW.NodeW,
-	g = QW.Dom.g,
 	isArray = ObjectH.isArray;
 
 function parseEl(matches, n){
@@ -33,6 +32,9 @@ function parseEl(matches, n){
 			
 			for(var i = 0; i < attrs.length; i++){
 				var attr = attrs[i].split('=');
+				if(attr[0] == "class"){
+					attr[0] = "className"; //解决早期版本的IE的兼容问题
+				}
 				elW.attr(attr[0], attr[1] || '');
 			}	
 		}
@@ -48,14 +50,6 @@ function parseEl(matches, n){
 		}
 		return W(els);
 	}
-}
-
-function cloneNodes(els){
-	var ret = [];
-	for(var i = 0; i < els.length; i++){
-		ret.push(els[i].cloneNode(true));
-	}	
-	return ret;
 }
 
 function reduce(tokens, ops, match /*匹配括号*/){
