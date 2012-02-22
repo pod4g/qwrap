@@ -143,14 +143,16 @@
 						anim.cancel();
 					}
 				}
-				if(QW.Async && sequence){	//如果支持异步序列执行，wait
+				if(QW.Async){	//如果支持异步序列执行，wait
 					anim.on("end", function(){
 						W(el).signal("_animate");			//发送一个signal告诉NodeW动画结束
 					});
 
-					W(el).wait("_animate", function(){
-						setTimeout(animate);
-					});
+					if(sequence){
+						W(el).wait("_animate", function(){
+							setTimeout(animate);
+						});
+					}
 				}else{							//否则立即执行
 					setTimeout(animate);
 				}
