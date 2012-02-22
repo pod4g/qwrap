@@ -129,6 +129,7 @@
 				var complete = options.complete;
 				var step = options.step;
 				var anim = new Anim(el, params, dur, easing);
+				var sequence = options.sequence != null ? options.sequence : AnimElH.sequence;
 
 				if(complete) anim.on("end", complete); //执行oncomplete
 
@@ -142,7 +143,7 @@
 						anim.cancel();
 					}
 				}
-				if(QW.Async && options.sequence !== false){	//如果支持异步序列执行，wait
+				if(QW.Async && sequence){	//如果支持异步序列执行，wait
 					anim.on("end", function(){
 						W(el).signal("_animate");			//发送一个signal告诉NodeW动画结束
 					});
@@ -166,6 +167,7 @@
 
 	if(QW.Async){
 		mix(AnimElH,{
+			sequence : true,
 			/**
 			 * Do noting but wait
 			 */

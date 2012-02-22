@@ -30,6 +30,12 @@ function getAnimationFrame(){
 			request :msRequestAnimationFrame,
 			cancel : msCancelRequestAnimationFrame
 		}
+	} else if(window.mozCancelRequestAnimationFrame && window.mozRequestAnimationFrame) { 
+		//firefox，11以下的版本没有实现cancelRequestAnimationFrame
+		return {
+			request :mozRequestAnimationFrame,
+			cancel : mozCancelRequestAnimationFrame
+		}
 	} else if(window.webkitRequestAnimationFrame){
 		return {
 			request : function(callback){
@@ -50,6 +56,7 @@ function getAnimationFrame(){
 
 if(!(window.requestAnimationFrame || 
 	 window.webkitRequestAnimationFrame ||
+	 (window.mozCancelRequestAnimationFrame && window.mozRequestAnimationFrame) ||
 	 window.msRequestAnimationFrame))
 {
 	var AnimationTimingManager = (function(){
@@ -68,15 +75,11 @@ if(!(window.requestAnimationFrame ||
 			});
 		}
 		
-		if(window.mozRequestAnimationFrame)
-			window.addEventListener("MozBeforePaint", playAll, false);
-		else
-			window.setInterval(playAll, millisec);
+		window.setInterval(playAll, millisec);
 
 		return {
 			request : function(handler){
 				request_handlers.push(handler);
-				if(window.mozRequestAnimationFrame) window.mozRequestAnimationFrame();
 				return id++;
 			},
 			cancel : function(id){
