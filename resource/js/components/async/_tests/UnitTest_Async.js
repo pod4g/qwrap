@@ -25,8 +25,8 @@
 		},
 		'async queue': function(){
 			var i = 0;
-			var q1 = function(signal){
-				setTimeout(function(){i++; signal(); console && console.log(i)}, 2000);
+			var q1 = function(){
+				setTimeout(function(){i++; AsyncH.signal(null); console && console.log(i)}, 2000);
 			};
 			//2s后在控制台依次输出1、2、3，每次输出间隔2s
 			AsyncH.wait(null, q1);
@@ -47,8 +47,8 @@
 		},
 		'global async': function(){
 			var i = 0;
-			var q1 = function(signal){
-				setTimeout(function(){i++; signal(); console && console.log(i)}, 2000);
+			var q1 = function(){
+				setTimeout(function(){i++; Async.signal(); console && console.log(i)}, 2000);
 			};
 			//2s后在控制台依次输出1、2、3，每次输出间隔2s
 			Async.wait(q1);

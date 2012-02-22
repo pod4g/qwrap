@@ -15,15 +15,15 @@
 	<div id="test2">test2</div>
  </body>
  <script>
-	W("#test").fadeOut(1000).wait().fadeIn(1000);
+	W("#test").fadeOut(1000).sleep(5000).fadeIn(1000);
 
 	W("#test2").on('click', function(){
-		W("#test").signal();
+		W("#test").clearAnimate();
 	});
 
 	W("#test").wait("foobar",function(){
 		console.log("foobar");
-	}).setTimeout(500, function(){
+	}).setTimeout(5000, function(){
 		W(this).signal("foobar");
 	});
 

@@ -68,7 +68,7 @@
 				this._initialize();
 				if(QW.Async && a.sequence){
 					this.on('complete', function(){
-						this.signal();
+						this.signal('_ajax');
 					});
 				}
 			}else{
@@ -180,7 +180,7 @@
 				},options,true));
 			}
 			if(QW.Async && a.sequence){	//如果支持异步序列，wait
-				a.wait(function(){
+				a.wait("_ajax", function(){
 					a.request();
 				});
 			}else{

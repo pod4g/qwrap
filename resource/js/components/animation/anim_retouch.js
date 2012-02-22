@@ -130,28 +130,64 @@
 				var step = options.step;
 				var anim = new Anim(el, params, dur, easing);
 
-				anim.on("end", function(){
-					W(el).signal();			//发送一个signal告诉NodeW动画结束
-				});
-
 				if(complete) anim.on("end", complete); //执行oncomplete
 
 				if(step) anim.on("enterframe", step);
 					
 				function animate(){
+					AnimElH.clearAnimate(el);
+					el.__QWELANIMH_animate = anim;
 					anim.start();
+					if(el.__QWELANIMH_animateClearAll){
+						anim.cancel();
+					}
 				}
 				if(QW.Async && options.sequence !== false){	//如果支持异步序列执行，wait
-					W(el).wait(function(){
+					anim.on("end", function(){
+						W(el).signal("_animate");			//发送一个signal告诉NodeW动画结束
+					});
+
+					W(el).wait("_animate", function(){
 						setTimeout(animate);
 					});
 				}else{							//否则立即执行
 					setTimeout(animate);
 				}
+
 				return anim;
+			},
+			clearAnimate : function(el){
+				if(el.__QWELANIMH_animate){
+					el.__QWELANIMH_animate.cancel()
+				}
 			}
 		};
 	})();
+
+	if(QW.Async){
+		mix(AnimElH,{
+			/**
+			 * Do noting but wait
+			 */
+			sleep: function(el, dur, complete){
+
+				var options = {
+					duration : dur,
+					complete : complete
+				};
+
+				return AnimElH.animate(el, {}, options);
+			},
+			clearAllAnimate: function(el){
+				W(el).wait('_animate', function(){
+					el.__QWELANIMH_animateClearAll = false;
+					W(el).signal('_animate');
+				});
+				AnimElH.clearAnimate(el);
+				el.__QWELANIMH_animateClearAll = true;
+			}
+		});
+	}
 
 	QW.NodeW.pluginHelper(AnimElH, 'operator');
 	if (QW.Dom) {

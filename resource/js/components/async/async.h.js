@@ -1,8 +1,8 @@
 /**
  * 使用非阻塞消息机制，实现异步响应队列
  * 这个模块通常有两种用法——
- * wait(owner, handler); 如果当前队列为空，将立即处理handler,否则等待信号
- * wait(owner, type, handler); 立即进入等待状态，等待type信号
+ * (1) wait(owner, handler); 如果当前队列为空，将立即处理handler,否则等待信号
+ * (2) wait(owner, type, handler); type不为下划线开头时，立即进入等待状态，等待type信号，否则同(1)
  * 通常用法（假设retouch过后）：
 	W(el).fadeOut(500)
 		.wait(function(){W(this).html('changed'); W(this).signal();}) //fadeOut之后才改变el中的文字
@@ -49,7 +49,7 @@ var AsyncH = {
 		seq.push(handler);	//把需要执行的动作加入队列
 
 		if(seq.length <= 1){ //如果之前序列是空的，说明可以立即执行
-			if(type != "_default"){	//如果type不是默认的
+			if(!/^_/.test(type)){	//如果type不是以下划线开头的
 				handler = function(){};	//多unshift进一个空的function
 				seq.unshift(handler);
 			}
