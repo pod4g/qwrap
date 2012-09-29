@@ -87,3 +87,6 @@ table.list td {border:1px solid #ccc;padding:2px;text-align:center;}
 #hd,#bd,#ft,.sect-l,.sect-r,.cls {zoom:1;}
 #hd:after,#bd:after,#ft:after,.sect-l:after,.sect-r:after,.cls:after {content:".";display:block;visibility:hidden;height:0;clear:both;}
 
+/* code */
+textarea.code {display: block;font-family: Courier New;font-size: 12px;height: 114px;padding: 3px;width: 100%;}
+div.code_highlight {background-color: #EEEEEE;border: 1px solid #CCCCCC;height: 120px;overflow: auto;width: 100%;}

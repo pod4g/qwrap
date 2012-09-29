@@ -24,20 +24,30 @@
 	 * @param	{object}				doc		(Optional)document 默认为 当前document
 	 * @return	{element}				得到的对象或null
 	 */
-	var g = function(el, doc) {
+	function g(el, doc) {
 		if ('string' == typeof el) {
 			if (el.indexOf('<') == 0) {return DomU.create(el, false, doc); }
-			return (doc || document).getElementById(el);
+			var retEl = (doc || document).getElementById(el),els;
+			if (retEl && retEl.id != el) {
+				els = (doc || document).getElementsByName(el);
+				for(var i = 0; i < els.length; i++){
+					if (els[i].id == el) {
+						return els[i];
+					}
+				}
+				return null;
+			}
+			return retEl;
 		} else {
 			return (ObjectH.isWrap(el)) ? arguments.callee(el[0]) : el; //如果NodeW是数组的话，返回第一个元素(modified by akira)
 		}
-	};
+	}
 
-	var regEscape = function(str) {
+	function regEscape(str) {
 		return String(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
-	};
+	}
 
-	var getPixel = function(el, value) {
+	function getPixel(el, value) {
 		if (/px$/.test(value) || !value) {return parseInt(value, 10) || 0; }
 		var right = el.style.right,
 			runtimeRight = el.runtimeStyle.right;
@@ -50,7 +60,7 @@
 		el.style.right = right;
 		el.runtimeStyle.right = runtimeRight;
 		return result;
-	};
+	}
 
 	var NodeH = {
 
@@ -937,7 +947,7 @@
 		 */
 		getAttr: function(el, attribute, iFlags) {
 			el = g(el);
-
+			attribute = NodeH.attrMap[attribute] || attribute;
 			if ((attribute in el) && 'href' != attribute) {
 				return el[attribute];
 			} else {
@@ -957,6 +967,7 @@
 		setAttr: function(el, attribute, value, iCaseSensitive) {
 			el = g(el);
 			if ('object' != typeof attribute) {
+				attribute = NodeH.attrMap[attribute] || attribute;
 				if (attribute in el) {
 					el[attribute] = value;
 				} else {
@@ -1357,6 +1368,21 @@
 		tmpl : function(el, data){
 			el = g(el);
 			return StringH.tmpl(el.innerHTML, data); 
+		},
+
+		attrMap: {
+			"class": "className",
+			"for": "htmlFor",
+			tabindex: "tabIndex",
+			readonly: "readOnly",
+			maxlength: "maxLength",
+			cellspacing: "cellSpacing",
+			cellpadding: "cellPadding",
+			rowspan: "rowSpan",
+			colspan: "colSpan",
+			usemap: "useMap",
+			frameborder: "frameBorder",
+			contenteditable: "contentEditable"
 		},
 
 		cssHooks: (function() {

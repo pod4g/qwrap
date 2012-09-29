@@ -21,7 +21,7 @@
 		switchable: function(el, options) {
 			el = g(el);
 			var newOptions = {},
-				props = 'tabSelector viewSelector pageUpSelector pageDownSelector autoPlay autoPlayPausing autoPlayTime supportMouseenter mouseenterSwitchTime switchEvents animType animDur switchEvents onbeforeswitch onafterswitch'.split(' ');
+				props = 'tabSelector viewSelector pageUpSelector pageDownSelector selectedClass preselectedClass selectedViewClass autoPlay autoPlayPausing autoPlayTime supportMouseenter mouseenterSwitchTime switchEvents animType animDur switchEvents onbeforeswitch onafterswitch'.split(' ');
 			for(var i=0;i<props.length;i++){
 				var value = getJss(el,props[i]);
 				if(value != null) newOptions[props[i]] = value;

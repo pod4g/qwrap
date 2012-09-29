@@ -241,7 +241,7 @@
 			doc = doc || document;
 			var el = doc.createElement(tagName);
 			if (property) {
-				for (var i in property) {el[i] = property[i]; }
+				QW.NodeH.setAttr(el, property);
 			}
 			return el;
 		},

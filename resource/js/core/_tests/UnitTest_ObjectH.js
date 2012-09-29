@@ -78,6 +78,27 @@
 			}, true);
 			value_of(el.name).should_be('Tom');
 		},
+		'deep mix': function(){
+			var des = {
+				a : {x:1},
+				b : {y:2}
+			}, src =  {
+				a : {y:1},
+				b : {y:-2},
+				c : {z:0}
+			}; 
+			
+			ObjectH.mix(des, src, function(d, s){
+				if(d && typeof d == 'object'){
+					return ObjectH.mix(d, s, arguments.callee);
+				}else{
+					return s;
+				}
+			});
+			value_of(des.a.y).should_be(1);
+			value_of(des.b.y).should_be(-2);
+			value_of(des.c.z).should_be(0);
+		},
 		'dump': function() {
 			var a = ObjectH.dump({
 				x: 1,

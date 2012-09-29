@@ -28,7 +28,7 @@
 		<div class="section-ctn">
 			<h3 class="section-hd" >水平滑动幻灯片</h3>
 			<div class="cls">
-				<div class="picslide" id="picslide1">
+				<div class="picslide widget-slide" id="picslide1" data-jss="animType:'scroll'">
 					<div id="picslide1_scroll_div" style="overflow:hidden;width:405px;height:220px;">
 					<ul class="pic slide-content">
 						<li class="selected"><a target="_blank" href="http://maizuo.youa.com"><img src="http://co.youa.baidu.com/picture/r/image/2010-08-19/1640a3aebcfb76afc2e0853340a0bacb.jpg"></a></li> 
@@ -45,22 +45,6 @@
 					</ul>
 					<div style="position:absolute; bottom:5px; right:10px; font-size:16px; font-weight:bold; color:blue; cursor:pointer;"> <span class="slide-pageup" style="margin-right:20px"> &lt; </span> <span class="slide-pagedown"> &gt; </span></div>
 				</div>
-				<script type="text/javascript">
-				Dom.ready(function () {
-					var tabview = new TabView(g('picslide1'), {
-						autoPlay: true,
-						supportMouseenter: true,
-						animType: 'scroll',
-						animEasing: QW.Easing.easeBothStrong,
-						onbeforeswitch: function(e){ //加个特别的效果：滚动时可以忽略中间项
-							if(!e.fromItem) return;
-							W(this.views).hide();
-							W([e.fromView,e.toView]).show();
-							W('#picslide1_scroll_div')[0].scrollLeft = e.fromView.offsetLeft;
-						}
-					});
-				});
-				</script>
 			</div>
 		</div>
 	</div> 

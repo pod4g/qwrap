@@ -18,7 +18,7 @@
 	<div id="nav">
 		<a href="index.htm" target="contents">NodeW</a>
 		&nbsp;>&nbsp;
-		w.removeNode 将元素从dom树中移除
+		w.empty 移除所有子元素
 	</div>
 	<!-- nav end -->
 	<!-- bd start -->
@@ -27,7 +27,7 @@
 		<div class="item">
 			<div class="syntax_title">
 				<h3>语法： </h3>
-				<p>w.removeNode()</p>
+				<p>w.empty(bCloneChildren)</p>
 			</dt>
 			<div class="syntax_detail">
 				<div class="syntax_param">
@@ -49,12 +49,11 @@
 					<h4>示例1： </h4>
 <textarea class="code code_html"><head><script type="text/javascript" src="../../js/apps/qwrap.js"></script></head>
 <body>
-  <a id="tester">测试</a>
+  
   <div>hello</div>
   <button onclick="
-    W('div').removeNode();
-	">查看</button>
-</body>
+    W('div').empty();
+	">清空</button>
 </textarea>
 				</li>
 			</ul>
@@ -62,8 +61,9 @@
 		</div>
 
 		<div class="item">
-			<h3>备注：</h3>
-			<p>本方法是由<a href="#" class="method_source">QW.NodeH.removeNode</a>经“mul”、“methodize”变换得到</p>
+			<h3>备注：QWrap1.1.3开始支持</h3>
+			<p>本方法是由<a href="#" class="method_source">QW.NodeH.empty</a>经“mul（queryer）”、“methodize”变换得到</p>
+			<p></p>
 		</div>
 	</div>
 	<!-- bd end -->

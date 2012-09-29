@@ -193,9 +193,8 @@
 			switchAnim : function(eventArgs){
 				var me=this;
 				function animCb(){
-					me.isSwitching = false;
-					me.fire('afterswitch',eventArgs);
-				};
+					me.switchDone(eventArgs);
+				}
 				if(eventArgs.fromItem) {
 					removeClass(eventArgs.fromItem,this.selectedClass);
 				}
@@ -208,13 +207,20 @@
 						if (eventArgs.fromView) QW.NodeW(eventArgs.fromView).animate({opacity:{from:1,to:0}},this.animDur || 500,function(){QW.NodeW(eventArgs.fromView).removeClass(me.selectedViewClass)},this.animEasing);
 						return QW.NodeW(eventArgs.toView).addClass(me.selectedViewClass).animate({opacity:{from:0,to:1}},this.animDur || 500,animCb,this.animEasing);
 					case 'scroll':
+						if(eventArgs.fromView){
+							for (var i=0,viewI; viewI = me.views[i++]; ){
+								QW.NodeH[viewI == eventArgs.fromView || viewI == eventArgs.toView ? 'show' : 'hide'](viewI);
+							}
+						}
 						var pEl=eventArgs.toView.parentNode,
 							loopNum = 4;
 						while (loopNum--) {
 							if(pEl.scrollWidth>1.5*pEl.offsetWidth) {
+								if(eventArgs.fromView) pEl.scrollLeft = eventArgs.fromView.offsetLeft;
 								return QW.NodeW(pEl).animate({scrollLeft:{to:eventArgs.toView.offsetLeft}},this.animDur || 500,animCb,this.animEasing);
 							}
 							if(pEl.scrollHeight>1.5*pEl.offsetHeight) {
+								if(eventArgs.fromView) pEl.scrollTop = eventArgs.fromView.offsetTop;
 								return QW.NodeW(pEl).animate({scrollTop:{to:eventArgs.toView.offsetTop}},this.animDur || 500,animCb,this.animEasing);
 							}
 							pEl = pEl.parentNode;

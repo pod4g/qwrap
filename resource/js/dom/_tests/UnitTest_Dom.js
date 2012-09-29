@@ -186,11 +186,28 @@ describe('DOM_Integrity_Retouch', {
 		value_of(test).should_be(3);
 		document.body.removeChild(node);
 	},
-	'$': function() {
+	'g': function() {
 		QW.Dom.insertAdjacentHTML(document.body, 'beforeEnd', '<div id="test">1</div>');
 		var node = QW.NodeH.g('test');
 		value_of(node).should_not_be(null);
 		document.body.removeChild(node);
+
+		QW.Dom.insertAdjacentHTML(document.body, 'beforeEnd', '<div name="test">1</div>');
+		var node = QW.NodeH.g('test');
+		value_of(node).should_be(null);
+		var els = document.getElementsByName('test');
+		while (els.length) {
+			document.body.removeChild(els[0]);
+		}
+
+		QW.Dom.insertAdjacentHTML(document.body, 'beforeEnd', '<div name="test">1</div><div id="test">2</div>');
+		var node = QW.NodeH.g('test');
+		value_of(node.innerHTML).should_be('2');
+		document.body.removeChild(document.getElementById('test'));
+		var els = document.getElementsByName('test');
+		while (els.length) {
+			document.body.removeChild(els[0]);
+		}
 	},
 	'addClass removeClass replaceClass hasClass': function() {
 		QW.Dom.insertAdjacentHTML(document.body, 'beforeEnd', '<div id="test">1</div>');
@@ -320,6 +337,10 @@ describe('DOM_Integrity_Retouch', {
 		QW.Dom.setAttr(node, 'id', 'a');
 		value_of(QW.Dom.getAttr(node, 'id')).should_be('a');
 		value_of(QW.Dom.getAttr(node, 'test')).should_be('1');
+
+		QW.Dom.setAttr(node, 'class', 'a');
+		value_of(QW.Dom.getAttr(node, 'class')).should_be('a');
+		value_of(node.className).should_be('a');
 	},
 	'setSize setInnerSize': function() {
 		QW.Dom.insertAdjacentHTML(document.body, 'beforeEnd', '<div id="test" style="font-size:0px;line-height:0px;border:5px #000 solid;padding:5px;"></div>');

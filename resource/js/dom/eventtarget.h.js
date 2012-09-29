@@ -531,19 +531,23 @@
 				var target = e.target || e.srcElement;
 				//if(target.tagName == 'OPTION') target = target.parentNode;
 				if (getElementVal(target) != target.__QWETH_pre_val) {
+					setPreVal(el,e);
 					return true;
 				}
 			}
-			mix(EventTargetH._DelegateHooks, {
-				'change': {
-					'focusin': function(el, e) {
+			function setPreVal(el,e){
 						var target = e.target || e.srcElement;
 						target.__QWETH_pre_val = getElementVal(target);
-
-					},
+			}
+			mix(EventTargetH._DelegateHooks, {
+				'change': {
+					'beforeactivete': setPreVal,
 					'deactivate': specialChange,
 					'focusout': specialChange,
-					'click': specialChange
+					'click': specialChange,
+					'keyup': function(el,e){
+						if(e.srcElement && e.srcElement.tagName =='SELECT') return specialChange(el,e);
+					}
 				},
 				'focus': {
 					'focusin': function(el, e) {

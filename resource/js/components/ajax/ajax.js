@@ -80,7 +80,8 @@
 						versions.shift();
 					}
 				}
-			} else if (window.XMLHttpRequest) {
+			} 
+			if (window.XMLHttpRequest) {
 				return new XMLHttpRequest();
 			}
 			return null;
@@ -198,6 +199,7 @@
 				}
 			}
 			url = url || me.url;
+			url = url.split('#')[0];
 			method = (method || me.method || '').toLowerCase();
 			if (method != 'post') method = 'get';
 			data = data || me.data;
@@ -237,7 +239,8 @@
 				requester.send(null);
 			}
 			if (!me.async) {
-				me._execComplete('timeout');
+				me._execComplete();
+				return me.requester.responseText;
 			}
 
 		},
@@ -336,12 +339,12 @@
 				//do nothing. 如果是被取消掉的则不执行回调
 			} else if (me.isSuccess()) {
 				me.state = Ajax.STATE_SUCCESS;
-				me.fire('succeed');
+				me.fire('succeed', me.requester.responseText);
 			} else {
 				me.state = Ajax.STATE_ERROR;
-				me.fire('error');
+				me.fire('error', me.requester.responseText);
 			}
-			me.fire('complete');
+			me.fire('complete', me.requester.responseText);
 		}
 	});
 

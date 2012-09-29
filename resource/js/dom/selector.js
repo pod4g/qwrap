@@ -222,28 +222,28 @@
 				if (filteredEls.length == els.length) { //如果第一个过滤筛完，则直接返回
 					return filteredEls;
 				}
-				for(var j = 0, el; el = els[j++];){
-					el.__QWSltFlted=0;
+				for(var j = 0, len = els.length; j < len; j++){
+					els[j].__QWSltFlted=0;
 				}
-				for(j = 0, el; el = filteredEls[j++];){
-					el.__QWSltFlted=1;
+				for(j = 0, len = filteredEls.length;j < len; j++){
+					filteredEls[j].__QWSltFlted=1;
 				}
 				var leftEls = els,
 					tempLeftEls;
 				for(var i=1;i<groups.length;i++){
 					tempLeftEls = [];
-					for(j = 0, el; el = leftEls[j++];){
-						if(!el.__QWSltFlted) tempLeftEls.push(el);
+					for(j = 0, len = leftEls.length; j < len; j++){
+						if(!leftEls[j].__QWSltFlted) tempLeftEls.push(leftEls[j]);
 					}
 					leftEls = tempLeftEls;
 					filteredEls = filterByRelation(pEl || document, leftEls, splitSelector(groups[i]));
-					for(j = 0, el; el = filteredEls[j++];){
-						el.__QWSltFlted=1;
+					for(j = 0, len = filteredEls.length; j < len; j++){
+						filteredEls[j].__QWSltFlted=1;
 					}
 				}
 				var ret=[];
-				for(j = 0, el; el = els[j++];){
-					if(el.__QWSltFlted) ret.push(el);
+				for(j = 0, len = els.length; j < len; j++){
+					if(els[j].__QWSltFlted) ret.push(els[j]);
 				}
 				return ret;
 			}
@@ -307,17 +307,20 @@
 
 	function arrFilter(arr, callback) {
 		var rlt = [],
-			i = 0;
+			len = arr.length,
+			i = 0,
+			oI;
 		if (callback == retTrue) {
 			if (arr instanceof Array) {
 				return arr.slice(0);
 			} else {
-				for (var len = arr.length; i < len; i++) {
+				for (; i < len; i++) {
 					rlt[i] = arr[i];
 				}
 			}
 		} else {
-			for (var oI; oI = arr[i++];) {
+			for (; i < len; ) {
+				oI = arr[i++];
 				callback(oI) && rlt.push(oI);
 			}
 		}
@@ -335,7 +338,18 @@
 		return ret;
 	}
 	function findId(id) {
-		return document.getElementById(id);
+		//return document.getElementById(id);
+		var retEl = document.getElementById(id),els;
+		if (retEl && retEl.id != id) {
+			els = document.getElementsByName(id);
+			for(var i = 0; i < els.length; i++){
+				if (els[i].id == id) {
+					return els[i];
+				}
+			}
+			return null;
+		}
+		return retEl;
 	}
 
 	(function() {
@@ -477,7 +491,7 @@
 			else{
 				els = refEl.querySelectorAll(sSelector);
 			}
-			for (var i = 0, elI; elI = els[i++];) arr.push(elI);
+			for (var i = 0, len = els.length; i < len; i++) arr.push(els[i]);
 			return arr;
 		}
 		return null;
@@ -682,8 +696,10 @@
 			};
 			return arrFilter(els, chkRelation);
 		} else { //不需回溯
-			var els2 = [];
-			for (var i = 0, el, elI; el = elI = els[i++];) {
+			var els2 = [],
+				elsLen = els.length;
+			for (var i = 0, el, elI; i < elsLen; ) {
+				el = elI = els[i++];
 				for (var j = len - 1; j > 0; j--) {
 					if (!(el = relations[j](el, filters[j - 1], pEl))) {
 						break;
@@ -693,7 +709,6 @@
 			}
 			return els2;
 		}
-
 	}
 
 	QW.Selector = Selector;

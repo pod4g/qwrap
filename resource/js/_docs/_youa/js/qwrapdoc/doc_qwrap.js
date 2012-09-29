@@ -120,6 +120,7 @@
 					'w.replaceChild(newEl, childEl)',
 					'w.removeNode()',
 					'w.removeChild(childEl)',
+					'w.empty()',
 					'w.cloneNode(bCloneChildren)',
 					'w.wrap(html)',
 					'w.unwrap()'
@@ -347,8 +348,8 @@
 			Ajax : {
 				_static :[
 					'Ajax.get(url, data, callback)',
-					'Ajax.post(url, data, callback)',
-					'Ajax.request(url, data, callback, method)'
+					'Ajax.post(url, data, callback)'
+					//'Ajax.request(url, data, callback, method)'
 				]
 			}
 		}
