@@ -72,11 +72,11 @@
 			<path path="${js.dir}/dom/dom_retouch.js"/>
 			<path path="${js.dir}/apps_qiwu/qiwu_retouch.js"/>
 
-			<path path="${js.dir}/components/ajax/ajax.js"/>
-			<path path="${js.dir}/components/ajax/ajax_retouch.js"/>
-
 			<path path="${js.dir}/components/async/async.h.js"/>
 			<path path="${js.dir}/components/async/async_retouch.js"/>
+
+			<path path="${js.dir}/components/ajax/ajax.js"/>
+			<path path="${js.dir}/components/ajax/ajax_retouch.js"/>
 
 			<path path="${js.dir}/components/anim/anim_base.js"/>
 			<path path="${js.dir}/components/anim/elanim.js"/>

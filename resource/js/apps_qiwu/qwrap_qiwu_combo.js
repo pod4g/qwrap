@@ -1,6 +1,6 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: QWrap 月影、CC、JK
 */
 
@@ -18,9 +18,9 @@
 		VERSION: "1.1.4",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2012-07-18
+		 * @default 2012-09-29
 		 */
-		RELEASE: "2012-07-18",
+		RELEASE: "2012-09-29",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -87,6 +87,9 @@
 			if (options.charset) {
 				script.charset = options.charset;
 			}
+            if ( "async" in options ){
+	        	script.async = options["async"] || "";
+            }
 			script.onerror = script.onload = script.onreadystatechange = function() {
 				if (!done && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
 					done = true;
@@ -171,9 +174,10 @@
 	*/
 
 	window.QW = QW;
-}());/*
+}());
+/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -415,7 +419,7 @@
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -456,7 +460,7 @@ if (QW.Browser.ie) {
 	} catch (e) {}
 }/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -985,7 +989,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: 月影、JK
 */
 
@@ -1194,7 +1198,7 @@ if (QW.Browser.ie) {
 		 * @static
 		 * @param {Object} des 目标对象
 		 * @param {Object|Array} src 源对象，如果是数组，则依次并入
-		 * @param {boolean} override (Optional) 是否覆盖已有属性
+		 * @param {boolean} override (Optional) 是否覆盖已有属性。如果为function则初为混合器，为src的每一个key执行 des[key] = override(des[key], src[key], key);
 		 * @returns {Object} des
 		 */
 		mix: function(des, src, override) {
@@ -1204,11 +1208,18 @@ if (QW.Browser.ie) {
 				}
 				return des;
 			}
+			if (typeof override == 'function') {
+				for (i in src) {
+					des[i] = override(des[i], src[i], i);
+				}
+			}
+			else {
 			for (i in src) {
 				//这里要加一个des[i]，是因为要照顾一些不可枚举的属性
 				if (override || !(des[i] || (i in des))) { 
 					des[i] = src[i];
 				}
+			}
 			}
 			return des;
 		},	
@@ -1371,7 +1382,7 @@ if (QW.Browser.ie) {
 	QW.ObjectH = ObjectH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -1758,7 +1769,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: 月影
 */
 
@@ -1858,7 +1869,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -1909,7 +1920,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: 月影、JK
 */
 
@@ -2116,7 +2127,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: 月影
 */
 
@@ -2187,7 +2198,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: 月影、JK
 */
 
@@ -2376,7 +2387,7 @@ if (QW.Browser.ie) {
 	QW.HelperH = HelperH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: Miller
 */
 
@@ -2421,7 +2432,7 @@ if (QW.Browser.ie) {
 	};
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -2623,7 +2634,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -2845,28 +2856,28 @@ if (QW.Browser.ie) {
 				if (filteredEls.length == els.length) { //如果第一个过滤筛完，则直接返回
 					return filteredEls;
 				}
-				for(var j = 0, el; el = els[j++];){
-					el.__QWSltFlted=0;
+				for(var j = 0, len = els.length; j < len; j++){
+					els[j].__QWSltFlted=0;
 				}
-				for(j = 0, el; el = filteredEls[j++];){
-					el.__QWSltFlted=1;
+				for(j = 0, len = filteredEls.length;j < len; j++){
+					filteredEls[j].__QWSltFlted=1;
 				}
 				var leftEls = els,
 					tempLeftEls;
 				for(var i=1;i<groups.length;i++){
 					tempLeftEls = [];
-					for(j = 0, el; el = leftEls[j++];){
-						if(!el.__QWSltFlted) tempLeftEls.push(el);
+					for(j = 0, len = leftEls.length; j < len; j++){
+						if(!leftEls[j].__QWSltFlted) tempLeftEls.push(leftEls[j]);
 					}
 					leftEls = tempLeftEls;
 					filteredEls = filterByRelation(pEl || document, leftEls, splitSelector(groups[i]));
-					for(j = 0, el; el = filteredEls[j++];){
-						el.__QWSltFlted=1;
+					for(j = 0, len = filteredEls.length; j < len; j++){
+						filteredEls[j].__QWSltFlted=1;
 					}
 				}
 				var ret=[];
-				for(j = 0, el; el = els[j++];){
-					if(el.__QWSltFlted) ret.push(el);
+				for(j = 0, len = els.length; j < len; j++){
+					if(els[j].__QWSltFlted) ret.push(els[j]);
 				}
 				return ret;
 			}
@@ -2930,17 +2941,20 @@ if (QW.Browser.ie) {
 
 	function arrFilter(arr, callback) {
 		var rlt = [],
-			i = 0;
+			len = arr.length,
+			i = 0,
+			oI;
 		if (callback == retTrue) {
 			if (arr instanceof Array) {
 				return arr.slice(0);
 			} else {
-				for (var len = arr.length; i < len; i++) {
+				for (; i < len; i++) {
 					rlt[i] = arr[i];
 				}
 			}
 		} else {
-			for (var oI; oI = arr[i++];) {
+			for (; i < len; ) {
+				oI = arr[i++];
 				callback(oI) && rlt.push(oI);
 			}
 		}
@@ -2958,7 +2972,18 @@ if (QW.Browser.ie) {
 		return ret;
 	}
 	function findId(id) {
-		return document.getElementById(id);
+		//return document.getElementById(id);
+		var retEl = document.getElementById(id),els;
+		if (retEl && retEl.id != id) {
+			els = document.getElementsByName(id);
+			for(var i = 0; i < els.length; i++){
+				if (els[i].id == id) {
+					return els[i];
+				}
+			}
+			return null;
+		}
+		return retEl;
 	}
 
 	(function() {
@@ -3100,7 +3125,7 @@ if (QW.Browser.ie) {
 			else{
 				els = refEl.querySelectorAll(sSelector);
 			}
-			for (var i = 0, elI; elI = els[i++];) arr.push(elI);
+			for (var i = 0, len = els.length; i < len; i++) arr.push(els[i]);
 			return arr;
 		}
 		return null;
@@ -3305,8 +3330,10 @@ if (QW.Browser.ie) {
 			};
 			return arrFilter(els, chkRelation);
 		} else { //不需回溯
-			var els2 = [];
-			for (var i = 0, el, elI; el = elI = els[i++];) {
+			var els2 = [],
+				elsLen = els.length;
+			for (var i = 0, el, elI; i < elsLen; ) {
+				el = elI = els[i++];
 				for (var j = len - 1; j > 0; j--) {
 					if (!(el = relations[j](el, filters[j - 1], pEl))) {
 						break;
@@ -3316,7 +3343,6 @@ if (QW.Browser.ie) {
 			}
 			return els2;
 		}
-
 	}
 
 	QW.Selector = Selector;
@@ -3563,7 +3589,7 @@ if (QW.Browser.ie) {
 			doc = doc || document;
 			var el = doc.createElement(tagName);
 			if (property) {
-				for (var i in property) {el[i] = property[i]; }
+				QW.NodeH.setAttr(el, property);
 			}
 			return el;
 		},
@@ -3614,20 +3640,30 @@ if (QW.Browser.ie) {
 	 * @param	{object}				doc		(Optional)document 默认为 当前document
 	 * @return	{element}				得到的对象或null
 	 */
-	var g = function(el, doc) {
+	function g(el, doc) {
 		if ('string' == typeof el) {
 			if (el.indexOf('<') == 0) {return DomU.create(el, false, doc); }
-			return (doc || document).getElementById(el);
+			var retEl = (doc || document).getElementById(el),els;
+			if (retEl && retEl.id != el) {
+				els = (doc || document).getElementsByName(el);
+				for(var i = 0; i < els.length; i++){
+					if (els[i].id == el) {
+						return els[i];
+					}
+				}
+				return null;
+			}
+			return retEl;
 		} else {
 			return (ObjectH.isWrap(el)) ? arguments.callee(el[0]) : el; //如果NodeW是数组的话，返回第一个元素(modified by akira)
 		}
-	};
+	}
 
-	var regEscape = function(str) {
+	function regEscape(str) {
 		return String(str).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
-	};
+	}
 
-	var getPixel = function(el, value) {
+	function getPixel(el, value) {
 		if (/px$/.test(value) || !value) {return parseInt(value, 10) || 0; }
 		var right = el.style.right,
 			runtimeRight = el.runtimeStyle.right;
@@ -3640,7 +3676,7 @@ if (QW.Browser.ie) {
 		el.style.right = right;
 		el.runtimeStyle.right = runtimeRight;
 		return result;
-	};
+	}
 
 	var NodeH = {
 
@@ -4527,7 +4563,7 @@ if (QW.Browser.ie) {
 		 */
 		getAttr: function(el, attribute, iFlags) {
 			el = g(el);
-
+			attribute = NodeH.attrMap[attribute] || attribute;
 			if ((attribute in el) && 'href' != attribute) {
 				return el[attribute];
 			} else {
@@ -4547,6 +4583,7 @@ if (QW.Browser.ie) {
 		setAttr: function(el, attribute, value, iCaseSensitive) {
 			el = g(el);
 			if ('object' != typeof attribute) {
+				attribute = NodeH.attrMap[attribute] || attribute;
 				if (attribute in el) {
 					el[attribute] = value;
 				} else {
@@ -4947,6 +4984,21 @@ if (QW.Browser.ie) {
 		tmpl : function(el, data){
 			el = g(el);
 			return StringH.tmpl(el.innerHTML, data); 
+		},
+
+		attrMap: {
+			"class": "className",
+			"for": "htmlFor",
+			tabindex: "tabIndex",
+			readonly: "readOnly",
+			maxlength: "maxLength",
+			cellspacing: "cellSpacing",
+			cellpadding: "cellPadding",
+			rowspan: "rowSpan",
+			colspan: "colSpan",
+			usemap: "useMap",
+			frameborder: "frameBorder",
+			contenteditable: "contentEditable"
 		},
 
 		cssHooks: (function() {
@@ -5436,7 +5488,7 @@ if (QW.Browser.ie) {
 	QW.EventH = EventH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -5967,19 +6019,23 @@ if (QW.Browser.ie) {
 				var target = e.target || e.srcElement;
 				//if(target.tagName == 'OPTION') target = target.parentNode;
 				if (getElementVal(target) != target.__QWETH_pre_val) {
+					setPreVal(el,e);
 					return true;
 				}
 			}
-			mix(EventTargetH._DelegateHooks, {
-				'change': {
-					'focusin': function(el, e) {
+			function setPreVal(el,e){
 						var target = e.target || e.srcElement;
 						target.__QWETH_pre_val = getElementVal(target);
-
-					},
+			}
+			mix(EventTargetH._DelegateHooks, {
+				'change': {
+					'beforeactivete': setPreVal,
 					'deactivate': specialChange,
 					'focusout': specialChange,
-					'click': specialChange
+					'click': specialChange,
+					'keyup': function(el,e){
+						if(e.srcElement && e.srcElement.tagName =='SELECT') return specialChange(el,e);
+					}
 				},
 				'focus': {
 					'focusin': function(el, e) {
@@ -6531,7 +6587,8 @@ QW.ModuleH.provideDomains.push(window);/*
 						versions.shift();
 					}
 				}
-			} else if (window.XMLHttpRequest) {
+			} 
+			if (window.XMLHttpRequest) {
 				return new XMLHttpRequest();
 			}
 			return null;
@@ -6649,6 +6706,7 @@ QW.ModuleH.provideDomains.push(window);/*
 				}
 			}
 			url = url || me.url;
+			url = url.split('#')[0];
 			method = (method || me.method || '').toLowerCase();
 			if (method != 'post') method = 'get';
 			data = data || me.data;
@@ -6688,7 +6746,8 @@ QW.ModuleH.provideDomains.push(window);/*
 				requester.send(null);
 			}
 			if (!me.async) {
-				me._execComplete('timeout');
+				me._execComplete();
+				return me.requester.responseText;
 			}
 
 		},
@@ -6787,19 +6846,19 @@ QW.ModuleH.provideDomains.push(window);/*
 				//do nothing. 如果是被取消掉的则不执行回调
 			} else if (me.isSuccess()) {
 				me.state = Ajax.STATE_SUCCESS;
-				me.fire('succeed');
+				me.fire('succeed', me.requester.responseText);
 			} else {
 				me.state = Ajax.STATE_ERROR;
-				me.fire('error');
+				me.fire('error', me.requester.responseText);
 			}
-			me.fire('complete');
+			me.fire('complete', me.requester.responseText);
 		}
 	});
 
 	QW.provide('Ajax', Ajax);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-07-18 released
+ *	version: 1.1.4 2012-09-29 released
  *	author: JK
  *  description: ajax推荐retouch....
 */
@@ -6980,7 +7039,7 @@ var AsyncH = {
 		seq.length = 0;
 		return !!len;
 	}
-}
+	};
 
 QW.provide("AsyncH", AsyncH);
 })();(function() {
@@ -6997,7 +7056,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide("Async", Async);
 }());/*
 	Copyright QWrap
-	version: 1.1.4 2012-07-18 released
+	version: 1.1.4 2012-09-29 released
 	author: JK
 */
 
@@ -7558,7 +7617,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Easing', Easing);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-07-18 released
+ *	version: 1.1.4 2012-09-29 released
  *	author:Jerry(屈光宇)、JK（加宽）
  *  description: Anim推荐retouch....
 */
