@@ -20,6 +20,8 @@
 		hide = NodeH.hide,
 		isVisible = NodeH.isVisible;
 
+	var cssNumber = ["zIndex", "fontWeight", "opacity", "lineHeight"];
+
 	var ElAnimAgent = function(el, opts, attr) {
 		this.el = el;
 		this.attr = attr;
@@ -41,8 +43,7 @@
 		getUnit : function() {
 			if(this.unit) return this.unit;
 			
-			var value = this.getValue(), 
-				cssNumber = ["zIndex", "fontWeight", "opacity", "lineHeight"];
+			var value = this.getValue();
 
 			if(value) {
 				var unit = value.toString().replace(/^[+-]?[\d\.]+/g, '');
@@ -283,6 +284,14 @@
 
 				var callback = function(){
 					hide(el);
+
+					var value = el['__anim' + attr];
+
+					//setStyle没有处理setStyle(el, 'height', 100)这种情况，这里自己处理下
+					if(typeof value == 'number' && !cssNumber.contains(attr.camelize())) {
+						value += 'px';
+					}
+					setStyle(el, attr, value);
 				};
 
 				el['__anim' + attr] = el['__anim' + attr] || from;
