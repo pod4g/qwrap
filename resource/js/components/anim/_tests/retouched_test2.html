@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>TEST</title>
+	<script type="text/javascript" src="../../../apps/core_dom_youa.js"></script>
+	<script type="text/javascript" src="../../../components/anim/anim.js"></script>
+
+    </head>
+	<body>
+		<div id="test" style="width:250px;height:250px;background:red;"></div>
+		<input type="button" value="fadeIn" />
+		<input type="button" value="fadeOut" />
+		<input type="button" value="slideDown" />
+		<input type="button" value="slideUp" />
+		<script>
+			W('input').click(function() {
+				eval("W('#test')." +W(this).val()+ "()");
+			});
+
+			W('#test').css('opacity', .5);
+		</script>
+	</body>
+</html>
