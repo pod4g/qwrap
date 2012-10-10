@@ -1,6 +1,6 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: QWrap 月影、CC、JK
 */
 
@@ -18,9 +18,9 @@
 		VERSION: "1.1.4",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2012-09-29
+		 * @default 2012-10-10
 		 */
-		RELEASE: "2012-09-29",
+		RELEASE: "2012-10-10",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -177,7 +177,7 @@
 }());
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -419,7 +419,7 @@
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -460,7 +460,7 @@ if (QW.Browser.ie) {
 	} catch (e) {}
 }/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -989,7 +989,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: 月影、JK
 */
 
@@ -1382,7 +1382,7 @@ if (QW.Browser.ie) {
 	QW.ObjectH = ObjectH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -1769,7 +1769,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: 月影
 */
 
@@ -1869,7 +1869,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -1920,7 +1920,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: 月影、JK
 */
 
@@ -2127,7 +2127,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: 月影
 */
 
@@ -2198,7 +2198,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: 月影、JK
 */
 
@@ -2387,7 +2387,7 @@ if (QW.Browser.ie) {
 	QW.HelperH = HelperH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: Miller
 */
 
@@ -2432,7 +2432,7 @@ if (QW.Browser.ie) {
 	};
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -2634,7 +2634,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -5488,7 +5488,7 @@ if (QW.Browser.ie) {
 	QW.EventH = EventH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -6505,7 +6505,121 @@ QW.ObjectH.mix(window, QW);
 /*
  * 增加provide的产出
 */
-QW.ModuleH.provideDomains.push(window);/*
+QW.ModuleH.provideDomains.push(window);/**
+ * 使用非阻塞消息机制，实现异步响应队列
+ * 这个模块通常有两种用法——
+ * (1) wait(owner, handler); 如果当前队列为空，将立即处理handler,否则等待信号
+ * (2) wait(owner, type, handler); type不为下划线开头时，立即进入等待状态，等待type信号，否则同(1)
+ * 通常用法（假设retouch过后）：
+	W(el).fadeOut(500)
+		.wait("_animate",function(){W(this).html('changed'); W(this).signal("_animate");}) //fadeOut之后才改变el中的文字
+		.fadeIn(500);
+	
+	W(el).slideDown().wait("_animate").slideUp();
+	W(el2).on("click", function(){W(el).signal("_animate")});	//用el2的click控制el的动画阶段暂停
+	W(el).wait("foobar",function(){dosth}).setTimeout(500, function(){W(el).signal("foobar")}); //延迟500ms后执行任务
+ * 
+ */
+(function(){
+
+var isString = QW.ObjectH.isString;
+
+/**
+ * 获得wait中的handler序列
+ * 
+ * @param {mixed} owner thisObj
+ * @param {string} type 信号类型
+ */
+function _getSequence(owner, type){
+	owner = owner || window;
+	type = type || "_default";
+
+	var sequences = owner["__QWASYNCH_sequences"] || (owner["__QWASYNCH_sequences"] = {});
+	sequences[type] = sequences[type] || [];
+	return sequences[type];	
+}
+
+/**
+ * 将异步消息和一个target的事件绑定
+ * 例如： 绑定动画的end事件，或者Ajax对象的succeed事件等等
+ */
+var AsyncH = {
+	/**
+	 * 等待一个自定义事件（信号），当这个事件处理完成之后，继续处理某个动作
+	 * W(el).fadeIn().wait(dosth);
+	 *
+	 * @param {mixed} owner thisObj
+	 * @param {string} type 信号类型
+	 * @param {Function} handler 处理器，当信号来的时候触发该函数
+	 */
+	wait: function(owner, type, handler){
+		if(!isString(type)){
+			handler = type;
+			type = "_default";
+		}
+		handler = handler || function(){};
+
+		var seq = _getSequence(owner, type);
+
+		seq.push(handler);	//把需要执行的动作加入队列
+
+		if(seq.length <= 1){ //如果之前序列是空的，说明可以立即执行
+			if(!/^_/.test(type)){	//如果type不是以下划线开头的
+				handler = function(){};	//多unshift进一个空的function
+				seq.unshift(handler);
+			}
+			handler.call(owner);	//队列空，立即执行当前处理器
+		}
+	},
+	/**
+	 * 发出某个类型的信号，以触发wait的handler，从而结束wait状态
+	 * 
+	 * @param {mixed} owner thisObj
+	 * @param {string} type 信号类型
+	 * @param {boolean} signalNext 如果这个参数为true，那么自动继续发出信号直到队列为空
+	 */ 
+	signal: function(owner, type, signalNext){
+		type = type || "_default";
+		var seq = _getSequence(owner, type);
+		var fn = seq.shift();
+		if(seq[0]){		//如果队列顶部有新的，可以继续执行
+			(function(handler){
+				handler.call(owner);
+			})(seq[0]);
+			if(signalNext){
+				AsyncH.signal(owner, type, signalNext);
+			}
+		}
+		return !!fn;
+	},
+	/**
+	 * 清除wait中的handler序列
+	 * 
+	 * @param {mixed} owner thisObj
+	 * @param {string} type 信号类型
+	 */
+	clearSignals: function(owner, type){
+		var seq = _getSequence(owner, type);
+		var len = seq.length;
+		seq.length = 0;
+		return !!len;
+	}
+	};
+
+QW.provide("AsyncH", AsyncH);
+})();(function() {
+	var NodeW = QW.NodeW,
+		AsyncH = QW.AsyncH,
+		methodize = QW.HelperH.methodize;
+
+	//异步方法
+	NodeW.pluginHelper(AsyncH, 'operator');
+
+	//提供全局的Async对象
+	var Async = methodize(AsyncH);
+
+	QW.provide("Async", Async);
+}());/*
  * @fileoverview Encapsulates common operations of Ajax
  * @author　JK ,绝大部分代码来自BBLib/util/BBAjax(1.0版),其作者为：Miller。致谢
  * @version 0.1
@@ -6858,7 +6972,7 @@ QW.ModuleH.provideDomains.push(window);/*
 	QW.provide('Ajax', Ajax);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-09-29 released
+ *	version: 1.1.4 2012-10-10 released
  *	author: JK
  *  description: ajax推荐retouch....
 */
@@ -6940,123 +7054,9 @@ QW.ModuleH.provideDomains.push(window);/*
 	};
 
 	NodeW.pluginHelper(FormH, 'operator');
-}());/**
- * 使用非阻塞消息机制，实现异步响应队列
- * 这个模块通常有两种用法——
- * (1) wait(owner, handler); 如果当前队列为空，将立即处理handler,否则等待信号
- * (2) wait(owner, type, handler); type不为下划线开头时，立即进入等待状态，等待type信号，否则同(1)
- * 通常用法（假设retouch过后）：
-	W(el).fadeOut(500)
-		.wait("_animate",function(){W(this).html('changed'); W(this).signal("_animate");}) //fadeOut之后才改变el中的文字
-		.fadeIn(500);
-	
-	W(el).slideDown().wait("_animate").slideUp();
-	W(el2).on("click", function(){W(el).signal("_animate")});	//用el2的click控制el的动画阶段暂停
-	W(el).wait("foobar",function(){dosth}).setTimeout(500, function(){W(el).signal("foobar")}); //延迟500ms后执行任务
- * 
- */
-(function(){
-
-var isString = QW.ObjectH.isString;
-
-/**
- * 获得wait中的handler序列
- * 
- * @param {mixed} owner thisObj
- * @param {string} type 信号类型
- */
-function _getSequence(owner, type){
-	owner = owner || window;
-	type = type || "_default";
-
-	var sequences = owner["__QWASYNCH_sequences"] || (owner["__QWASYNCH_sequences"] = {});
-	sequences[type] = sequences[type] || [];
-	return sequences[type];	
-}
-
-/**
- * 将异步消息和一个target的事件绑定
- * 例如： 绑定动画的end事件，或者Ajax对象的succeed事件等等
- */
-var AsyncH = {
-	/**
-	 * 等待一个自定义事件（信号），当这个事件处理完成之后，继续处理某个动作
-	 * W(el).fadeIn().wait(dosth);
-	 *
-	 * @param {mixed} owner thisObj
-	 * @param {string} type 信号类型
-	 * @param {Function} handler 处理器，当信号来的时候触发该函数
-	 */
-	wait: function(owner, type, handler){
-		if(!isString(type)){
-			handler = type;
-			type = "_default";
-		}
-		handler = handler || function(){};
-
-		var seq = _getSequence(owner, type);
-
-		seq.push(handler);	//把需要执行的动作加入队列
-
-		if(seq.length <= 1){ //如果之前序列是空的，说明可以立即执行
-			if(!/^_/.test(type)){	//如果type不是以下划线开头的
-				handler = function(){};	//多unshift进一个空的function
-				seq.unshift(handler);
-			}
-			handler.call(owner);	//队列空，立即执行当前处理器
-		}
-	},
-	/**
-	 * 发出某个类型的信号，以触发wait的handler，从而结束wait状态
-	 * 
-	 * @param {mixed} owner thisObj
-	 * @param {string} type 信号类型
-	 * @param {boolean} signalNext 如果这个参数为true，那么自动继续发出信号直到队列为空
-	 */ 
-	signal: function(owner, type, signalNext){
-		type = type || "_default";
-		var seq = _getSequence(owner, type);
-		var fn = seq.shift();
-		if(seq[0]){		//如果队列顶部有新的，可以继续执行
-			(function(handler){
-				handler.call(owner);
-			})(seq[0]);
-			if(signalNext){
-				AsyncH.signal(owner, type, signalNext);
-			}
-		}
-		return !!fn;
-	},
-	/**
-	 * 清除wait中的handler序列
-	 * 
-	 * @param {mixed} owner thisObj
-	 * @param {string} type 信号类型
-	 */
-	clearSignals: function(owner, type){
-		var seq = _getSequence(owner, type);
-		var len = seq.length;
-		seq.length = 0;
-		return !!len;
-	}
-	};
-
-QW.provide("AsyncH", AsyncH);
-})();(function() {
-	var NodeW = QW.NodeW,
-		AsyncH = QW.AsyncH,
-		methodize = QW.HelperH.methodize;
-
-	//异步方法
-	NodeW.pluginHelper(AsyncH, 'operator');
-
-	//提供全局的Async对象
-	var Async = methodize(AsyncH);
-
-	QW.provide("Async", Async);
 }());/*
 	Copyright QWrap
-	version: 1.1.4 2012-09-29 released
+	version: 1.1.4 2012-10-10 released
 	author: JK
 */
 
@@ -7483,40 +7483,58 @@ QW.provide("AsyncH", AsyncH);
 	/**
 	 * 用来预处理agent属性的hooker
 	 */
-	ElAnim.agentHooks = {
-		//如果是show动画，那么show之后属性从0变到当前值
-		show: function(attr, el){
-			var from = 0;
+	ElAnim.agentHooks = (function() {
 
-			if(!isVisible(el)) {
-				show(el);
-			} 
-			
-			var to = getCurrentStyle(el, attr) || 1;
+		/* QWrap里获取高不能用getCurrentStyle，特殊处理下 */
+		var _getStyle = function(el, attr) {
+			if(/^(height|width)$/ig.test(attr)) {
+				return getSize(el)[attr] || 0;
+			}
+			return getCurrentStyle(el, attr) || 0;
+		};
 
-			return {from: from, to: to}
-		},
-		//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
-		hide: function(attr, el){
-			
-			var value = getCurrentStyle(el, attr);
+		return {
+			//如果是show动画，那么show之后属性从0变到当前值
+			show: function(attr, el){
+				var from = 0, 
+					to = el['__anim' + attr];
 
-			var callback = function(){	//如果是hide，动画结束后将属性值还原，只把display设置为none
-				setStyle(el, attr, value);
-				hide(el);
-			};	
+				//如果元素不可见，显示出来，获取真实属性值，再设置为0。
+				if(!isVisible(el)) {
+					show(el);
+					to = to || _getStyle(el, attr);
+					setStyle(el, attr, 0);
+				} else {
+					from = _getStyle(el, attr);
+					to = to || _getStyle(el, attr);
+				}
 
-			return {from: value, to: 0, callback: callback};
-		},
-		//如果是toggle动画，那么根据el是否可见判断执行show还是hide
-		toggle: function(attr, el){
-			if(!isVisible(el)){
-				return ElAnim.agentHooks.show.apply(this, arguments);
-			}else{
-				return ElAnim.agentHooks.hide.apply(this, arguments);
-			}	
-		}
-	};
+
+				return {from: from, to: to};
+			},
+			//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
+			hide: function(attr, el){
+				
+				var from = _getStyle(el, attr);
+
+				var callback = function(){
+					hide(el);
+				};
+
+				el['__anim' + attr] = el['__anim' + attr] || from;
+
+				return {from: from, to: 0, callback: callback};
+			},
+			//如果是toggle动画，那么根据el是否可见判断执行show还是hide
+			toggle: function(attr, el){
+				if(!isVisible(el)){
+					return ElAnim.agentHooks.show.apply(this, arguments);
+				}else{
+					return ElAnim.agentHooks.hide.apply(this, arguments);
+				}	
+			}
+		};
+	})();
 
 	QW.provide({
 		ElAnim: ElAnim,
@@ -7617,7 +7635,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Easing', Easing);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-09-29 released
+ *	version: 1.1.4 2012-10-10 released
  *	author:Jerry(屈光宇)、JK（加宽）
  *  description: Anim推荐retouch....
 */
@@ -7625,10 +7643,7 @@ QW.provide("AsyncH", AsyncH);
 (function() {
 	var NodeH = QW.NodeH,
 		g = NodeH.g,
-		isVisible = NodeH.isVisible,
-		getStyle = NodeH.getCurrentStyle,
-		getSize = NodeH.getSize,
-		setStyle = NodeH.setStyle;
+		isVisible = NodeH.isVisible;
 
 	function newAnim(el, attrs, callback, dur, easing) {
 		el = g(el);
