@@ -1,4 +1,5 @@
-//document.write('<script type="text/javascript" src="' + srcPath + 'components/switch/switch.js"></script>');
+
+/*import from qwrap/resource/js/components/switch/../../components/switch/switch.js,(by build.py)*/
 
 (function () {
 	var indexOfArr = QW.ArrayH.indexOf,
@@ -249,9 +250,7 @@
 	});
 
 }());
-
-
-//document.write('<script type="text/javascript" src="' + srcPath + 'components/switch/switch_retouch.js"></script>');
+/*import from qwrap/resource/js/components/switch/../../components/switch/switch_retouch.js,(by build.py)*/
 
 (function() {
 	var mix = QW.ObjectH.mix,
@@ -294,4 +293,3 @@
 		QW.NodeW('div.widget-slide').switchable();
 	});
 }());
-

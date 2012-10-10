@@ -14,16 +14,16 @@
 
 	var eventTarget = CustEvent.createEvents({},[]);
 	//var timeout = 200; //default timeout
-	var receiveMap = {};
+	var receiveMap = {'*':[]};
 	
 	eventTarget.on("*", function(evt){
 		var type = evt.type;
 		var sender = evt.sender;
-		var receiveList = receiveMap[type] || [];
+		var receiveList = (receiveMap[type] || []).concat(receiveMap['*']);
 
 		for (var i = 0, len = receiveList.length; i < len; i++){
 			var r = receiveList[i];
-			mix(evt, {target:r.receiver, receiver:r.receiver}, true);
+			mix(evt, {target:r.receiver, receiver:r.receiver, type:evt.trueType}, true);
 			r.callback.call(r.receiver, evt);
 		}
 	});
@@ -43,12 +43,12 @@
 			//如果定义了XPC并且type是一个以XPC开头的消息，利用XPC发送跨域消息
 			if(QW.XPC && /^XPC/.test(type)){
 				var xpc = new XPC();
-				var pack = {message:data, type:type};
+				var pack = {message:data, type:type, trueType:type};
 				xpc.send(pack);
 				return;
 			}
 
-			var pack = {data:data, sender:target};
+			var pack = {data:data, sender:target, trueType:type};
 
 			eventTarget.createEvents([type]);	//如果有需要，创建对应类型的事件
 			eventTarget.fire(type, pack);

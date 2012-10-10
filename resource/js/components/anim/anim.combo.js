@@ -198,6 +198,7 @@
 		g = NodeH.g,
 		getCurrentStyle = NodeH.getCurrentStyle,
 		setStyle = NodeH.setStyle,
+		getSize = NodeH.getSize,
 		isElement = QW.DomU.isElement,
 		forEach = QW.ArrayH.forEach,
 		map = QW.ArrayH.map,
@@ -433,40 +434,58 @@
 	/**
 	 * 用来预处理agent属性的hooker
 	 */
-	ElAnim.agentHooks = {
-		//如果是show动画，那么show之后属性从0变到当前值
-		show: function(attr, el){
-			var from = 0;
+	ElAnim.agentHooks = (function() {
 
-			if(!isVisible(el)) {
-				show(el);
-			} 
-			
-			var to = getCurrentStyle(el, attr) || 1;
+		/* QWrap里获取高不能用getCurrentStyle，特殊处理下 */
+		var _getStyle = function(el, attr) {
+			if(/^(height|width)$/ig.test(attr)) {
+				return getSize(el)[attr] || 0;
+			}
+			return getCurrentStyle(el, attr) || 0;
+		};
 
-			return {from: from, to: to}
-		},
-		//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
-		hide: function(attr, el){
-			
-			var value = getCurrentStyle(el, attr);
+		return {
+			//如果是show动画，那么show之后属性从0变到当前值
+			show: function(attr, el){
+				var from = 0, 
+					to = el['__anim' + attr];
 
-			var callback = function(){	//如果是hide，动画结束后将属性值还原，只把display设置为none
-				setStyle(el, attr, value);
-				hide(el);
-			};	
+				//如果元素不可见，显示出来，获取真实属性值，再设置为0。
+				if(!isVisible(el)) {
+					show(el);
+					to = to || _getStyle(el, attr);
+					setStyle(el, attr, 0);
+				} else {
+					from = _getStyle(el, attr);
+					to = to || _getStyle(el, attr);
+				}
 
-			return {from: value, to: 0, callback: callback};
-		},
-		//如果是toggle动画，那么根据el是否可见判断执行show还是hide
-		toggle: function(attr, el){
-			if(!isVisible(el)){
-				return ElAnim.agentHooks.show.apply(this, arguments);
-			}else{
-				return ElAnim.agentHooks.hide.apply(this, arguments);
-			}	
-		}
-	};
+
+				return {from: from, to: to};
+			},
+			//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
+			hide: function(attr, el){
+				
+				var from = _getStyle(el, attr);
+
+				var callback = function(){
+					hide(el);
+				};
+
+				el['__anim' + attr] = el['__anim' + attr] || from;
+
+				return {from: from, to: 0, callback: callback};
+			},
+			//如果是toggle动画，那么根据el是否可见判断执行show还是hide
+			toggle: function(attr, el){
+				if(!isVisible(el)){
+					return ElAnim.agentHooks.show.apply(this, arguments);
+				}else{
+					return ElAnim.agentHooks.hide.apply(this, arguments);
+				}	
+			}
+		};
+	})();
 
 	QW.provide({
 		ElAnim: ElAnim,
@@ -581,10 +600,7 @@
 (function() {
 	var NodeH = QW.NodeH,
 		g = NodeH.g,
-		isVisible = NodeH.isVisible,
-		getStyle = NodeH.getCurrentStyle,
-		getSize = NodeH.getSize,
-		setStyle = NodeH.setStyle;
+		isVisible = NodeH.isVisible;
 
 	function newAnim(el, attrs, callback, dur, easing) {
 		el = g(el);

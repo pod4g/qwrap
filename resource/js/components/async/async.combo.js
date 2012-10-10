@@ -100,7 +100,7 @@ var AsyncH = {
 		seq.length = 0;
 		return !!len;
 	}
-}
+	};
 
 QW.provide("AsyncH", AsyncH);
 })();
