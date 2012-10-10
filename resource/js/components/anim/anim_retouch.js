@@ -8,10 +8,7 @@
 (function() {
 	var NodeH = QW.NodeH,
 		g = NodeH.g,
-		isVisible = NodeH.isVisible,
-		getStyle = NodeH.getCurrentStyle,
-		getSize = NodeH.getSize,
-		setStyle = NodeH.setStyle;
+		isVisible = NodeH.isVisible;
 
 	function newAnim(el, attrs, callback, dur, easing) {
 		el = g(el);
