@@ -7248,6 +7248,7 @@ QW.provide("AsyncH", AsyncH);
 		g = NodeH.g,
 		getCurrentStyle = NodeH.getCurrentStyle,
 		setStyle = NodeH.setStyle,
+		getSize = NodeH.getSize,
 		isElement = QW.DomU.isElement,
 		forEach = QW.ArrayH.forEach,
 		map = QW.ArrayH.map,
