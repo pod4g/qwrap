@@ -468,12 +468,27 @@
 			//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
 			hide: function(attr, el){
 				
-				var from = _getStyle(el, attr);
+				var from = _getStyle(el, attr),
+					oriAttr = '__anim' + attr,
+					oriValue = el[oriAttr];
+
+				//hide前把原始属性值存起来
+				if(!oriValue) {
+					if(!isVisible(el)) {
+						show(el);
+						oriValue = _getStyle(el, attr);
+						hide(el);
+					} else {
+						oriValue = from;
+					}
+
+					el[oriAttr] = oriValue;
+				}
 
 				var callback = function(){
 					hide(el);
 
-					var value = el['__anim' + attr];
+					var value = el[oriAttr];
 
 					//setStyle没有处理setStyle(el, 'height', 100)这种情况，这里自己处理下
 					if(typeof value == 'number' && !cssNumber.contains(attr.camelize())) {
@@ -481,8 +496,6 @@
 					}
 					setStyle(el, attr, value);
 				};
-
-				el['__anim' + attr] = el['__anim' + attr] || from;
 
 				return {from: from, to: 0, callback: callback};
 			},
