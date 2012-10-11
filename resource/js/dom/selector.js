@@ -523,9 +523,9 @@
 			pEls = [pEl],
 			i,
 			elI,
-			pElI;
-
-		var sltor0;
+			pElI,
+			sltor0,
+			filter;
 		//次优先：在' '、'>'关系符出现前，优先正向（从上到下）查询
 		while (sltor0 = sltors[0]) {
 			if (!pEls.length) return [];
@@ -563,7 +563,7 @@
 		if (!sltorsLen || !pEls.length) return pEls;
 
 		//次优先：idIdx查询
-		for (var idIdx = 0, id; sltor = sltors[idIdx]; idIdx++) {
+		for (var idIdx = 0, id, sltor; sltor = sltors[idIdx]; idIdx++) {
 			if ((/^[.\w-]*#([\w-]+)/i).test(sltor[1])) {
 				id = RegExp.$1;
 				sltor[1] = sltor[1].replace('#' + id, '');
@@ -610,7 +610,7 @@
 		if (sltorsLen == 1) {
 			if (sltors[0][0] == '>') {
 				getChildrenFun = getChildren;
-				var filter = s2f(sltors[0][1], true);
+				filter = s2f(sltors[0][1], true);
 			} else {
 				filter = s2f(sSelector, true);
 			}
@@ -668,8 +668,7 @@
 		if (relationsStr == ' ') return els;
 		if (/[+>~] |[+]~/.test(relationsStr)) { //需要回溯
 			//alert(1); //用到这个分支的可能性很小。放弃效率的追求。
-
-			function chkRelation(el) { //关系人过滤
+			return arrFilter(els, function (el) { //关系人过滤
 				var parties = [],
 					//中间关系人
 					j = len - 1,
@@ -693,8 +692,7 @@
 					}
 					parties[j - 1] = party;
 				}
-			};
-			return arrFilter(els, chkRelation);
+			});
 		} else { //不需回溯
 			var els2 = [],
 				elsLen = els.length;

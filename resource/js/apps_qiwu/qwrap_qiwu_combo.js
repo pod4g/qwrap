@@ -1,6 +1,6 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: QWrap 月影、CC、JK
 */
 
@@ -18,9 +18,9 @@
 		VERSION: "1.1.4",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2012-10-10
+		 * @default 2012-10-11
 		 */
-		RELEASE: "2012-10-10",
+		RELEASE: "2012-10-11",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -177,7 +177,7 @@
 }());
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -419,7 +419,7 @@
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -460,7 +460,7 @@ if (QW.Browser.ie) {
 	} catch (e) {}
 }/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -989,7 +989,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: 月影、JK
 */
 
@@ -1382,7 +1382,7 @@ if (QW.Browser.ie) {
 	QW.ObjectH = ObjectH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -1769,7 +1769,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: 月影
 */
 
@@ -1869,7 +1869,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -1920,7 +1920,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: 月影、JK
 */
 
@@ -2127,7 +2127,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: 月影
 */
 
@@ -2198,7 +2198,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: 月影、JK
 */
 
@@ -2387,7 +2387,7 @@ if (QW.Browser.ie) {
 	QW.HelperH = HelperH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: Miller
 */
 
@@ -2432,7 +2432,7 @@ if (QW.Browser.ie) {
 	};
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -2634,7 +2634,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -3157,9 +3157,9 @@ if (QW.Browser.ie) {
 			pEls = [pEl],
 			i,
 			elI,
-			pElI;
-
-		var sltor0;
+			pElI,
+			sltor0,
+			filter;
 		//次优先：在' '、'>'关系符出现前，优先正向（从上到下）查询
 		while (sltor0 = sltors[0]) {
 			if (!pEls.length) return [];
@@ -3197,7 +3197,7 @@ if (QW.Browser.ie) {
 		if (!sltorsLen || !pEls.length) return pEls;
 
 		//次优先：idIdx查询
-		for (var idIdx = 0, id; sltor = sltors[idIdx]; idIdx++) {
+		for (var idIdx = 0, id, sltor; sltor = sltors[idIdx]; idIdx++) {
 			if ((/^[.\w-]*#([\w-]+)/i).test(sltor[1])) {
 				id = RegExp.$1;
 				sltor[1] = sltor[1].replace('#' + id, '');
@@ -3244,7 +3244,7 @@ if (QW.Browser.ie) {
 		if (sltorsLen == 1) {
 			if (sltors[0][0] == '>') {
 				getChildrenFun = getChildren;
-				var filter = s2f(sltors[0][1], true);
+				filter = s2f(sltors[0][1], true);
 			} else {
 				filter = s2f(sSelector, true);
 			}
@@ -3302,8 +3302,7 @@ if (QW.Browser.ie) {
 		if (relationsStr == ' ') return els;
 		if (/[+>~] |[+]~/.test(relationsStr)) { //需要回溯
 			//alert(1); //用到这个分支的可能性很小。放弃效率的追求。
-
-			function chkRelation(el) { //关系人过滤
+			return arrFilter(els, function (el) { //关系人过滤
 				var parties = [],
 					//中间关系人
 					j = len - 1,
@@ -3327,8 +3326,7 @@ if (QW.Browser.ie) {
 					}
 					parties[j - 1] = party;
 				}
-			};
-			return arrFilter(els, chkRelation);
+			});
 		} else { //不需回溯
 			var els2 = [],
 				elsLen = els.length;
@@ -5488,7 +5486,7 @@ if (QW.Browser.ie) {
 	QW.EventH = EventH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -6972,7 +6970,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Ajax', Ajax);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-10-10 released
+ *	version: 1.1.4 2012-10-11 released
  *	author: JK
  *  description: ajax推荐retouch....
 */
@@ -7056,7 +7054,7 @@ QW.provide("AsyncH", AsyncH);
 	NodeW.pluginHelper(FormH, 'operator');
 }());/*
 	Copyright QWrap
-	version: 1.1.4 2012-10-10 released
+	version: 1.1.4 2012-10-11 released
 	author: JK
 */
 
@@ -7456,8 +7454,9 @@ QW.provide("AsyncH", AsyncH);
 				attrs[attr] = _attr;
 			}
 
-			var Agent = _patternFilter(_agentPattern, attr);
-			agent = new Agent(el, attrs[attr], attr);
+			var Agent = _patternFilter(_agentPattern, attr),
+				agent = new Agent(el, attrs[attr], attr);
+			
 			if(!agent) continue;
 			agent.init();
 			agent.easing = agent.easing || easing;
@@ -7645,7 +7644,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Easing', Easing);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-10-10 released
+ *	version: 1.1.4 2012-10-11 released
  *	author:Jerry(屈光宇)、JK（加宽）
  *  description: Anim推荐retouch....
 */

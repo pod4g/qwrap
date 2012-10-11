@@ -219,8 +219,9 @@
 				attrs[attr] = _attr;
 			}
 
-			var Agent = _patternFilter(_agentPattern, attr);
-			agent = new Agent(el, attrs[attr], attr);
+			var Agent = _patternFilter(_agentPattern, attr),
+				agent = new Agent(el, attrs[attr], attr);
+			
 			if(!agent) continue;
 			agent.init();
 			agent.easing = agent.easing || easing;
