@@ -268,11 +268,11 @@
 				//如果元素不可见，显示出来，获取真实属性值，再设置为0。
 				if(!isVisible(el)) {
 					show(el);
-					to = to || _getStyle(el, attr);
+					to = (typeof to == 'undefined') ? _getStyle(el, attr) : to;
 					setStyle(el, attr, 0);
 				} else {
 					from = _getStyle(el, attr);
-					to = to || _getStyle(el, attr);
+					to = (typeof to == 'undefined') ? _getStyle(el, attr) : to;
 				}
 
 
@@ -286,7 +286,7 @@
 					oriValue = el[oriAttr];
 
 				//hide前把原始属性值存起来
-				if(!oriValue) {
+				if(typeof oriValue == 'undefined') {
 					if(!isVisible(el)) {
 						show(el);
 						oriValue = _getStyle(el, attr);
