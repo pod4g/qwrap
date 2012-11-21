@@ -338,7 +338,7 @@
 		stringify: function(obj) {
 			if (obj == null) {return 'null'; }
 			if (obj.toJSON) {
-				obj = obj.toJSON();
+				return obj.toJSON();
 			}
 			var type = getConstructorName(obj).toLowerCase();
 			switch (type) {

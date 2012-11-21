@@ -428,7 +428,10 @@
 					if (handler) {
 						EventTargetH.on(el, type, handler);
 					} else if (el[type]){
-						el[type]();
+						//ie低版本中，focus不可见元素会抛异常，容错下
+						try {
+							el[type]();
+						} catch (e) {}
 					} else {
 						EventTargetH.fire(el, type);
 					}

@@ -6,11 +6,12 @@
 	<link href="../../../apps/assets/base.css" rel="stylesheet" type="text/css" media="screen"/>
 	<style>
 	body {line-height:1.8;}
+	li {padding-left:2em;}
 	li label {width:120px;display: -moz-inline-box; display: inline-block;text-align:right;background-color:#ccc;}
 	.evalSpan {color:#00f;cursor:pointer;}
 	</style>
 	<script type="text/javascript" src="../../../apps/core_dom_youa.js"></script>
-	<script type="text/javascript" src="../../../components/anim/anim.js"></script>
+	<script type="text/javascript" src="../anim.js"></script>
 </head>
 <body>
 <div id=doc3>
@@ -82,16 +83,16 @@ new QW.Anim(function(){document.title=i++;},3000,{frameTime:100,onend:function()
 				<p>以下是针对节点元素的动画的几种使用场景，用法完全一致：new ElAnim(el, attrs, dur, easing)。<br />不同场景可以组合使用（例如进行颜色变换的同时也可以改变宽度，等等），具体参见实例：</p>
 				<ul>
 					<li>
-						&nbsp;&nbsp;&nbsp;&nbsp;针对元素的“opacity或以px为单位的样式”的动画。使用场景如：
+						针对元素的“opacity或以px为单位的样式”的动画。使用场景如：
 						<a href="ball.html">CSS动画-跳动的小球</a>、
 						<a href="elanim_rect.html">大小位置动画</a>
 					</li>
 					<li>
-						&nbsp;&nbsp;&nbsp;&nbsp;针对元素的“颜色性质的样式”的动画。使用场景如：
+						针对元素的“颜色性质的样式”的动画。使用场景如：
 						<a href="color.html">颜色渐变</a>
 					</li>
 					<li>
-						&nbsp;&nbsp;&nbsp;&nbsp;针对元素的“scroll”的动画。使用场景如：
+						针对元素的“scroll”的动画。使用场景如：
 						<a href="scroll_page.html">滚屏翻页</a>、
 						<a href="scroll_coda.html">类coda效果</a>、
 						<a href="scroll_home.html">回到首页</a>
@@ -106,30 +107,37 @@ new QW.Anim(function(){document.title=i++;},3000,{frameTime:100,onend:function()
 			<div style="overflow:hidden;">
 			<div style="padding-left:30px;">
 				<p>在QW.NodeW添加一些扩展方法，<strong>执行这些方法都会停止之前的动画（new ElAnim添加的动画不受影响）</strong>，方便用户调用，包括：</p>
-				<p>参数说明：<strong>attrs</strong>，需要改变的属性集合；<strong>dur</strong>，动画时长（单位ms，默认400）；<strong>callback</strong>，动画完成时回调；<strong>easing</strong>，动画算子。除了<strong>attrs</strong>，其它参数可选。</p>
-				<p>attrs参数示例：{height : {from : '1px', to : '100px', end : '50px'}, width: {by : '-100px'}} 或 {height : '100px'}（等于{height : {to : '100px'}}）</p>
 <pre>
-	w.animation(attrs, dur, callback, easing) //通用动画
-	w.fadeIn(dur, callback, easing) //淡入
-	w.fadeOut(dur, callback, easing) //淡出
-	w.fadeToggle(dur, callback, easing) //淡入/淡出切换 
-	w.slideUp(dur, callback, easing) //收起
-	w.slideDown(dur, callback, easing) 展开
-	w.slideToggle(dur, callback, easing) 收起/展开切换
-	w.shine4Error(dur, callback, easing) //颜色渐变提醒注意
-</pre>
+	W(el).animation(attrs, dur, callback, easing) //通用动画
+	W(el).fadeIn(dur, callback, easing) //淡入
+	W(el).fadeOut(dur, callback, easing) //淡出
+	W(el).fadeToggle(dur, callback, easing) //淡入/淡出切换 
+	W(el).slideUp(dur, callback, easing) //收起
+	W(el).slideDown(dur, callback, easing) 展开
+	W(el).slideToggle(dur, callback, easing) 收起/展开切换
+	W(el).shine4Error(dur, callback, easing) //颜色渐变提醒注意
+</pre>				<p>参数说明：
+					<ul>
+						<li><strong>attrs</strong>，需要改变的属性集合；</li>
+						<li><strong>dur</strong>，动画时长（单位ms，默认400）；</li>
+						<li><strong>callback</strong>，动画完成时回调；</li>
+						<li><strong>easing</strong>，动画算子；</li>
+						<li><strong>sequence</strong>，是否顺序执行动画（bool，默认false，需要Async组件支持）。<a href="../_tests/retouched_test2.html">示例</a></li>
+					</ul>
+					除了<strong>attrs</strong>，其它参数可选。</p>
+				<p>attrs参数示例：{height : {from : '1px', to : '100px', end : '50px'}, width: {by : '-100px'}} 或 {height : '100px'}（等于{height : {to : '100px'}}）</p>
 				<ul>
 					<li>
 						<span class="evalSpan">W('#fadeTestDiv').fadeOut()</span> &nbsp;&nbsp;&nbsp;
 						<span class="evalSpan">W('#fadeTestDiv').fadeIn()</span> &nbsp;&nbsp;&nbsp;
 						<span class="evalSpan">W('#fadeTestDiv').fadeToggle()</span> &nbsp;&nbsp;&nbsp;
-						<div id="fadeTestDiv" style="margin:0 30px;background-color:#ccc;zoom:1;">天王盖地虎，<br/>宝塔镇河妖。</div>
+						<div id="fadeTestDiv" style="background-color:#ccc;zoom:1;">天王盖地虎，<br/>宝塔镇河妖。</div>
 					</li>
 					<li>
 						<span class="evalSpan">W('#slideTestDiv').slideUp()</span> &nbsp;&nbsp;&nbsp;
 						<span class="evalSpan">W('#slideTestDiv').slideDown()</span> &nbsp;&nbsp;&nbsp;
 						<span class="evalSpan">W('#slideTestDiv').slideToggle()</span> &nbsp;&nbsp;&nbsp;
-						<div id="slideTestDiv" style="margin:0 30px;overflow:hidden;background-color:#ccc">天下太平，<br/>江山永固。</div>
+						<div class="slide" id="slideTestDiv" style="overflow:hidden;background-color:#ccc">天下太平，<br/>江山永固。</div>
 					</li>
 					<li>
 						<span class="evalSpan">W('#shineTestDiv').shine4Error().focus()</span> &nbsp;&nbsp;&nbsp;
