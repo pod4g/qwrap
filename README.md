@@ -1,9 +1,10 @@
+## 介绍
 QWrap Blog: http://www.qwrap.com
 
 QWrap是百度有啊前端团队推出的一个javascript框架，在BSD协议下开源发布。
 
 QWrap名称的来历: Query and Wrap、Quick Wrap、 Cute Wrap？随便怎么理解吧。
-
+## 如何使用
 Qwrap的一些典型用法：（以有啊版应用为例）
 引用一个/core_dom_youa.js就可以这样用了：
 像jQuery一样这样用： ----(注，W相当于jQuery的$)
@@ -22,7 +23,7 @@ Qwrap的一些典型用法：（以有啊版应用为例）
 
 QWrap与市面上的各大框架没有冲突，可以和平共存，所以还有一些互补型的应用，参见QWrap应用表.
 
-为什么要Qwrap？
+## 为什么要Qwrap？
 前端之大，框架或框枷很多。Prototype、YUI、Jquery、Dojo……各有各的好，但是也有一些各自的缺憾。QWrap用独特的设计与实现，做到了： 
     提供jquery一样方便的dom功能，同时又打破jquery“专注于dom”的约束，也提供非dom的许多功能。
     提供prototype方便的原型功能，同时又提供javascript1.6的泛型功能，并且提供用户有选择方便与严谨的自由。
@@ -30,7 +31,7 @@ QWrap与市面上的各大框架没有冲突，可以和平共存，所以还有
     学习YUI3的use，同时又摈弃YUI3的严谨性洁癖，让use更实用。
     QWrap独创特的Helper + Wrap + Retouch + Apps设计，让QWrap有更多的灵性等待你去发现。(参见：QWrap博客中的设计介绍系列)
 
-如何参与Qwrap开发？
+## 如何参与Qwrap开发？
 QWrap的第一支生力军，来自百度有啊WedTeam。
 Wed在这贡献里只能是一小部分。更多是希望大家都来关注、贡献、试用、使用、推广、交流。
 
