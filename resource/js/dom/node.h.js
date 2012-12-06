@@ -62,6 +62,17 @@
 		return result;
 	}
 
+	var cssNumber = {
+            'fillOpacity': 1,
+            'fontWeight': 1,
+            'lineHeight': 1,
+            'opacity': 1,
+            'orphans': 1,
+            'widows': 1,
+            'zIndex': 1,
+            'zoom': 1
+        };
+
 	var NodeH = {
 
 		/** 
@@ -282,7 +293,7 @@
 
 		/** 
 		 * 获取element对象距离doc的xy坐标
-		 * 参考与YUI3.1.1
+		 * 参考YUI3.1.1
 		 * @refer  https://github.com/yui/yui3/blob/master/build/dom/dom.js
 		 * @method	getXY
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
@@ -394,8 +405,8 @@
 			el = g(el);
 			x = parseInt(x, 10);
 			y = parseInt(y, 10);
-			if (!isNaN(x)) {NodeH.setStyle(el, 'left', x + 'px'); }
-			if (!isNaN(y)) {NodeH.setStyle(el, 'top', y + 'px'); }
+			if (!isNaN(x)) {NodeH.setStyle(el, 'left', x); }
+			if (!isNaN(y)) {NodeH.setStyle(el, 'top', y); }
 		},
 
 		/** 
@@ -416,8 +427,8 @@
 			var borders = NodeH.borderWidth(el);
 			var paddings = NodeH.paddingWidth(el);
 
-			if (!isNaN(w)) {NodeH.setStyle(el, 'width', Math.max(+w - borders[1] - borders[3] - paddings[1] - paddings[3], 0) + 'px'); }
-			if (!isNaN(h)) {NodeH.setStyle(el, 'height', Math.max(+h - borders[0] - borders[2] - paddings[0] - paddings[2], 0) + 'px'); }
+			if (!isNaN(w)) {NodeH.setStyle(el, 'width', Math.max(+w - borders[1] - borders[3] - paddings[1] - paddings[3], 0)); }
+			if (!isNaN(h)) {NodeH.setStyle(el, 'height', Math.max(+h - borders[0] - borders[2] - paddings[0] - paddings[2], 0)); }
 		},
 
 		/** 
@@ -433,8 +444,8 @@
 			w = parseFloat(w, 10);
 			h = parseFloat(h, 10);
 
-			if (!isNaN(w)) {NodeH.setStyle(el, 'width', w + 'px'); }
-			if (!isNaN(h)) {NodeH.setStyle(el, 'height', h + 'px'); }
+			if (!isNaN(w)) {NodeH.setStyle(el, 'width', w); }
+			if (!isNaN(h)) {NodeH.setStyle(el, 'height', h); }
 		},
 
 		/** 
@@ -1205,9 +1216,7 @@
 			var displayAttribute = StringH.camelize(attribute),
 				hook = NodeH.cssHooks[displayAttribute];
 
-			
-
-			if (hook) {
+			if (hook && hook.remove) {
 				hook.remove(el);
 			} else if (el.style.removeProperty) {
 				el.style.removeProperty(StringH.decamelize(attribute));
@@ -1231,7 +1240,7 @@
 			var hook = NodeH.cssHooks[attribute],
 				result;
 
-			if (hook) {
+			if (hook && hook.get) {
 				result = hook.get(el);
 			} else {
 				result = el.style[attribute];
@@ -1255,7 +1264,7 @@
 			var hook = NodeH.cssHooks[displayAttribute],
 				result;
 
-			if (hook) {
+			if (hook && hook.get) {
 				result = hook.get(el, true, pseudo);
 			} else if (Browser.ie) {
 				result = el.currentStyle[displayAttribute];
@@ -1281,9 +1290,13 @@
 				var displayAttribute = StringH.camelize(attribute),
 					hook = NodeH.cssHooks[displayAttribute];
 
-				if (hook) {
+				if (hook && hook.set) {
 					hook.set(el, value);
 				} else {
+					if(typeof value == 'number' && !cssNumber[displayAttribute]) {
+						value += 'px';
+					}
+
 					el.style[displayAttribute] = value;
 				}
 
@@ -1401,6 +1414,16 @@
 						},
 						remove : function (el) {
 							el.style.removeProperty('float');
+						}
+					},
+					'width' : {
+						get: function(el) {
+							return NodeH.getSize(el)['width'] + 'px';
+						}
+					},
+					'height' : {
+						get: function(el) {
+							return NodeH.getSize(el)['height'] + 'px';
 						}
 					}
 				};

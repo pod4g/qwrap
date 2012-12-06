@@ -64,7 +64,7 @@ else{coords1=(this.start1+1)+','+this.length1}if(this.length2===0){coords2=this.
 			try {
 				var hasChildren = false,
 					type,
-					sConstructor = "缩主内部对象",
+					sConstructor = "宿主内部对象",
 					summary;
 				if (value === null) type = "null"; //ECMS里，typeof null返回object。
 				else type = typeof value;

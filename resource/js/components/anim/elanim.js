@@ -11,7 +11,6 @@
 		g = NodeH.g,
 		getCurrentStyle = NodeH.getCurrentStyle,
 		setStyle = NodeH.setStyle,
-		getSize = NodeH.getSize,
 		isElement = QW.DomU.isElement,
 		forEach = QW.ArrayH.forEach,
 		map = QW.ArrayH.map,
@@ -19,8 +18,6 @@
 		show = NodeH.show,
 		hide = NodeH.hide,
 		isVisible = NodeH.isVisible;
-
-	var cssNumber = ["zIndex", "fontWeight", "opacity", "lineHeight"];
 
 	var ElAnimAgent = function(el, opts, attr) {
 		this.el = el;
@@ -50,10 +47,6 @@
 				if(unit && unit != value) {
 					return unit;
 				}
-			}
-
-			if( !cssNumber.contains(this.attr.camelize()) ) {
-				return 'px';
 			}
 
 			return '';
@@ -250,15 +243,6 @@
 	 * 用来预处理agent属性的hooker
 	 */
 	ElAnim.agentHooks = (function() {
-
-		/* QWrap里获取高不能用getCurrentStyle，特殊处理下 */
-		var _getStyle = function(el, attr) {
-			if(/^(height|width)$/ig.test(attr)) {
-				return getSize(el)[attr] || 0;
-			}
-			return getCurrentStyle(el, attr) || 0;
-		};
-
 		return {
 			//如果是show动画，那么show之后属性从0变到当前值
 			show: function(attr, el){
@@ -268,11 +252,11 @@
 				//如果元素不可见，显示出来，获取真实属性值，再设置为0。
 				if(!isVisible(el)) {
 					show(el);
-					to = (typeof to == 'undefined') ? _getStyle(el, attr) : to;
+					to = (typeof to == 'undefined') ? getCurrentStyle(el, attr) : to;
 					setStyle(el, attr, 0);
 				} else {
-					from = _getStyle(el, attr);
-					to = (typeof to == 'undefined') ? _getStyle(el, attr) : to;
+					from = getCurrentStyle(el, attr);
+					to = (typeof to == 'undefined') ? getCurrentStyle(el, attr) : to;
 				}
 
 
@@ -281,7 +265,7 @@
 			//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
 			hide: function(attr, el){
 				
-				var from = _getStyle(el, attr),
+				var from = getCurrentStyle(el, attr),
 					oriAttr = '__anim' + attr,
 					oriValue = el[oriAttr];
 
@@ -289,7 +273,7 @@
 				if(typeof oriValue == 'undefined') {
 					if(!isVisible(el)) {
 						show(el);
-						oriValue = _getStyle(el, attr);
+						oriValue = getCurrentStyle(el, attr);
 						hide(el);
 					} else {
 						oriValue = from;
@@ -300,14 +284,7 @@
 
 				var callback = function(){
 					hide(el);
-
-					var value = el[oriAttr];
-
-					//setStyle没有处理setStyle(el, 'height', 100)这种情况，这里自己处理下
-					if(typeof value == 'number' && !cssNumber.contains(attr.camelize())) {
-						value += 'px';
-					}
-					setStyle(el, attr, value);
+					setStyle(el, attr, el[oriAttr]);
 				};
 
 				return {from: from, to: 0, callback: callback};
