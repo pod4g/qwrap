@@ -22,9 +22,7 @@
 			});
 		}
 
-		setTimeout(function(){
 			anim.play();
-		});
 
 		el.__preAnim = anim;
 		return anim;

@@ -161,20 +161,34 @@
 		 */
 		ready: function(handler, doc) {
 			doc = doc || document;
+			var cbs = doc.__QWDomReadyCbs = doc.__QWDomReadyCbs || [];
+			cbs.push(handler);
 
+			function execCbs(){//JK：这里需要保证：每一个回调都执行，并且按顺序，并且每一个回调的异常都被抛出以方便工程师发现错误
+				clearTimeout(doc.__QWDomReadyTimer);
+				if(cbs.length){
+					var cb = cbs.shift();
+					if(cbs.length) {
+						doc.__QWDomReadyTimer = setTimeout(execCbs,0);
+					}
+					cb();
+				}
+			}
+
+			setTimeout(function(){ //延迟执行，而不是立即执行，以保证ready方法的键壮
 			if (/complete/.test(doc.readyState)) {
-				handler();
+					execCbs();
 			} else {
 				if (doc.addEventListener) {
 					if (!Browser.ie && ('interactive' == doc.readyState)) { // IE9下doc.readyState有些异常
-						handler();
+							execCbs();
 					} else {
-						doc.addEventListener('DOMContentLoaded', handler, false);
+							doc.addEventListener('DOMContentLoaded', execCbs, false);
 					}
 				} else {
 					var fireDOMReadyEvent = function() {
 						fireDOMReadyEvent = new Function();
-						handler();
+							execCbs();
 					};
 					(function() {
 						try {
@@ -189,6 +203,7 @@
 					});
 				}
 			}
+			},0);
 		},
 
 

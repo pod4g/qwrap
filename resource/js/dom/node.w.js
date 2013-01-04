@@ -22,6 +22,9 @@
 
 	var NodeW = function(core) {
 		if (!core) {//用法：var w=NodeW(null);	返回null
+			if(this instanceof NodeW){	//new NodeW(null) -> 空数组的 NodeW, 否则会产生问题（产生一个没有core的NodeW）
+				return new NodeW([]);
+			}
 			return null;
 		}
 		if(core instanceof NodeW){	//core是W的话要直接返回，不然的话W(W(el))会变成只有一个元素

@@ -2,18 +2,28 @@
 	var DomU = QW.DomU;
 	DomU.ready(function() {
 		window.ready_test_value1 = 1;
+		window.ready_test_date1 = new Date();
+
 	});
 	DomU.ready(function() {
 		window.ready_test_value2 = 2;
+		window.ready_test_date2 = new Date();
 	});
-	describe('DomU', {
-		'DomU Members': function() {
-			value_of(DomU).log('members');
-		},
+	DomU.ready(function() {
+		describe('DomU.ready', {
 		'ready': function() {
 			value_of(window.ready_test_value1).should_be(1);
 			value_of(window.ready_test_value2).should_be(2);
 			value_of(document.body).should_not_be(null);
+				var diff = window.ready_test_date2 - window.ready_test_date1;
+				value_of(diff).log();
+				value_of(diff).should('>=',0);
+			}
+		});
+	});
+	describe('DomU', {
+		'DomU Members': function() {
+			value_of(DomU).log('members');
 		},
 		'create': function() {
 			var el = DomU.create('<div id="test4_create">aaa</div>');

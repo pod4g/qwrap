@@ -27,8 +27,8 @@
 /*
  * 增加别名
 */
-QW.g = QW.NodeH.g;
-QW.W = QW.NodeW;
+window.g = QW.g = QW.NodeH.g;
+window.W = QW.W = QW.NodeW;
 
 /*
  * 将直属于QW的方法与命名空间上提一层到window

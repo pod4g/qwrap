@@ -230,7 +230,9 @@
 		wrap: function(el,pEl) {
 			el = g(el);
 			pEl = g(pEl, el.ownerDocument);
+			if (el.parentNode){//如果元素还不在dom树上，则只wrap不append
 			el.parentNode.insertBefore(pEl,el);
+			}
 			pEl.appendChild(el);
 		},
 	    /** 
@@ -879,7 +881,7 @@
 		 * @method	replaceNode
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
 		 * @param	{element|string|wrap}	newEl		新节点id,Element实例或wrap
-		 * @return	{element}				如替换成功，此方法可返回被替换的节点，如替换失败，则返回 NULL
+		 * @return	{element}				返回被替换的节点
 		 */
 		replaceNode: function(el, newEl) {
 			el = g(el);
@@ -892,7 +894,7 @@
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
 		 * @param	{element|string|wrap}	newEl	新节点id,Element实例或wrap
 		 * @param	{element|string|wrap}	childEl	被替换的id,Element实例或wrap后
-		 * @return	{element}				如替换成功，此方法可返回被替换的节点，如替换失败，则返回 NULL
+		 * @return	{element}				返回被替换的节点
 		 */
 		replaceChild: function(el, newEl, childEl) {
 			return g(el).replaceChild(g(newEl), g(childEl));
@@ -902,11 +904,11 @@
 		 * 把element移除掉
 		 * @method	removeNode
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
-		 * @return	{element}				如删除成功，此方法可返回被删除的节点，如失败，则返回 NULL。
+		 * @return	{element}				返回被删除的节点。
 		 */
 		removeNode: function(el) {
 			el = g(el);
-			return el.parentNode.removeChild(el);
+			return el.parentNode && el.parentNode.removeChild(el);
 		},
 
 		/** 
@@ -914,10 +916,11 @@
 		 * @method	removeChild
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
 		 * @param	{element|string|wrap}	childEl		需要移除的子对象
-		 * @return	{element}				如删除成功，此方法可返回被删除的节点，如失败，则返回 NULL。
+		 * @return	{element}				返回被删除的节点。
 		 */
 		removeChild: function(el, childEl) {
-			return g(el).removeChild(g(childEl));
+			var childEl = g(childEl);
+			return childEl && g(el).removeChild(g(childEl));
 		},
 
 		/** 
