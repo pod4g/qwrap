@@ -339,12 +339,12 @@
 				//do nothing. 如果是被取消掉的则不执行回调
 			} else if (me.isSuccess()) {
 				me.state = Ajax.STATE_SUCCESS;
-				me.fire('succeed', me.requester.responseText);
+				me.fire('succeed', {responseText:me.requester.responseText});
 			} else {
 				me.state = Ajax.STATE_ERROR;
-				me.fire('error', me.requester.responseText);
+				me.fire('error', {responseText:me.requester.responseText});
 			}
-			me.fire('complete', me.requester.responseText);
+			me.fire('complete', {responseText:me.requester.responseText});
 		}
 	});
 

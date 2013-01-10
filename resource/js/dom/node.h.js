@@ -1407,7 +1407,7 @@
 						get: function(el, current, pseudo) {
 							if (current) {
 								var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
-								return style ? style.getPropertyValue('cssFloat') : null;
+								return style ? style.getPropertyValue('float') : null;
 							} else {
 								return el.style.cssFloat;
 							}

@@ -204,7 +204,7 @@
 				switch(this.animType){
 					case 'fade':
 						//if (eventArgs.fromIndex<0) return animCb(); // 初始没必要fade in
-						if (eventArgs.fromView) QW.NodeW(eventArgs.fromView).animate({opacity:{from:1,to:0}},this.animDur || 500,function(){QW.NodeW(eventArgs.fromView).removeClass(me.selectedViewClass)},this.animEasing);
+						if (eventArgs.fromView) QW.NodeW(eventArgs.fromView).css('opacity',1).animate({opacity:0},this.animDur || 500,function(){QW.NodeW(eventArgs.fromView).removeClass(me.selectedViewClass)},this.animEasing);
 						return QW.NodeW(eventArgs.toView).addClass(me.selectedViewClass).animate({opacity:{from:0,to:1}},this.animDur || 500,animCb,this.animEasing);
 					case 'scroll':
 						if(eventArgs.fromView){
@@ -217,11 +217,11 @@
 						while (loopNum--) {
 							if(pEl.scrollWidth>1.5*pEl.offsetWidth) {
 								if(eventArgs.fromView) pEl.scrollLeft = eventArgs.fromView.offsetLeft;
-								return QW.NodeW(pEl).animate({scrollLeft:{to:eventArgs.toView.offsetLeft}},this.animDur || 500,animCb,this.animEasing);
+								return QW.NodeW(pEl).animate({scrollLeft:eventArgs.toView.offsetLeft},this.animDur || 500,animCb,this.animEasing);
 							}
 							if(pEl.scrollHeight>1.5*pEl.offsetHeight) {
 								if(eventArgs.fromView) pEl.scrollTop = eventArgs.fromView.offsetTop;
-								return QW.NodeW(pEl).animate({scrollTop:{to:eventArgs.toView.offsetTop}},this.animDur || 500,animCb,this.animEasing);
+								return QW.NodeW(pEl).animate({scrollTop:eventArgs.toView.offsetTop},this.animDur || 500,animCb,this.animEasing);
 							}
 							pEl = pEl.parentNode;
 						}
