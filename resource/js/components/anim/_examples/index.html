@@ -113,9 +113,12 @@ new QW.Anim(function(){document.title=i++;},3000,{frameTime:100,onend:function()
 	W(el).fadeOut(dur, callback, easing) //淡出
 	W(el).fadeToggle(dur, callback, easing) //淡入/淡出切换 
 	W(el).slideUp(dur, callback, easing) //收起
-	W(el).slideDown(dur, callback, easing) 展开
-	W(el).slideToggle(dur, callback, easing) 收起/展开切换
+	W(el).slideDown(dur, callback, easing) //展开
+	W(el).slideToggle(dur, callback, easing) //收起/展开切换
 	W(el).shine4Error(dur, callback, easing) //颜色渐变提醒注意
+	W(el).pause() //暂停动画
+	W(el).resume() //恢复动画
+	W(el).end() //结束动画
 </pre>				<p>参数说明：
 					<ul>
 						<li><strong>attrs</strong>，需要改变的属性集合；</li>

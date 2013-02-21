@@ -8,17 +8,20 @@
 
     </head>
 	<body>
-		<div id="test" style="cursor:pointer;position:absolute;top:50px;left:20px;width:100px;height:100px;background:#6B90DA;border:#333"></div>
+		<div id="test" style="cursor:pointer;position:absolute;top:120px;left:20px;width:100px;height:100px;background:#6B90DA;border:#333"></div>
 		<input type="button" value="fadeIn" />
 		<input type="button" value="fadeOut" />
 		<input type="button" value="slideDown" />
-		<input type="button" value="slideUp" />
+		<input type="button" value="slideUp" /><br/ >
+		<input type="button" value="pause" />
+		<input type="button" value="resume" />
+		<input type="button" value="end" /><br/ >
 		<input type="button" value="show" />
 		<input type="button" value="hide" />
 		<script type="text/javascript">
 			W('input').click(function(e) {
 				e.preventDefault();
-				eval('W("#test").' + this.value + '();');
+				eval('W("#test").' + this.value + '(1000);');
 			});
 		</script>
 	</body>

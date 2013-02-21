@@ -39,7 +39,7 @@
 
  	W("#start_async").on("click", function(){
 	 	//QW.ElAnim.Sequence = true;
-		W("#test").fadeOut(1000,true).fadeIn(1000,true).slideUp(1000, function(){W('#resume_async').attr('disabled', '')} ,true).wait().slideDown(1000,true);
+		W("#test").fadeOut(1000,true).sleep(1500).fadeIn(1000,true).slideUp(1000, function(){W('#resume_async').attr('disabled', '')} ,true).wait().slideDown(1000,true);
 		//QW.ElAnim.Sequence = false;
 		W(this).attr('disabled', 'disabled');
  	});

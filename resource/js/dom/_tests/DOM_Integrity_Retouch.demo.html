@@ -37,7 +37,7 @@ var simpleDrag = function (target) {
 
 	var doc = target.document || target.ownerDocument || (target.window || target.defaultView) && target || document;
 
-	var e = new QW.EventH.standardize(null, target);
+			var e = QW.EventH.standardize(null, target);
 
 	var twrap = QW.NodeW.g(target);
 

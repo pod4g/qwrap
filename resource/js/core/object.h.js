@@ -337,7 +337,7 @@
 		 */
 		stringify: function(obj) {
 			if (obj == null) {return 'null'; }
-			if (obj.toJSON) {
+			if (typeof obj !='string' && obj.toJSON) {//JK: IE8的字符串的toJSON有问题，丢了引号
 				return obj.toJSON();
 			}
 			var type = getConstructorName(obj).toLowerCase();

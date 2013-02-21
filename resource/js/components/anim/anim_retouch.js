@@ -8,7 +8,8 @@
 (function() {
 	var NodeH = QW.NodeH,
 		g = NodeH.g,
-		isVisible = NodeH.isVisible;
+		isVisible = NodeH.isVisible,
+		mix = QW.ObjectH.mix;
 
 	function newAnim(el, attrs, callback, dur, easing) {
 		el = g(el);
@@ -22,7 +23,7 @@
 			});
 		}
 
-			anim.play();
+		anim.play();
 
 		el.__preAnim = anim;
 		return anim;
@@ -169,11 +170,52 @@
 				}
 			};
 			return AnimElH.animate(el, attrs, dur, callback, easing, sequence); 
+		},
+
+		/**
+		 * [pause 暂停动画，可恢复]
+		 * @param  {[Element]}   el    动画作用的元素
+		 **/
+		pause : function(el) {
+			var preAnim = el.__preAnim;
+			preAnim && preAnim.isPlaying() && preAnim.pause();
+		},
+
+		/**
+		 * [resume 恢复动画]
+		 * @param  {[Element]}   el    动画作用的元素
+		 **/
+		resume : function(el) {
+			var preAnim = el.__preAnim;
+			preAnim && !preAnim.isPlaying() && preAnim.resume();
+		},
+
+		/**
+		 * [end 结束动画]
+		 * @param  {[Element]}   el    动画作用的元素
+		 **/
+		end : function(el) {
+			var preAnim = el.__preAnim;
+			if(!preAnim) {
+				return;
+			}
+
+			preAnim.end();
+			el.__preAnim = null;
 		}
 	};
 
+	//如果支持异步，增加一个sleep动画，什么也不做，只是等待
+	if(QW.Async){
+		mix(AnimElH, {
+			sleep: function(el, dur, callback){
+				return AnimElH.animate(el, {}, dur, callback, null, true);
+			}
+		});
+	}
+
 	QW.NodeW.pluginHelper(AnimElH, 'operator');
 	if (QW.Dom) {
-		QW.ObjectH.mix(QW.Dom, AnimElH);
+		mix(QW.Dom, AnimElH);
 	}
 }());
