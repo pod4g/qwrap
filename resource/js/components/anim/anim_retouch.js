@@ -11,10 +11,13 @@
 		isVisible = NodeH.isVisible,
 		mix = QW.ObjectH.mix;
 
+	var SIGNAL_TYPE = "_animation";
+
 	function newAnim(el, attrs, callback, dur, easing) {
 		el = g(el);
-		var preAnim = el.__preAnim;
-		preAnim && preAnim.isPlaying() && preAnim.pause();
+
+		//pause掉之前的动画
+		AnimElH.stop(el, false, false);
 
 		var anim = new QW.ElAnim(el, attrs, dur || 400, easing);
 		if (callback) {
@@ -51,10 +54,10 @@
 			}
 
 			if(QW.Async && (sequence || QW.ElAnim.Sequence)){
-				W(el).wait(function(){
+				W(el).wait(SIGNAL_TYPE, function(){
 					var anim = newAnim(el, attrs, callback, dur, easing);
 					anim.on("end", function(){
-						W(el).signal();
+						W(el).signal(SIGNAL_TYPE);
 					});
 					return anim;
 				});
@@ -173,35 +176,27 @@
 		},
 
 		/**
-		 * [pause 暂停动画，可恢复]
-		 * @param  {[Element]}   el    动画作用的元素
-		 **/
-		pause : function(el) {
-			var preAnim = el.__preAnim;
-			preAnim && preAnim.isPlaying() && preAnim.pause();
-		},
-
-		/**
-		 * [resume 恢复动画]
-		 * @param  {[Element]}   el    动画作用的元素
-		 **/
-		resume : function(el) {
-			var preAnim = el.__preAnim;
-			preAnim && !preAnim.isPlaying() && preAnim.resume();
-		},
-
-		/**
-		 * [end 结束动画]
-		 * @param  {[Element]}   el    动画作用的元素
-		 **/
-		end : function(el) {
+		 * [停止动画]
+		 * @param  {[Element]} el        	动画作用的元素
+		 * @param  {[bool]} clearQueue 		是否清除动画队列（队列播放动画时，是否清除未播放的动画）
+		 * @param  {[bool]} gotoEnd			是否停止动画（直接播放到最后一帧，触发onend事件）
+		 * @return ElAnim
+		 */
+		stop : function(el, clearQueue, gotoEnd) {
 			var preAnim = el.__preAnim;
 			if(!preAnim) {
 				return;
 			}
 
-			preAnim.end();
-			el.__preAnim = null;
+			if(clearQueue && QW.Async) {
+				QW.AsyncH.clearSignals(el, SIGNAL_TYPE);
+			}
+
+			if(gotoEnd) {
+				preAnim.end();
+			} else {
+				preAnim.pause();
+			}
 		}
 	};
 

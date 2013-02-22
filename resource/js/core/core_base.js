@@ -1,7 +1,7 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
 	version: $version$ $release$ released
-	author: QWrap 月影、CC、JK
+	author: QWrap 月影、JK、屈屈
 */
 
 

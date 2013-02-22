@@ -106,7 +106,7 @@ new QW.Anim(function(){document.title=i++;},3000,{frameTime:100,onend:function()
 			<h3 class="section-hd" onclick="W(this).nextSibling('div').slideToggle();" >几种retouch后的用法：<span style="padding-left:100px;color:blue;">点击展开详情</span></h3>
 			<div style="overflow:hidden;">
 			<div style="padding-left:30px;">
-				<p>在QW.NodeW添加一些扩展方法，<strong>执行这些方法都会停止之前的动画（new ElAnim添加的动画不受影响）</strong>，方便用户调用，包括：</p>
+				<p>在QW.NodeW添加一些扩展方法，<strong>执行这些方法都会暂停之前的动画（new ElAnim添加的动画不受影响）</strong>，方便用户调用，包括：</p>
 <pre>
 	W(el).animation(attrs, dur, callback, easing) //通用动画
 	W(el).fadeIn(dur, callback, easing) //淡入
@@ -116,16 +116,15 @@ new QW.Anim(function(){document.title=i++;},3000,{frameTime:100,onend:function()
 	W(el).slideDown(dur, callback, easing) //展开
 	W(el).slideToggle(dur, callback, easing) //收起/展开切换
 	W(el).shine4Error(dur, callback, easing) //颜色渐变提醒注意
-	W(el).pause() //暂停动画
-	W(el).resume() //恢复动画
-	W(el).end() //结束动画
+
+	W(el).stop(clearQueue, gotoEnd) //停止动画，clearQueue:bool 是否清空播放队列；gotoEnd:bool 是否直接播放到最后一帧并调用onend，否则只是暂停播放
 </pre>				<p>参数说明：
 					<ul>
 						<li><strong>attrs</strong>，需要改变的属性集合；</li>
 						<li><strong>dur</strong>，动画时长（单位ms，默认400）；</li>
 						<li><strong>callback</strong>，动画完成时回调；</li>
 						<li><strong>easing</strong>，动画算子；</li>
-						<li><strong>sequence</strong>，是否顺序执行动画（bool，默认false，需要Async组件支持）。<a href="../_tests/retouched_test2.html">示例</a></li>
+						<li><strong>sequence</strong>，是否顺序执行动画，这个参数可出现在任何位置（bool，默认false，需要Async组件支持）。<a href="../_tests/retouched_test2.html">示例</a></li>
 					</ul>
 					除了<strong>attrs</strong>，其它参数可选。</p>
 				<p>attrs参数示例：{height : {from : '1px', to : '100px', end : '50px'}, width: {by : '-100px'}} 或 {height : '100px'}（等于{height : {to : '100px'}}）</p>
