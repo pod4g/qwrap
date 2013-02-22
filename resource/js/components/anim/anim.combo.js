@@ -600,12 +600,16 @@
 (function() {
 	var NodeH = QW.NodeH,
 		g = NodeH.g,
-		isVisible = NodeH.isVisible;
+		isVisible = NodeH.isVisible,
+		mix = QW.ObjectH.mix;
+
+	var SIGNAL_TYPE = "_animation";
 
 	function newAnim(el, attrs, callback, dur, easing) {
 		el = g(el);
-		var preAnim = el.__preAnim;
-		preAnim && preAnim.isPlaying() && preAnim.pause();
+
+		//pause掉之前的动画
+		AnimElH.stop(el, false, false);
 
 		var anim = new QW.ElAnim(el, attrs, dur || 400, easing);
 		if (callback) {
@@ -614,9 +618,7 @@
 			});
 		}
 
-		setTimeout(function(){
-			anim.play();
-		});
+		anim.play();
 
 		el.__preAnim = anim;
 		return anim;
@@ -644,10 +646,10 @@
 			}
 
 			if(QW.Async && (sequence || QW.ElAnim.Sequence)){
-				W(el).wait(function(){
+				W(el).wait(SIGNAL_TYPE, function(){
 					var anim = newAnim(el, attrs, callback, dur, easing);
 					anim.on("end", function(){
-						W(el).signal();
+						W(el).signal(SIGNAL_TYPE);
 					});
 					return anim;
 				});
@@ -763,11 +765,44 @@
 				}
 			};
 			return AnimElH.animate(el, attrs, dur, callback, easing, sequence); 
+		},
+
+		/**
+		 * [停止动画]
+		 * @param  {[Element]} el        	动画作用的元素
+		 * @param  {[bool]} clearQueue 		是否清除动画队列（队列播放动画时，是否清除未播放的动画）
+		 * @param  {[bool]} gotoEnd			是否停止动画（直接播放到最后一帧，触发onend事件）
+		 * @return ElAnim
+		 */
+		stop : function(el, clearQueue, gotoEnd) {
+			var preAnim = el.__preAnim;
+			if(!preAnim) {
+				return;
+			}
+
+			if(clearQueue && QW.Async) {
+				QW.AsyncH.clearSignals(el, SIGNAL_TYPE);
+			}
+
+			if(gotoEnd) {
+				preAnim.end();
+			} else {
+				preAnim.pause();
+			}
 		}
 	};
 
+	//如果支持异步，增加一个sleep动画，什么也不做，只是等待
+	if(QW.Async){
+		mix(AnimElH, {
+			sleep: function(el, dur, callback){
+				return AnimElH.animate(el, {}, dur, callback, null, true);
+			}
+		});
+	}
+
 	QW.NodeW.pluginHelper(AnimElH, 'operator');
 	if (QW.Dom) {
-		QW.ObjectH.mix(QW.Dom, AnimElH);
+		mix(QW.Dom, AnimElH);
 	}
 }());

@@ -34,6 +34,7 @@
 		*| onsucceed:		|	请求成功监控 (成功指：200-300以及304)							|
 		*| onerror:			|	请求失败监控													|
 		*| oncancel:		|	请求取消监控													|
+		*| ontimeout:		|	超时													|
 		*| oncomplete:		|	请求结束监控 (success与error都算complete)						|
 		*----------------------------------------------------------------------------------------
 	* @return {Ajax} 
@@ -62,9 +63,9 @@
 			'X-Requested-With':'XMLHttpRequest'
 		},
 		/** 
-		 * EVENTS: Ajax的CustEvents：'succeed','error','cancel','complete'
+		 * EVENTS: Ajax的CustEvents：'succeed','error','cancel','timeout','complete'
 		 */
-		EVENTS: ['succeed', 'error', 'cancel', 'complete'],
+		EVENTS: ['succeed', 'error', 'cancel', 'timeout','complete'],
 		/**
 		 *XHRVersions: IE下XMLHttpRequest的版本
 		 */
@@ -319,7 +320,7 @@
 				clearTimeout(me._timer);
 				this._timer = setTimeout(function() {
 					// Check to see if the request is still happening
-					if (me.requester && !me.isProcessing()) {
+					if (me.requester && me.isProcessing()) {
 						// Cancel the request
 						me.state = Ajax.STATE_TIMEOUT;
 						me.requester.abort(); //Firefox执行该方法后会触发onreadystatechange事件，并且state=4;所以会触发oncomplete事件。而IE、Safari不会
@@ -332,22 +333,32 @@
 		 * _execComplete(): 执行请求完成的操作
 		 * @returns {void}: 
 		 */
-		_execComplete: function() {
+		_execComplete: function(reason) {
 			var me = this;
 			var requester = me.requester;
 			requester.onreadystatechange = new Function; //防止IE6下的内存泄漏
 			me.isLocked = 0; //解锁
 			clearTimeout(this._timer);
+			var responseText = null;
+			try{
+				responseText = me.requester.responseText;
+			}
+			catch(ex){
+			}
+
+			if(reason == 'timeout'){
+				me.fire('timeout');
+			}
 			if (me.state == Ajax.STATE_CANCEL || me.state == Ajax.STATE_TIMEOUT) {
 				//do nothing. 如果是被取消掉的则不执行回调
 			} else if (me.isSuccess()) {
 				me.state = Ajax.STATE_SUCCESS;
-				me.fire('succeed', me.requester.responseText);
+				me.fire('succeed', {responseText:responseText});
 			} else {
 				me.state = Ajax.STATE_ERROR;
-				me.fire('error', me.requester.responseText);
+				me.fire('error', {responseText:responseText});
 			}
-			me.fire('complete', me.requester.responseText);
+			me.fire('complete', {responseText:responseText});
 		}
 	});
 
