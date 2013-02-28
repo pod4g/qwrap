@@ -316,8 +316,10 @@
 				xy[1] += t;
 				return xy;
 			};
-
-			return document.documentElement.getBoundingClientRect ?
+			// the trick: body's offsetWidth was in CSS pixels, while
+			// getBoundingClientRect() was in system pixels in IE7.
+			// Thanks to http://help.dottoro.com/ljgshbne.php
+			return (!Browser.ie6 && !Browser.ie7 && document.documentElement.getBoundingClientRect) ?
 				function(node) {
 					var doc = node.ownerDocument,
 						docRect = DomU.getDocRect(doc),
@@ -352,7 +354,7 @@
 
 				} : function(node) {
 					var xy = [node.offsetLeft, node.offsetTop],
-						parentNode = node.parentNode,
+						parentNode = node,
 						doc = node.ownerDocument,
 						docRect = DomU.getDocRect(doc),
 						bCheck = !!(Browser.gecko || parseFloat(Browser.webkit) > 519),
