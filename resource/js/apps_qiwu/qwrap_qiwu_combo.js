@@ -1,7 +1,7 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
-	author: QWrap 月影、CC、JK
+	version: 1.1.5 2013-02-28 released
+	author: QWrap 月影、JK、屈屈
 */
 
 
@@ -13,14 +13,14 @@
 	var QW = {
 		/**
 		 * @property {string} VERSION 脚本库的版本号
-		 * @default 1.1.4
+		 * @default 1.1.5
 		 */
-		VERSION: "1.1.4",
+		VERSION: "1.1.5",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2012-10-11
+		 * @default 2013-02-28
 		 */
-		RELEASE: "2012-10-11",
+		RELEASE: "2013-02-28",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -177,7 +177,7 @@
 }());
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -419,7 +419,7 @@
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -460,7 +460,7 @@ if (QW.Browser.ie) {
 	} catch (e) {}
 }/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -989,7 +989,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: 月影、JK
 */
 
@@ -1326,8 +1326,8 @@ if (QW.Browser.ie) {
 		 */
 		stringify: function(obj) {
 			if (obj == null) {return 'null'; }
-			if (obj.toJSON) {
-				obj = obj.toJSON();
+			if (typeof obj !='string' && obj.toJSON) {//JK: IE8的字符串的toJSON有问题，丢了引号
+				return obj.toJSON();
 			}
 			var type = getConstructorName(obj).toLowerCase();
 			switch (type) {
@@ -1382,7 +1382,7 @@ if (QW.Browser.ie) {
 	QW.ObjectH = ObjectH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -1769,7 +1769,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: 月影
 */
 
@@ -1869,7 +1869,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -1920,7 +1920,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: 月影、JK
 */
 
@@ -2127,7 +2127,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: 月影
 */
 
@@ -2198,7 +2198,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: 月影、JK
 */
 
@@ -2387,7 +2387,7 @@ if (QW.Browser.ie) {
 	QW.HelperH = HelperH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: Miller
 */
 
@@ -2432,7 +2432,7 @@ if (QW.Browser.ie) {
 	};
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -2634,7 +2634,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -3507,20 +3507,34 @@ if (QW.Browser.ie) {
 		 */
 		ready: function(handler, doc) {
 			doc = doc || document;
+			var cbs = doc.__QWDomReadyCbs = doc.__QWDomReadyCbs || [];
+			cbs.push(handler);
 
+			function execCbs(){//JK：这里需要保证：每一个回调都执行，并且按顺序，并且每一个回调的异常都被抛出以方便工程师发现错误
+				clearTimeout(doc.__QWDomReadyTimer);
+				if(cbs.length){
+					var cb = cbs.shift();
+					if(cbs.length) {
+						doc.__QWDomReadyTimer = setTimeout(execCbs,0);
+					}
+					cb();
+				}
+			}
+
+			setTimeout(function(){ //延迟执行，而不是立即执行，以保证ready方法的键壮
 			if (/complete/.test(doc.readyState)) {
-				handler();
+					execCbs();
 			} else {
 				if (doc.addEventListener) {
 					if (!Browser.ie && ('interactive' == doc.readyState)) { // IE9下doc.readyState有些异常
-						handler();
+							execCbs();
 					} else {
-						doc.addEventListener('DOMContentLoaded', handler, false);
+							doc.addEventListener('DOMContentLoaded', execCbs, false);
 					}
 				} else {
 					var fireDOMReadyEvent = function() {
 						fireDOMReadyEvent = new Function();
-						handler();
+							execCbs();
 					};
 					(function() {
 						try {
@@ -3535,6 +3549,7 @@ if (QW.Browser.ie) {
 					});
 				}
 			}
+			},0);
 		},
 
 
@@ -3675,6 +3690,17 @@ if (QW.Browser.ie) {
 		el.runtimeStyle.right = runtimeRight;
 		return result;
 	}
+
+	var cssNumber = {
+            'fillOpacity': 1,
+            'fontWeight': 1,
+            'lineHeight': 1,
+            'opacity': 1,
+            'orphans': 1,
+            'widows': 1,
+            'zIndex': 1,
+            'zoom': 1
+        };
 
 	var NodeH = {
 
@@ -3833,7 +3859,9 @@ if (QW.Browser.ie) {
 		wrap: function(el,pEl) {
 			el = g(el);
 			pEl = g(pEl, el.ownerDocument);
+			if (el.parentNode){//如果元素还不在dom树上，则只wrap不append
 			el.parentNode.insertBefore(pEl,el);
+			}
 			pEl.appendChild(el);
 		},
 	    /** 
@@ -3896,7 +3924,7 @@ if (QW.Browser.ie) {
 
 		/** 
 		 * 获取element对象距离doc的xy坐标
-		 * 参考与YUI3.1.1
+		 * 参考YUI3.1.1
 		 * @refer  https://github.com/yui/yui3/blob/master/build/dom/dom.js
 		 * @method	getXY
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
@@ -3917,8 +3945,10 @@ if (QW.Browser.ie) {
 				xy[1] += t;
 				return xy;
 			};
-
-			return document.documentElement.getBoundingClientRect ?
+			// the trick: body's offsetWidth was in CSS pixels, while
+			// getBoundingClientRect() was in system pixels in IE7.
+			// Thanks to http://help.dottoro.com/ljgshbne.php
+			return (!Browser.ie6 && !Browser.ie7 && document.documentElement.getBoundingClientRect) ?
 				function(node) {
 					var doc = node.ownerDocument,
 						docRect = DomU.getDocRect(doc),
@@ -3953,7 +3983,7 @@ if (QW.Browser.ie) {
 
 				} : function(node) {
 					var xy = [node.offsetLeft, node.offsetTop],
-						parentNode = node.parentNode,
+						parentNode = node,
 						doc = node.ownerDocument,
 						docRect = DomU.getDocRect(doc),
 						bCheck = !!(Browser.gecko || parseFloat(Browser.webkit) > 519),
@@ -4008,8 +4038,8 @@ if (QW.Browser.ie) {
 			el = g(el);
 			x = parseInt(x, 10);
 			y = parseInt(y, 10);
-			if (!isNaN(x)) {NodeH.setStyle(el, 'left', x + 'px'); }
-			if (!isNaN(y)) {NodeH.setStyle(el, 'top', y + 'px'); }
+			if (!isNaN(x)) {NodeH.setStyle(el, 'left', x); }
+			if (!isNaN(y)) {NodeH.setStyle(el, 'top', y); }
 		},
 
 		/** 
@@ -4030,8 +4060,8 @@ if (QW.Browser.ie) {
 			var borders = NodeH.borderWidth(el);
 			var paddings = NodeH.paddingWidth(el);
 
-			if (!isNaN(w)) {NodeH.setStyle(el, 'width', Math.max(+w - borders[1] - borders[3] - paddings[1] - paddings[3], 0) + 'px'); }
-			if (!isNaN(h)) {NodeH.setStyle(el, 'height', Math.max(+h - borders[0] - borders[2] - paddings[0] - paddings[2], 0) + 'px'); }
+			if (!isNaN(w)) {NodeH.setStyle(el, 'width', Math.max(+w - borders[1] - borders[3] - paddings[1] - paddings[3], 0)); }
+			if (!isNaN(h)) {NodeH.setStyle(el, 'height', Math.max(+h - borders[0] - borders[2] - paddings[0] - paddings[2], 0)); }
 		},
 
 		/** 
@@ -4047,8 +4077,8 @@ if (QW.Browser.ie) {
 			w = parseFloat(w, 10);
 			h = parseFloat(h, 10);
 
-			if (!isNaN(w)) {NodeH.setStyle(el, 'width', w + 'px'); }
-			if (!isNaN(h)) {NodeH.setStyle(el, 'height', h + 'px'); }
+			if (!isNaN(w)) {NodeH.setStyle(el, 'width', w); }
+			if (!isNaN(h)) {NodeH.setStyle(el, 'height', h); }
 		},
 
 		/** 
@@ -4482,7 +4512,7 @@ if (QW.Browser.ie) {
 		 * @method	replaceNode
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
 		 * @param	{element|string|wrap}	newEl		新节点id,Element实例或wrap
-		 * @return	{element}				如替换成功，此方法可返回被替换的节点，如替换失败，则返回 NULL
+		 * @return	{element}				返回被替换的节点
 		 */
 		replaceNode: function(el, newEl) {
 			el = g(el);
@@ -4495,7 +4525,7 @@ if (QW.Browser.ie) {
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
 		 * @param	{element|string|wrap}	newEl	新节点id,Element实例或wrap
 		 * @param	{element|string|wrap}	childEl	被替换的id,Element实例或wrap后
-		 * @return	{element}				如替换成功，此方法可返回被替换的节点，如替换失败，则返回 NULL
+		 * @return	{element}				返回被替换的节点
 		 */
 		replaceChild: function(el, newEl, childEl) {
 			return g(el).replaceChild(g(newEl), g(childEl));
@@ -4505,11 +4535,11 @@ if (QW.Browser.ie) {
 		 * 把element移除掉
 		 * @method	removeNode
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
-		 * @return	{element}				如删除成功，此方法可返回被删除的节点，如失败，则返回 NULL。
+		 * @return	{element}				返回被删除的节点。
 		 */
 		removeNode: function(el) {
 			el = g(el);
-			return el.parentNode.removeChild(el);
+			return el.parentNode && el.parentNode.removeChild(el);
 		},
 
 		/** 
@@ -4517,10 +4547,11 @@ if (QW.Browser.ie) {
 		 * @method	removeChild
 		 * @param	{element|string|wrap}	el		id,Element实例或wrap
 		 * @param	{element|string|wrap}	childEl		需要移除的子对象
-		 * @return	{element}				如删除成功，此方法可返回被删除的节点，如失败，则返回 NULL。
+		 * @return	{element}				返回被删除的节点。
 		 */
 		removeChild: function(el, childEl) {
-			return g(el).removeChild(g(childEl));
+			var childEl = g(childEl);
+			return childEl && g(el).removeChild(g(childEl));
 		},
 
 		/** 
@@ -4819,9 +4850,7 @@ if (QW.Browser.ie) {
 			var displayAttribute = StringH.camelize(attribute),
 				hook = NodeH.cssHooks[displayAttribute];
 
-			
-
-			if (hook) {
+			if (hook && hook.remove) {
 				hook.remove(el);
 			} else if (el.style.removeProperty) {
 				el.style.removeProperty(StringH.decamelize(attribute));
@@ -4845,7 +4874,7 @@ if (QW.Browser.ie) {
 			var hook = NodeH.cssHooks[attribute],
 				result;
 
-			if (hook) {
+			if (hook && hook.get) {
 				result = hook.get(el);
 			} else {
 				result = el.style[attribute];
@@ -4869,7 +4898,7 @@ if (QW.Browser.ie) {
 			var hook = NodeH.cssHooks[displayAttribute],
 				result;
 
-			if (hook) {
+			if (hook && hook.get) {
 				result = hook.get(el, true, pseudo);
 			} else if (Browser.ie) {
 				result = el.currentStyle[displayAttribute];
@@ -4895,9 +4924,13 @@ if (QW.Browser.ie) {
 				var displayAttribute = StringH.camelize(attribute),
 					hook = NodeH.cssHooks[displayAttribute];
 
-				if (hook) {
+				if (hook && hook.set) {
 					hook.set(el, value);
 				} else {
+					if(typeof value == 'number' && !cssNumber[displayAttribute]) {
+						value += 'px';
+					}
+
 					el.style[displayAttribute] = value;
 				}
 
@@ -5005,7 +5038,7 @@ if (QW.Browser.ie) {
 						get: function(el, current, pseudo) {
 							if (current) {
 								var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
-								return style ? style.getPropertyValue('cssFloat') : null;
+								return style ? style.getPropertyValue('float') : null;
 							} else {
 								return el.style.cssFloat;
 							}
@@ -5015,6 +5048,16 @@ if (QW.Browser.ie) {
 						},
 						remove : function (el) {
 							el.style.removeProperty('float');
+						}
+					},
+					'width' : {
+						get: function(el) {
+							return NodeH.getSize(el)['width'] + 'px';
+						}
+					},
+					'height' : {
+						get: function(el) {
+							return NodeH.getSize(el)['height'] + 'px';
 						}
 					}
 				};
@@ -5110,6 +5153,9 @@ if (QW.Browser.ie) {
 
 	var NodeW = function(core) {
 		if (!core) {//用法：var w=NodeW(null);	返回null
+			if(this instanceof NodeW){	//new NodeW(null) -> 空数组的 NodeW, 否则会产生问题（产生一个没有core的NodeW）
+				return new NodeW([]);
+			}
 			return null;
 		}
 		if(core instanceof NodeW){	//core是W的话要直接返回，不然的话W(W(el))会变成只有一个元素
@@ -5486,7 +5532,7 @@ if (QW.Browser.ie) {
 	QW.EventH = EventH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -5914,7 +5960,10 @@ if (QW.Browser.ie) {
 					if (handler) {
 						EventTargetH.on(el, type, handler);
 					} else if (el[type]){
-						el[type]();
+						//ie低版本中，focus不可见元素会抛异常，容错下
+						try {
+							el[type]();
+						} catch (e) {}
 					} else {
 						EventTargetH.fire(el, type);
 					}
@@ -6492,8 +6541,8 @@ if (QW.Browser.ie) {
 /*
  * 增加别名
 */
-QW.g = QW.NodeH.g;
-QW.W = QW.NodeW;
+window.g = QW.g = QW.NodeH.g;
+window.W = QW.W = QW.NodeW;
 
 /*
  * 将直属于QW的方法与命名空间上提一层到window
@@ -6650,6 +6699,7 @@ QW.provide("AsyncH", AsyncH);
 		*| onsucceed:		|	请求成功监控 (成功指：200-300以及304)							|
 		*| onerror:			|	请求失败监控													|
 		*| oncancel:		|	请求取消监控													|
+		*| ontimeout:		|	超时													|
 		*| oncomplete:		|	请求结束监控 (success与error都算complete)						|
 		*----------------------------------------------------------------------------------------
 	* @return {Ajax} 
@@ -6678,9 +6728,9 @@ QW.provide("AsyncH", AsyncH);
 			'X-Requested-With':'XMLHttpRequest'
 		},
 		/** 
-		 * EVENTS: Ajax的CustEvents：'succeed','error','cancel','complete'
+		 * EVENTS: Ajax的CustEvents：'succeed','error','cancel','timeout','complete'
 		 */
-		EVENTS: ['succeed', 'error', 'cancel', 'complete'],
+		EVENTS: ['succeed', 'error', 'cancel', 'timeout','complete'],
 		/**
 		 *XHRVersions: IE下XMLHttpRequest的版本
 		 */
@@ -6935,7 +6985,7 @@ QW.provide("AsyncH", AsyncH);
 				clearTimeout(me._timer);
 				this._timer = setTimeout(function() {
 					// Check to see if the request is still happening
-					if (me.requester && !me.isProcessing()) {
+					if (me.requester && me.isProcessing()) {
 						// Cancel the request
 						me.state = Ajax.STATE_TIMEOUT;
 						me.requester.abort(); //Firefox执行该方法后会触发onreadystatechange事件，并且state=4;所以会触发oncomplete事件。而IE、Safari不会
@@ -6948,29 +6998,39 @@ QW.provide("AsyncH", AsyncH);
 		 * _execComplete(): 执行请求完成的操作
 		 * @returns {void}: 
 		 */
-		_execComplete: function() {
+		_execComplete: function(reason) {
 			var me = this;
 			var requester = me.requester;
 			requester.onreadystatechange = new Function; //防止IE6下的内存泄漏
 			me.isLocked = 0; //解锁
 			clearTimeout(this._timer);
+			var responseText = null;
+			try{
+				responseText = me.requester.responseText;
+			}
+			catch(ex){
+			}
+
+			if(reason == 'timeout'){
+				me.fire('timeout');
+			}
 			if (me.state == Ajax.STATE_CANCEL || me.state == Ajax.STATE_TIMEOUT) {
 				//do nothing. 如果是被取消掉的则不执行回调
 			} else if (me.isSuccess()) {
 				me.state = Ajax.STATE_SUCCESS;
-				me.fire('succeed', me.requester.responseText);
+				me.fire('succeed', {responseText:responseText});
 			} else {
 				me.state = Ajax.STATE_ERROR;
-				me.fire('error', me.requester.responseText);
+				me.fire('error', {responseText:responseText});
 			}
-			me.fire('complete', me.requester.responseText);
+			me.fire('complete', {responseText:responseText});
 		}
 	});
 
 	QW.provide('Ajax', Ajax);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-10-11 released
+ *	version: 1.1.5 2013-02-28 released
  *	author: JK
  *  description: ajax推荐retouch....
 */
@@ -7054,7 +7114,7 @@ QW.provide("AsyncH", AsyncH);
 	NodeW.pluginHelper(FormH, 'operator');
 }());/*
 	Copyright QWrap
-	version: 1.1.4 2012-10-11 released
+	version: 1.1.5 2013-02-28 released
 	author: JK
 */
 
@@ -7246,7 +7306,6 @@ QW.provide("AsyncH", AsyncH);
 		g = NodeH.g,
 		getCurrentStyle = NodeH.getCurrentStyle,
 		setStyle = NodeH.setStyle,
-		getSize = NodeH.getSize,
 		isElement = QW.DomU.isElement,
 		forEach = QW.ArrayH.forEach,
 		map = QW.ArrayH.map,
@@ -7254,8 +7313,6 @@ QW.provide("AsyncH", AsyncH);
 		show = NodeH.show,
 		hide = NodeH.hide,
 		isVisible = NodeH.isVisible;
-
-	var cssNumber = ["zIndex", "fontWeight", "opacity", "lineHeight"];
 
 	var ElAnimAgent = function(el, opts, attr) {
 		this.el = el;
@@ -7285,10 +7342,6 @@ QW.provide("AsyncH", AsyncH);
 				if(unit && unit != value) {
 					return unit;
 				}
-			}
-
-			if( !cssNumber.contains(this.attr.camelize()) ) {
-				return 'px';
 			}
 
 			return '';
@@ -7485,15 +7538,6 @@ QW.provide("AsyncH", AsyncH);
 	 * 用来预处理agent属性的hooker
 	 */
 	ElAnim.agentHooks = (function() {
-
-		/* QWrap里获取高不能用getCurrentStyle，特殊处理下 */
-		var _getStyle = function(el, attr) {
-			if(/^(height|width)$/ig.test(attr)) {
-				return getSize(el)[attr] || 0;
-			}
-			return getCurrentStyle(el, attr) || 0;
-		};
-
 		return {
 			//如果是show动画，那么show之后属性从0变到当前值
 			show: function(attr, el){
@@ -7503,11 +7547,11 @@ QW.provide("AsyncH", AsyncH);
 				//如果元素不可见，显示出来，获取真实属性值，再设置为0。
 				if(!isVisible(el)) {
 					show(el);
-					to = (typeof to == 'undefined') ? _getStyle(el, attr) : to;
+					to = (typeof to == 'undefined') ? getCurrentStyle(el, attr) : to;
 					setStyle(el, attr, 0);
 				} else {
-					from = _getStyle(el, attr);
-					to = (typeof to == 'undefined') ? _getStyle(el, attr) : to;
+					from = getCurrentStyle(el, attr);
+					to = (typeof to == 'undefined') ? getCurrentStyle(el, attr) : to;
 				}
 
 
@@ -7516,7 +7560,7 @@ QW.provide("AsyncH", AsyncH);
 			//如果是hide动画，那么属性从当前值变到0之后，还原成当前值并将元素hide
 			hide: function(attr, el){
 				
-				var from = _getStyle(el, attr),
+				var from = getCurrentStyle(el, attr),
 					oriAttr = '__anim' + attr,
 					oriValue = el[oriAttr];
 
@@ -7524,7 +7568,7 @@ QW.provide("AsyncH", AsyncH);
 				if(typeof oriValue == 'undefined') {
 					if(!isVisible(el)) {
 						show(el);
-						oriValue = _getStyle(el, attr);
+						oriValue = getCurrentStyle(el, attr);
 						hide(el);
 					} else {
 						oriValue = from;
@@ -7535,14 +7579,7 @@ QW.provide("AsyncH", AsyncH);
 
 				var callback = function(){
 					hide(el);
-
-					var value = el[oriAttr];
-
-					//setStyle没有处理setStyle(el, 'height', 100)这种情况，这里自己处理下
-					if(typeof value == 'number' && !cssNumber.contains(attr.camelize())) {
-						value += 'px';
-					}
-					setStyle(el, attr, value);
+					setStyle(el, attr, el[oriAttr]);
 				};
 
 				return {from: from, to: 0, callback: callback};
@@ -7657,7 +7694,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Easing', Easing);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.4 2012-10-11 released
+ *	version: 1.1.5 2013-02-28 released
  *	author:Jerry(屈光宇)、JK（加宽）
  *  description: Anim推荐retouch....
 */
@@ -7665,12 +7702,16 @@ QW.provide("AsyncH", AsyncH);
 (function() {
 	var NodeH = QW.NodeH,
 		g = NodeH.g,
-		isVisible = NodeH.isVisible;
+		isVisible = NodeH.isVisible,
+		mix = QW.ObjectH.mix;
+
+	var SIGNAL_TYPE = "_animation";
 
 	function newAnim(el, attrs, callback, dur, easing) {
 		el = g(el);
-		var preAnim = el.__preAnim;
-		preAnim && preAnim.isPlaying() && preAnim.pause();
+
+		//pause掉之前的动画
+		AnimElH.stop(el, false, false);
 
 		var anim = new QW.ElAnim(el, attrs, dur || 400, easing);
 		if (callback) {
@@ -7679,9 +7720,7 @@ QW.provide("AsyncH", AsyncH);
 			});
 		}
 
-		setTimeout(function(){
-			anim.play();
-		});
+		anim.play();
 
 		el.__preAnim = anim;
 		return anim;
@@ -7709,10 +7748,10 @@ QW.provide("AsyncH", AsyncH);
 			}
 
 			if(QW.Async && (sequence || QW.ElAnim.Sequence)){
-				W(el).wait(function(){
+				W(el).wait(SIGNAL_TYPE, function(){
 					var anim = newAnim(el, attrs, callback, dur, easing);
 					anim.on("end", function(){
-						W(el).signal();
+						W(el).signal(SIGNAL_TYPE);
 					});
 					return anim;
 				});
@@ -7828,11 +7867,44 @@ QW.provide("AsyncH", AsyncH);
 				}
 			};
 			return AnimElH.animate(el, attrs, dur, callback, easing, sequence); 
+		},
+
+		/**
+		 * [停止动画]
+		 * @param  {[Element]} el        	动画作用的元素
+		 * @param  {[bool]} clearQueue 		是否清除动画队列（队列播放动画时，是否清除未播放的动画）
+		 * @param  {[bool]} gotoEnd			是否停止动画（直接播放到最后一帧，触发onend事件）
+		 * @return ElAnim
+		 */
+		stop : function(el, clearQueue, gotoEnd) {
+			var preAnim = el.__preAnim;
+			if(!preAnim) {
+				return;
+			}
+
+			if(clearQueue && QW.Async) {
+				QW.AsyncH.clearSignals(el, SIGNAL_TYPE);
+			}
+
+			if(gotoEnd) {
+				preAnim.end();
+			} else {
+				preAnim.pause();
+			}
 		}
 	};
 
+	//如果支持异步，增加一个sleep动画，什么也不做，只是等待
+	if(QW.Async){
+		mix(AnimElH, {
+			sleep: function(el, dur, callback){
+				return AnimElH.animate(el, {}, dur, callback, null, true);
+			}
+		});
+	}
+
 	QW.NodeW.pluginHelper(AnimElH, 'operator');
 	if (QW.Dom) {
-		QW.ObjectH.mix(QW.Dom, AnimElH);
+		mix(QW.Dom, AnimElH);
 	}
 }());
