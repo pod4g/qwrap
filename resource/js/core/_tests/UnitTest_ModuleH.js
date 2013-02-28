@@ -16,29 +16,30 @@
 		},
 		'addConfig': function() {
 			value_of(ModuleH).should_have_method('addConfig');
-			ModuleH.addConfig("JSON", {
-				url: '//core/dev/json.js',
-				requires: 'ArrayH,ClassH'
+			ModuleH.addConfig("ArrayH2", {
+				loadedChecker:function(){
+					return !!(QW.ArrayH && QW.ArrayH.sortBy);
+				},
+				url: '//core/dev/array.h.js',
+				requires: 'ArrayH'
 			});
 		},
 		'use': function() {
 			value_of(ModuleH).should_have_method('use');
-			ModuleH.use("JSON", function() {
+			ModuleH.use("ArrayH2", function() {
 				if (useTimes) {
 					alert('已运行过');
 					return;
 				}
-				describe('ModuleH2', {
+				describe('ArrayH2', {
 					'use is ok': function() {
 						if (useTimes) {
 							alert('已运行过.');
 							return;
 						}
 						useTimes = 1;
-						value_of(window.JSON).should_have_method('stringify');
-						//QW.loadJs(QW.PATH + 'core/_tests/UnitTest_JSON.js');
-						value_of(window.JSON.stringify(1)).should_be("1");
-
+						value_of(QW.ArrayH).should_have_method('sortBy');
+						value_of(QW.ArrayH.sortBy(['abc','cd'],'length')[0]).should_be("cd");
 					}
 				});
 			});

@@ -203,7 +203,8 @@
 					'w.slideDown(dur, callback, easing)',
 					'w.slideToggle(dur, callback, easing)',
 					'w.shine4Error(dur, callback, easing)',
-					'w.stop(clearQueue, gotoEnd)'
+					'w.stop(clearQueue, gotoEnd)',
+					'w.sleep(dur)'
 				],
 				_others:[
 					'w.contains(target)',
