@@ -119,7 +119,7 @@ new QW.Anim(function(){document.title=i++;},3000,{frameTime:100,onend:function()
 
 	W(el).stop(clearQueue, gotoEnd) //停止动画，clearQueue:bool 是否清空播放队列；gotoEnd:bool 是否直接播放到最后一帧并调用onend，否则只是暂停播放
 
-	W(el).sleep(dur) //等待，用于动画队列播放延时，如：W(el).sleep(1000).fadeOut();1s后再fadeOut
+	W(el).sleep(dur) //等待，用于动画队列播放延时，如：W(el).sleep(1000).fadeOut(true);1s后再fadeOut
 </pre>				<p>参数说明：
 					<ul>
 						<li><strong>attrs</strong>，需要改变的属性集合；</li>
