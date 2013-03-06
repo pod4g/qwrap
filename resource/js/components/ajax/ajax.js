@@ -56,7 +56,7 @@
 		 * defaultHeaders: 默认的requestHeader信息
 		 */
 		defaultHeaders: {
-			'Content-type': 'application/x-www-form-urlencoded UTF-8', //最常用配置
+			'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8', //最常用配置
 			'X-Requested-With':'XMLHttpRequest'
 		},
 		/** 
