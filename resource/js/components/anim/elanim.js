@@ -34,8 +34,12 @@
 		getValue : function(){
 			return getCurrentStyle(this.el, this.attr);
 		},
-		setValue : function(value, unit){
-			setStyle(this.el, this.attr, value + unit);
+		setValue : function(value){
+			if(this.unit) {
+				setStyle(this.el, this.attr, value + this.unit);
+			} else {
+				setStyle(this.el, this.attr, value);
+			}
 		},
 		getUnit : function() {
 			if(this.unit) return this.unit;
@@ -67,14 +71,15 @@
 			this.unit = this.getUnit();
 		},
 		action : function(per){
-			var unit = this.unit, value;
+			var value;
 			if (typeof this.end != "undefined" && per >= 1) {
 				value = this.end;
 			} else {
 				value = this.from + this.by * this.easing(per);
-				value = value.toFixed(6);
+				value = parseFloat(value.toFixed(6));
 			}
-			this.setValue(value, unit);
+			
+			this.setValue(value);
 		}
 	});
 
