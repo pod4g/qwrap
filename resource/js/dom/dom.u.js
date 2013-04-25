@@ -176,33 +176,33 @@
 			}
 
 			setTimeout(function(){ //延迟执行，而不是立即执行，以保证ready方法的键壮
-			if (/complete/.test(doc.readyState)) {
+				if (/complete/.test(doc.readyState)) {
 					execCbs();
-			} else {
-				if (doc.addEventListener) {
-					if (!Browser.ie && ('interactive' == doc.readyState)) { // IE9下doc.readyState有些异常
-							execCbs();
-					} else {
-							doc.addEventListener('DOMContentLoaded', execCbs, false);
-					}
 				} else {
-					var fireDOMReadyEvent = function() {
-						fireDOMReadyEvent = new Function();
+					if (doc.addEventListener) {
+						if (!Browser.ie9 && ('interactive' == doc.readyState)) { // IE9下doc.readyState有些异常
 							execCbs();
-					};
-					(function() {
-						try {
-							doc.body.doScroll('left');
-						} catch (exp) {
-							return setTimeout(arguments.callee, 1);
+						} else {
+							doc.addEventListener('DOMContentLoaded', execCbs, false);
 						}
-						fireDOMReadyEvent();
-					}());
-					doc.attachEvent('onreadystatechange', function() {
-						('complete' == doc.readyState) && fireDOMReadyEvent();
-					});
+					} else {
+						var fireDOMReadyEvent = function() {
+							fireDOMReadyEvent = new Function();
+							execCbs();
+						};
+						(function() {
+							try {
+								doc.body.doScroll('left');
+							} catch (exp) {
+								return setTimeout(arguments.callee, 1);
+							}
+							fireDOMReadyEvent();
+						}());
+						doc.attachEvent('onreadystatechange', function() {
+							('complete' == doc.readyState) && fireDOMReadyEvent();
+						});
+					}
 				}
-			}
 			},0);
 		},
 

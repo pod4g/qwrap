@@ -11,10 +11,10 @@
 	});
 	DomU.ready(function() {
 		describe('DomU.ready', {
-		'ready': function() {
-			value_of(window.ready_test_value1).should_be(1);
-			value_of(window.ready_test_value2).should_be(2);
-			value_of(document.body).should_not_be(null);
+			'ready': function() {
+				value_of(window.ready_test_value1).should_be(1);
+				value_of(window.ready_test_value2).should_be(2);
+				value_of(document.body).should_not_be(null);
 				var diff = window.ready_test_date2 - window.ready_test_date1;
 				value_of(diff).log();
 				value_of(diff).should('>=',0);

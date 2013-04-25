@@ -62,6 +62,16 @@
 		return result;
 	}
 
+	function getCommonCurrentStyle(el, attribute, pseudo) {
+		var displayAttribute = StringH.camelize(attribute);
+		if (Browser.ie) {
+			return el.currentStyle[displayAttribute];
+		} else {
+			var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
+			return style ? style.getPropertyValue(StringH.decamelize(attribute)) : null;
+		}
+	}
+
 	var cssNumber = {
             'fillOpacity': 1,
             'fontWeight': 1,
@@ -231,7 +241,7 @@
 			el = g(el);
 			pEl = g(pEl, el.ownerDocument);
 			if (el.parentNode){//如果元素还不在dom树上，则只wrap不append
-			el.parentNode.insertBefore(pEl,el);
+				el.parentNode.insertBefore(pEl,el);
 			}
 			pEl.appendChild(el);
 		},
@@ -1251,7 +1261,7 @@
 				result = el.style[attribute];
 			}
 
-			return (!result || result == 'auto') ? null : result;
+			return result;
 		},
 
 		/** 
@@ -1264,21 +1274,14 @@
 		getCurrentStyle: function(el, attribute, pseudo) {
 			el = g(el);
 
-			var displayAttribute = StringH.camelize(attribute);
-
-			var hook = NodeH.cssHooks[displayAttribute],
-				result;
+			var displayAttribute = StringH.camelize(attribute),
+				hook = NodeH.cssHooks[displayAttribute];
 
 			if (hook && hook.get) {
-				result = hook.get(el, true, pseudo);
-			} else if (Browser.ie) {
-				result = el.currentStyle[displayAttribute];
+				return hook.get(el, true, pseudo);
 			} else {
-				var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
-				result = style ? style.getPropertyValue(StringH.decamelize(attribute)) : null;
-			}
-
-			return (!result || result == 'auto') ? null : result;
+				return getCommonCurrentStyle(el, attribute, pseudo);
+			} 
 		},
 
 		/** 
@@ -1383,7 +1386,7 @@
 		 * @return	{string}	
 		 * @see StringH.tmpl
 		 */
-		tmpl : function(el, data){
+		tmpl: function(el, data){
 			el = g(el);
 			return StringH.tmpl(el.innerHTML, data); 
 		},
@@ -1404,34 +1407,49 @@
 		},
 
 		cssHooks: (function() {
+
 			var hooks = {
-					'float': {
-						get: function(el, current, pseudo) {
-							if (current) {
-								var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
+				'float': {
+					get: function(el, current, pseudo) {
+						if (current) {
+							var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
 								return style ? style.getPropertyValue('float') : null;
-							} else {
-								return el.style.cssFloat;
-							}
-						},
-						set: function(el, value) {
-							el.style.cssFloat = value;
-						},
-						remove : function (el) {
-							el.style.removeProperty('float');
+						} else {
+							return el.style.cssFloat;
 						}
 					},
-					'width' : {
-						get: function(el) {
-							return NodeH.getSize(el)['width'] + 'px';
-						}
+					set: function(el, value) {
+						el.style.cssFloat = value;
 					},
-					'height' : {
-						get: function(el) {
-							return NodeH.getSize(el)['height'] + 'px';
-						}
+					remove : function (el) {
+						el.style.removeProperty('float');
 					}
-				};
+				},
+				'width' : {
+					get: function(el, current, pseudo) {
+						if (!current) {
+							return el.style.width;
+						}
+						var result = getCommonCurrentStyle(el, 'width', pseudo);
+						if (result && (/^\d*(px)*$/).test(result)) {
+								return result;
+						}
+						return NodeH.getSize(el)['width'] + 'px';
+					}
+				},
+				'height' : {
+					get: function(el) {
+						if (!current) {
+							return el.style.height;
+						}
+						var result = getCommonCurrentStyle(el, 'height', pseudo);
+						if (result && (/^\d*(px)*$/).test(result)) {
+								return result;
+						}
+						return NodeH.getSize(el)['height'] + 'px';
+					}
+				}
+			};
 
 
 			if (Browser.ie) {

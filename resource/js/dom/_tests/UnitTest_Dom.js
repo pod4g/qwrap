@@ -229,7 +229,7 @@ describe('DOM_Integrity_Retouch', {
 		QW.Dom.setStyle(node, 'font-size', '15px');
 		value_of(QW.Dom.getStyle(node, 'font-size')).should_be('15px');
 
-		value_of(QW.Dom.getStyle(node.firstChild, 'font-size')).should_be(null);
+		value_of(!!QW.Dom.getStyle(node.firstChild, 'font-size')).should_be(false);
 		value_of(QW.Dom.getCurrentStyle(node.firstChild, 'font-size')).should_be('15px');
 		document.body.removeChild(node);
 	},

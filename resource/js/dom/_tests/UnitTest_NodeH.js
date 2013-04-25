@@ -84,21 +84,22 @@
 			var strongEl = el.firstChild;
 			NodeH.setStyle(strongEl, 'fontSize', '12px');
 			value_of(NodeH.getStyle(strongEl, 'fontSize')).should_be('12px');
-			value_of(NodeH.getStyle(strongEl, 'color')).should_be(null);
+			value_of(!!NodeH.getStyle(strongEl, 'color')).should_be(false);
 			value_of(NodeH.getCurrentStyle(strongEl, 'color')).should_not_be(null);
 			NodeH.removeStyle(strongEl, 'fontSize');
-		
+			
 			value_of(NodeH.getStyle(strongEl, 'fontSize')).should_not_be('15px');
 
 			NodeH.setStyle(strongEl, 'opacity', .55);
 			value_of(NodeH.getStyle(strongEl, 'opacity')).should_be("0.55");
 
 			NodeH.setStyle(el, 'width', 200);
-			value_of(NodeH.getStyle(el, 'width')).should_be('200px');
+			value_of(NodeH.getCurrentStyle(el, 'width')).should_be('200px');
 
 			NodeH.setStyle(el, 'width', '50%');
-			value_of(NodeH.getStyle(el, 'width')).log();
-			value_of(NodeH.getStyle(el, 'width')).should_not_be('50%');
+			value_of(NodeH.getStyle(el, 'width')).should_be('50%');
+			value_of(NodeH.getCurrentStyle(el, 'width')).log('currentStyle width:');
+			value_of(NodeH.getCurrentStyle(el, 'width')).should_not_be('50%');
 
 			document.body.removeChild(el);
 		},

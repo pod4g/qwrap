@@ -285,7 +285,7 @@
 						//避免死循环
 						EventTargetH.removeEventListener(el, i, _listener);
 					}else{
-					EventTargetH.un(el, i, _listener);
+						EventTargetH.un(el, i, _listener);
 					}
 					Cache.remove(el, i+'.'+sEvent, handler);
 				}
@@ -381,7 +381,7 @@
 						//避免死循环
 						EventTargetH.removeEventListener(el, i, _listener, needCapture);
 					}else{
-					EventTargetH.undelegate(el, selector, i, _listener);
+						EventTargetH.undelegate(el, selector, i, _listener);
 					}
 					Cache.remove(el, i+'.'+sEvent, handler, selector);
 				}
@@ -430,7 +430,7 @@
 					} else if (el[type]){
 						//ie低版本中，focus不可见元素会抛异常，容错下
 						try {
-							el[type]();
+						el[type]();
 						} catch (e) {}
 					} else {
 						EventTargetH.fire(el, type);
@@ -539,8 +539,8 @@
 				}
 			}
 			function setPreVal(el,e){
-						var target = e.target || e.srcElement;
-						target.__QWETH_pre_val = getElementVal(target);
+				var target = e.target || e.srcElement;
+				target.__QWETH_pre_val = getElementVal(target);
 			}
 			mix(EventTargetH._DelegateHooks, {
 				'change': {

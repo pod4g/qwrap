@@ -1,6 +1,6 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: QWrap 月影、JK、屈屈
 */
 
@@ -18,9 +18,9 @@
 		VERSION: "1.1.5",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2013-02-28
+		 * @default 2013-04-08
 		 */
-		RELEASE: "2013-02-28",
+		RELEASE: "2013-04-08",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -177,7 +177,7 @@
 }());
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -419,7 +419,7 @@
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -460,7 +460,7 @@ if (QW.Browser.ie) {
 	} catch (e) {}
 }/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -989,7 +989,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: 月影、JK
 */
 
@@ -1382,7 +1382,7 @@ if (QW.Browser.ie) {
 	QW.ObjectH = ObjectH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -1769,7 +1769,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: 月影
 */
 
@@ -1869,7 +1869,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -1920,7 +1920,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: 月影、JK
 */
 
@@ -2127,7 +2127,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: 月影
 */
 
@@ -2198,7 +2198,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: 月影、JK
 */
 
@@ -2387,7 +2387,7 @@ if (QW.Browser.ie) {
 	QW.HelperH = HelperH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: Miller
 */
 
@@ -2432,7 +2432,7 @@ if (QW.Browser.ie) {
 	};
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -2634,7 +2634,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -5532,7 +5532,7 @@ if (QW.Browser.ie) {
 	QW.EventH = EventH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -6724,7 +6724,7 @@ QW.provide("AsyncH", AsyncH);
 		 * defaultHeaders: 默认的requestHeader信息
 		 */
 		defaultHeaders: {
-			'Content-type': 'application/x-www-form-urlencoded UTF-8', //最常用配置
+			'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8', //最常用配置
 			'X-Requested-With':'XMLHttpRequest'
 		},
 		/** 
@@ -7030,7 +7030,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Ajax', Ajax);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.5 2013-02-28 released
+ *	version: 1.1.5 2013-04-08 released
  *	author: JK
  *  description: ajax推荐retouch....
 */
@@ -7114,7 +7114,7 @@ QW.provide("AsyncH", AsyncH);
 	NodeW.pluginHelper(FormH, 'operator');
 }());/*
 	Copyright QWrap
-	version: 1.1.5 2013-02-28 released
+	version: 1.1.5 2013-04-08 released
 	author: JK
 */
 
@@ -7329,8 +7329,12 @@ QW.provide("AsyncH", AsyncH);
 		getValue : function(){
 			return getCurrentStyle(this.el, this.attr);
 		},
-		setValue : function(value, unit){
-			setStyle(this.el, this.attr, value + unit);
+		setValue : function(value){
+			if(this.unit) {
+				setStyle(this.el, this.attr, value + this.unit);
+			} else {
+				setStyle(this.el, this.attr, value);
+			}
 		},
 		getUnit : function() {
 			if(this.unit) return this.unit;
@@ -7362,14 +7366,15 @@ QW.provide("AsyncH", AsyncH);
 			this.unit = this.getUnit();
 		},
 		action : function(per){
-			var unit = this.unit, value;
+			var value;
 			if (typeof this.end != "undefined" && per >= 1) {
 				value = this.end;
 			} else {
 				value = this.from + this.by * this.easing(per);
-				value = value.toFixed(6);
+				value = parseFloat(value.toFixed(6));
 			}
-			this.setValue(value, unit);
+			
+			this.setValue(value);
 		}
 	});
 
@@ -7694,7 +7699,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Easing', Easing);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.5 2013-02-28 released
+ *	version: 1.1.5 2013-04-08 released
  *	author:Jerry(屈光宇)、JK（加宽）
  *  description: Anim推荐retouch....
 */
