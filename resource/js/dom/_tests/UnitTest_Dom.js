@@ -187,6 +187,7 @@ describe('DOM_Integrity_Retouch', {
 		document.body.removeChild(node);
 	},
 	'g': function() {
+		value_of(QW.NodeH.g(' <div>aa</div>').tagName).should_be('DIV');
 		QW.Dom.insertAdjacentHTML(document.body, 'beforeEnd', '<div id="test">1</div>');
 		var node = QW.NodeH.g('test');
 		value_of(node).should_not_be(null);

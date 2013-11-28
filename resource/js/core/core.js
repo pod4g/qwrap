@@ -21,5 +21,4 @@
 	document.write('<script type="text/javascript" src="' + srcPath + 'core/helper.h.js"><\/script>');
 	document.write('<script type="text/javascript" src="' + srcPath + 'core/json.js"><\/script>');
 	document.write('<script type="text/javascript" src="' + srcPath + 'core/custevent.js"><\/script>');
-	document.write('<script type="text/javascript" src="' + srcPath + 'core/monitor.h.js"><\/script>');
 }());

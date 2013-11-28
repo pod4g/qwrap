@@ -25,6 +25,9 @@
 				a: "I",
 				b: "you"
 			})).should_be("I love you.");
+			value_of(StringH.tmpl('<input value="{=$name}">', {
+				name:'JK\'\"> Ying<'
+			})).should_be('<input value="JK&#039;&quot;&gt; Ying&lt;">');
 			value_of(StringH.tmpl("{js print('I')} love {$b}.", {
 				a: "I",
 				b: "you"

@@ -63,30 +63,48 @@
 		 * EVENTS: Ajax的CustEvents：'succeed','error','cancel','timeout','complete'
 		 */
 		EVENTS: ['succeed', 'error', 'cancel', 'timeout','complete'],
-		/**
-		 *XHRVersions: IE下XMLHttpRequest的版本
-		 */
-		XHRVersions: ['Microsoft.XMLHTTP'],//JK: 应对IE6与SE5.0beta的错误，仅用最原始版xmlhttp。['MSXML2.XMLHttp.6.0', 'MSXML2.XMLHttp.3.0', 'MSXML2.XMLHttp.5.0', 'MSXML2.XMLHttp.4.0', 'Msxml2.XMLHTTP', 'MSXML.XMLHttp', 'Microsoft.XMLHTTP'],
 		/* 
 		 * getXHR(): 得到一个XMLHttpRequest对象
 		 * @returns {XMLHttpRequest} : 返回一个XMLHttpRequest对象。
 		 */
-		getXHR: function() {
-			var versions = Ajax.XHRVersions;
-			if (window.ActiveXObject) {
-				while (versions.length > 0) {
-					try {
-						return new ActiveXObject(versions[0]);
-					} catch (ex) {
-						versions.shift();
-					}
-				}
-			} 
-			if (window.XMLHttpRequest) {
-				return new XMLHttpRequest();
+		getXHR: (function() {
+			//JK： 以下代码，参考自jquery1.8.2
+			var ajaxLocation;
+			try {
+				ajaxLocation = location.href;
+			} catch( e ) {
+				// Use the href attribute of an A element
+				// since IE will modify it given document.location
+				ajaxLocation = document.createElement( "a" );
+				ajaxLocation.href = "";
+				ajaxLocation = ajaxLocation.href;
 			}
-			return null;
-		},
+			var isLocal = (/^(about|app|app\-storage|.+\-extension|file|res|widget):/i).test(ajaxLocation);
+			function createStandardXHR() {
+				try {
+					return new window.XMLHttpRequest();
+				} catch( e ) {}
+			}
+
+			function createActiveXHR() {
+				try {
+					return new window.ActiveXObject( "Microsoft.XMLHTTP" );
+				} catch( e ) {}
+			}
+
+			return window.ActiveXObject ?
+				/* Microsoft failed to properly
+				 * implement the XMLHttpRequest in IE7 (can't request local files),
+				 * so we use the ActiveXObject when it is available
+				 * Additionally XMLHttpRequest can be disabled in IE7/IE8 so
+				 * we need a fallback.
+				 */
+				function() {
+					return !isLocal && createStandardXHR() || createActiveXHR();
+				} :
+				// For all other browsers, use the standard XMLHttpRequest object
+				createStandardXHR;
+		}()),
 		/**
 		 * 静态request方法
 		 * @method request

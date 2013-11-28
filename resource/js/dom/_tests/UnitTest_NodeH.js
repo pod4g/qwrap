@@ -66,7 +66,7 @@
 			NodeH.removeChild(el, el.firstChild);
 			value_of(el.firstChild.tagName).should_be('STRONG');
 			var subStrongEl1 = NodeH.g('strong_3_test');
-			NodeH.empty('strong_3_test');
+			NodeH.empty(subStrongEl1);
 			value_of(subStrongEl1.firstChild).should_be(null);
 			NodeH.removeNode(el, true);
 			var subStrongEl = NodeH.g('strong_4_test');

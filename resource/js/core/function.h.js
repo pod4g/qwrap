@@ -112,7 +112,7 @@
 					ret = arguments[opt];
 				} else if(opt == "this" || opt == "context"){
 					ret = this;
-				} 
+				}
 				return wrapper ? new wrapper(ret) : ret;
 			};
 		},

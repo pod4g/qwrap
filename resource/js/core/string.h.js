@@ -84,7 +84,8 @@
 		 模板里的实体}用##7d表示
 		 模板里的实体#可以用##23表示。例如（模板真的需要输出"##7d"，则需要这么写“##23#7d”）
 		 {strip}...{/strip}里的所有\r\n打头的空白都会被清除掉
-		 {}里只能使用表达式，不能使用语句，除非使用以下标签
+		 {=xxx} 输出经HTML转码的xxx
+		 {xxx} 输出xxx，xxx只能是表达式，不能使用语句，除非使用以下标签
 		 {js ...}		－－任意js语句, 里面如果需要输出到模板，用print("aaa");
 		 {if(...)}		－－if语句，写法为{if($a>1)},需要自带括号
 		 {elseif(...)}	－－elseif语句，写法为{elseif($a>1)},需要自带括号
@@ -101,6 +102,8 @@
 		 * @example alert(tmpl("{js print('I')} love {$b}.",{b:"you"}));
 		 */
 		tmpl: (function() {
+			
+			var tmplFuns={};
 			/*
 			sArrName 拼接字符串的变量名。
 			*/
@@ -117,6 +120,20 @@
 				sEnd: 结束字符串
 			*/
 			var tags = {
+				'=': {
+					tagG: '=',
+					isBgn: 1,
+					isEnd: 1,
+					sBgn: '",QW.StringH.encode4HtmlValue(',
+					sEnd: '),"'
+				},
+				'js': {
+					tagG: 'js',
+					isBgn: 1,
+					isEnd: 1,
+					sBgn: '");',
+					sEnd: ';' + sLeft
+				},
 				'js': {
 					tagG: 'js',
 					isBgn: 1,
@@ -184,67 +201,72 @@
 			};
 
 			return function(sTmpl, opts) {
-				var N = -1,
-					NStat = []; //语句堆栈;
-				var ss = [
-					[/\{strip\}([\s\S]*?)\{\/strip\}/g, function(a, b) {
-						return b.replace(/[\r\n]\s*\}/g, " }").replace(/[\r\n]\s*/g, "");
-					}],
-					[/\\/g, '\\\\'],
-					[/"/g, '\\"'],
-					[/\r/g, '\\r'],
-					[/\n/g, '\\n'], //为js作转码.
-					[
-						/\{[\s\S]*?\S\}/g, //js里使用}时，前面要加空格。
-						function(a) {
-							a = a.substr(1, a.length - 2);
-							for (var i = 0; i < ss2.length; i++) {a = a.replace(ss2[i][0], ss2[i][1]); }
-							var tagName = a;
-							if (/^(.\w+)\W/.test(tagName)) {tagName = RegExp.$1; }
-							var tag = tags[tagName];
-							if (tag) {
-								if (tag.isBgn) {
-									var stat = NStat[++N] = {
-										tagG: tag.tagG,
-										rlt: tag.rlt
-									};
+
+				var fun  = tmplFuns[sTmpl];
+				if (!fun) {
+					var N = -1,
+						NStat = []; //语句堆栈;
+					var ss = [
+						[/\{strip\}([\s\S]*?)\{\/strip\}/g, function(a, b) {
+							return b.replace(/[\r\n]\s*\}/g, " }").replace(/[\r\n]\s*/g, "");
+						}],
+						[/\\/g, '\\\\'],
+						[/"/g, '\\"'],
+						[/\r/g, '\\r'],
+						[/\n/g, '\\n'], //为js作转码.
+						[
+							/\{[\s\S]*?\S\}/g, //js里使用}时，前面要加空格。
+							function(a) {
+								a = a.substr(1, a.length - 2);
+								for (var i = 0; i < ss2.length; i++) {a = a.replace(ss2[i][0], ss2[i][1]); }
+								var tagName = a;
+								if (/^(=|.\w+)/.test(tagName)) {tagName = RegExp.$1; }
+								var tag = tags[tagName];
+								if (tag) {
+									if (tag.isBgn) {
+										var stat = NStat[++N] = {
+											tagG: tag.tagG,
+											rlt: tag.rlt
+										};
+									}
+									if (tag.isEnd) {
+										if (N < 0) {throw new Error("Unexpected Tag: " + a); }
+										stat = NStat[N--];
+										if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
+									} else if (!tag.isBgn) {
+										if (N < 0) {throw new Error("Unexpected Tag:" + a); }
+										stat = NStat[N];
+										if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
+										if (tag.cond && !(tag.cond & stat.rlt)) {throw new Error("Unexpected Tag: " + tagName); }
+										stat.rlt = tag.rlt;
+									}
+									return (tag.sBgn || '') + a.substr(tagName.length) + (tag.sEnd || '');
+								} else {
+									return '",(' + a + '),"';
 								}
-								if (tag.isEnd) {
-									if (N < 0) {throw new Error("Unexpected Tag: " + a); }
-									stat = NStat[N--];
-									if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
-								} else if (!tag.isBgn) {
-									if (N < 0) {throw new Error("Unexpected Tag:" + a); }
-									stat = NStat[N];
-									if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
-									if (tag.cond && !(tag.cond & stat.rlt)) {throw new Error("Unexpected Tag: " + tagName); }
-									stat.rlt = tag.rlt;
-								}
-								return (tag.sBgn || '') + a.substr(tagName.length) + (tag.sEnd || '');
-							} else {
-								return '",(' + a + '),"';
 							}
-						}
-					]
-				];
-				var ss2 = [
-					[/\\n/g, '\n'],
-					[/\\r/g, '\r'],
-					[/\\"/g, '"'],
-					[/\\\\/g, '\\'],
-					[/\$(\w+)/g, 'opts["$1"]'],
-					[/print\(/g, sArrName + '.push(']
-				];
-				for (var i = 0; i < ss.length; i++) {
-					sTmpl = sTmpl.replace(ss[i][0], ss[i][1]);
+						]
+					];
+					var ss2 = [
+						[/\\n/g, '\n'],
+						[/\\r/g, '\r'],
+						[/\\"/g, '"'],
+						[/\\\\/g, '\\'],
+						[/\$(\w+)/g, 'opts["$1"]'],
+						[/print\(/g, sArrName + '.push(']
+					];
+					for (var i = 0; i < ss.length; i++) {
+						sTmpl = sTmpl.replace(ss[i][0], ss[i][1]);
+					}
+					if (N >= 0) {throw new Error("Lose end Tag: " + NStat[N].tagG); }
+					
+					sTmpl = sTmpl.replace(/##7b/g,'{').replace(/##7d/g,'}').replace(/##23/g,'#'); //替换特殊符号{}#
+					sTmpl = 'var ' + sArrName + '=[];' + sLeft + sTmpl + '");return ' + sArrName + '.join("");';
+					
+					//alert('转化结果\n'+sTmpl);
+					tmplFuns[sTmpl] = fun = new Function('opts', sTmpl);
 				}
-				if (N >= 0) {throw new Error("Lose end Tag: " + NStat[N].tagG); }
-				
-				sTmpl = sTmpl.replace(/##7b/g,'{').replace(/##7d/g,'}').replace(/##23/g,'#'); //替换特殊符号{}#
-				sTmpl = 'var ' + sArrName + '=[];' + sLeft + sTmpl + '");return ' + sArrName + '.join("");';
-				
-				//alert('转化结果\n'+sTmpl);
-				var fun = new Function('opts', sTmpl);
+
 				if (arguments.length > 1) {return fun(opts); }
 				return fun;
 			};
@@ -497,11 +519,11 @@
 			url.replace(/(^|&)([^&=]+)=([^&]*)/g, function (a, b, key , value){
 				//对url这样不可信的内容进行decode，可能会抛异常，try一下；另外为了得到最合适的结果，这里要分别try
 				try {
-				key = decodeURIComponent(key);
+					key = decodeURIComponent(key);
 				} catch(e) {}
 
 				try {
-				value = decodeURIComponent(value);
+					value = decodeURIComponent(value);
 				} catch(e) {}
 
 				if (!(key in json)) {

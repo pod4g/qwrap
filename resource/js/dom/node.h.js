@@ -26,6 +26,7 @@
 	 */
 	function g(el, doc) {
 		if ('string' == typeof el) {
+			el = el.replace(/^\s+/,'');
 			if (el.indexOf('<') == 0) {return DomU.create(el, false, doc); }
 			var retEl = (doc || document).getElementById(el),els;
 			if (retEl && retEl.id != el) {
@@ -1438,7 +1439,7 @@
 					}
 				},
 				'height' : {
-					get: function(el) {
+					get: function(el, current, pseudo) {
 						if (!current) {
 							return el.style.height;
 						}

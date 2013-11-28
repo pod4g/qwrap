@@ -161,7 +161,8 @@
 		 */
 		ready: function(handler, doc) {
 			doc = doc || document;
-			var cbs = doc.__QWDomReadyCbs = doc.__QWDomReadyCbs || [];
+			var win = doc.defaultView || doc.parentWindow,
+				cbs = doc.__QWDomReadyCbs = doc.__QWDomReadyCbs || [];
 			cbs.push(handler);
 
 			function execCbs(){//JK：这里需要保证：每一个回调都执行，并且按顺序，并且每一个回调的异常都被抛出以方便工程师发现错误
@@ -176,34 +177,29 @@
 			}
 
 			setTimeout(function(){ //延迟执行，而不是立即执行，以保证ready方法的键壮
-				if (/complete/.test(doc.readyState)) {
+				if ('complete' == doc.readyState) {
 					execCbs();
 				} else {
 					if (doc.addEventListener) {
-						if (!Browser.ie9 && ('interactive' == doc.readyState)) { // IE9下doc.readyState有些异常
-							execCbs();
-						} else {
-							doc.addEventListener('DOMContentLoaded', execCbs, false);
-						}
+						doc.addEventListener('DOMContentLoaded', execCbs, false);
+						win.addEventListener( "load", execCbs, false ); //添加load来避免DOMContentLoaded没有执行的情况，例如interactive状态
 					} else {
-						var fireDOMReadyEvent = function() {
-							fireDOMReadyEvent = new Function();
-							execCbs();
-						};
 						(function() {
 							try {
 								doc.body.doScroll('left');
 							} catch (exp) {
 								return setTimeout(arguments.callee, 1);
 							}
-							fireDOMReadyEvent();
+							execCbs();
 						}());
 						doc.attachEvent('onreadystatechange', function() {
-							('complete' == doc.readyState) && fireDOMReadyEvent();
+							if ('complete' == doc.readyState) {
+								execCbs();
+							}
 						});
 					}
 				}
-			},0);
+			},1);
 		},
 
 

@@ -32,6 +32,7 @@
 		}
 		var arg1 = arguments[1];
 		if (isString(core)) {
+			core = core.replace(/^\s+/,'');
 			if (/^</.test(core)) { //用法：var w=NodeW(html); 
 				var list = create(core, true, arg1).childNodes,
 					els = [];
@@ -65,6 +66,7 @@
 		}
 		var arg1 = arguments[1];
 		if (isString(core)) { //用法：var w=NodeW.one(sSelector); 
+			core = core.replace(/^\s+/,'');
 			if (/^</.test(core)) { //用法：var w=NodeW.one(html); 
 				return new NodeW(create(core, false, arg1));
 			} else { //用法：var w=NodeW(sSelector);
