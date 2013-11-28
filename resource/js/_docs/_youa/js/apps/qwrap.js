@@ -1,6 +1,6 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: QWrap 月影、JK、屈屈
 */
 
@@ -13,14 +13,14 @@
 	var QW = {
 		/**
 		 * @property {string} VERSION 脚本库的版本号
-		 * @default 1.1.5
+		 * @default 1.1.6
 		 */
-		VERSION: "1.1.5",
+		VERSION: "1.1.6",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2013-04-08
+		 * @default 2013-11-28
 		 */
-		RELEASE: "2013-04-08",
+		RELEASE: "2013-11-28",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -87,9 +87,9 @@
 			if (options.charset) {
 				script.charset = options.charset;
 			}
-            if ( "async" in options ){
-	        	script.async = options["async"] || "";
-            }
+			if ( "async" in options ){
+				script.async = options["async"] || "";
+			}
 			script.onerror = script.onload = script.onreadystatechange = function() {
 				if (!done && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
 					done = true;
@@ -174,10 +174,9 @@
 	*/
 
 	window.QW = QW;
-}());
-/*
+}());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -419,7 +418,7 @@
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -429,38 +428,50 @@
  * @singleton 
  * @namespace QW 
  */
+
 QW.Browser = (function() {
 	var na = window.navigator,
 		ua = na.userAgent.toLowerCase(),
-		browserTester = /(msie|webkit|gecko|presto|opera|safari|firefox|chrome|maxthon|android|ipad|iphone|webos|hpwos)[ \/os]*([\d_.]+)/ig,
+		browserTester = /(msie|webkit|gecko|presto|opera|safari|firefox|chrome|maxthon|android|ipad|iphone|webos|hpwos|trident)[ \/os]*([\d_.]+)/ig,
 		Browser = {
 			platform: na.platform
 		};
+
 	ua.replace(browserTester, function(a, b, c) {
-		var bLower = b.toLowerCase();
-		if (!Browser[bLower]) {
-			Browser[bLower] = c; 
+		if (!Browser[b]) {
+			Browser[b] = c;
 		}
 	});
+
 	if (Browser.opera) { //Opera9.8后版本号位置变化
 		ua.replace(/opera.*version\/([\d.]+)/, function(a, b) {
 			Browser.opera = b;
 		});
 	}
+
+	//IE 11 的 UserAgent：Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv 11.0) like Gecko
+	if (!Browser.msie && Browser.trident) {
+		ua.replace(/trident\/[0-9].*rv[ :]([0-9.]+)/ig, function(a, c) {
+				Browser.msie = c;
+			});
+	}
+
 	if (Browser.msie) {
 		Browser.ie = Browser.msie;
 		var v = parseInt(Browser.msie, 10);
 		Browser['ie' + v] = true;
 	}
+
 	return Browser;
 }());
+
 if (QW.Browser.ie) {
 	try {
 		document.execCommand("BackgroundImageCache", false, true);
 	} catch (e) {}
 }/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -544,7 +555,8 @@ if (QW.Browser.ie) {
 		 模板里的实体}用##7d表示
 		 模板里的实体#可以用##23表示。例如（模板真的需要输出"##7d"，则需要这么写“##23#7d”）
 		 {strip}...{/strip}里的所有\r\n打头的空白都会被清除掉
-		 {}里只能使用表达式，不能使用语句，除非使用以下标签
+		 {=xxx} 输出经HTML转码的xxx
+		 {xxx} 输出xxx，xxx只能是表达式，不能使用语句，除非使用以下标签
 		 {js ...}		－－任意js语句, 里面如果需要输出到模板，用print("aaa");
 		 {if(...)}		－－if语句，写法为{if($a>1)},需要自带括号
 		 {elseif(...)}	－－elseif语句，写法为{elseif($a>1)},需要自带括号
@@ -561,6 +573,8 @@ if (QW.Browser.ie) {
 		 * @example alert(tmpl("{js print('I')} love {$b}.",{b:"you"}));
 		 */
 		tmpl: (function() {
+			
+			var tmplFuns={};
 			/*
 			sArrName 拼接字符串的变量名。
 			*/
@@ -577,6 +591,20 @@ if (QW.Browser.ie) {
 				sEnd: 结束字符串
 			*/
 			var tags = {
+				'=': {
+					tagG: '=',
+					isBgn: 1,
+					isEnd: 1,
+					sBgn: '",QW.StringH.encode4HtmlValue(',
+					sEnd: '),"'
+				},
+				'js': {
+					tagG: 'js',
+					isBgn: 1,
+					isEnd: 1,
+					sBgn: '");',
+					sEnd: ';' + sLeft
+				},
 				'js': {
 					tagG: 'js',
 					isBgn: 1,
@@ -644,67 +672,72 @@ if (QW.Browser.ie) {
 			};
 
 			return function(sTmpl, opts) {
-				var N = -1,
-					NStat = []; //语句堆栈;
-				var ss = [
-					[/\{strip\}([\s\S]*?)\{\/strip\}/g, function(a, b) {
-						return b.replace(/[\r\n]\s*\}/g, " }").replace(/[\r\n]\s*/g, "");
-					}],
-					[/\\/g, '\\\\'],
-					[/"/g, '\\"'],
-					[/\r/g, '\\r'],
-					[/\n/g, '\\n'], //为js作转码.
-					[
-						/\{[\s\S]*?\S\}/g, //js里使用}时，前面要加空格。
-						function(a) {
-							a = a.substr(1, a.length - 2);
-							for (var i = 0; i < ss2.length; i++) {a = a.replace(ss2[i][0], ss2[i][1]); }
-							var tagName = a;
-							if (/^(.\w+)\W/.test(tagName)) {tagName = RegExp.$1; }
-							var tag = tags[tagName];
-							if (tag) {
-								if (tag.isBgn) {
-									var stat = NStat[++N] = {
-										tagG: tag.tagG,
-										rlt: tag.rlt
-									};
+
+				var fun  = tmplFuns[sTmpl];
+				if (!fun) {
+					var N = -1,
+						NStat = []; //语句堆栈;
+					var ss = [
+						[/\{strip\}([\s\S]*?)\{\/strip\}/g, function(a, b) {
+							return b.replace(/[\r\n]\s*\}/g, " }").replace(/[\r\n]\s*/g, "");
+						}],
+						[/\\/g, '\\\\'],
+						[/"/g, '\\"'],
+						[/\r/g, '\\r'],
+						[/\n/g, '\\n'], //为js作转码.
+						[
+							/\{[\s\S]*?\S\}/g, //js里使用}时，前面要加空格。
+							function(a) {
+								a = a.substr(1, a.length - 2);
+								for (var i = 0; i < ss2.length; i++) {a = a.replace(ss2[i][0], ss2[i][1]); }
+								var tagName = a;
+								if (/^(=|.\w+)/.test(tagName)) {tagName = RegExp.$1; }
+								var tag = tags[tagName];
+								if (tag) {
+									if (tag.isBgn) {
+										var stat = NStat[++N] = {
+											tagG: tag.tagG,
+											rlt: tag.rlt
+										};
+									}
+									if (tag.isEnd) {
+										if (N < 0) {throw new Error("Unexpected Tag: " + a); }
+										stat = NStat[N--];
+										if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
+									} else if (!tag.isBgn) {
+										if (N < 0) {throw new Error("Unexpected Tag:" + a); }
+										stat = NStat[N];
+										if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
+										if (tag.cond && !(tag.cond & stat.rlt)) {throw new Error("Unexpected Tag: " + tagName); }
+										stat.rlt = tag.rlt;
+									}
+									return (tag.sBgn || '') + a.substr(tagName.length) + (tag.sEnd || '');
+								} else {
+									return '",(' + a + '),"';
 								}
-								if (tag.isEnd) {
-									if (N < 0) {throw new Error("Unexpected Tag: " + a); }
-									stat = NStat[N--];
-									if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
-								} else if (!tag.isBgn) {
-									if (N < 0) {throw new Error("Unexpected Tag:" + a); }
-									stat = NStat[N];
-									if (stat.tagG != tag.tagG) {throw new Error("Unmatch Tags: " + stat.tagG + "--" + tagName); }
-									if (tag.cond && !(tag.cond & stat.rlt)) {throw new Error("Unexpected Tag: " + tagName); }
-									stat.rlt = tag.rlt;
-								}
-								return (tag.sBgn || '') + a.substr(tagName.length) + (tag.sEnd || '');
-							} else {
-								return '",(' + a + '),"';
 							}
-						}
-					]
-				];
-				var ss2 = [
-					[/\\n/g, '\n'],
-					[/\\r/g, '\r'],
-					[/\\"/g, '"'],
-					[/\\\\/g, '\\'],
-					[/\$(\w+)/g, 'opts["$1"]'],
-					[/print\(/g, sArrName + '.push(']
-				];
-				for (var i = 0; i < ss.length; i++) {
-					sTmpl = sTmpl.replace(ss[i][0], ss[i][1]);
+						]
+					];
+					var ss2 = [
+						[/\\n/g, '\n'],
+						[/\\r/g, '\r'],
+						[/\\"/g, '"'],
+						[/\\\\/g, '\\'],
+						[/\$(\w+)/g, 'opts["$1"]'],
+						[/print\(/g, sArrName + '.push(']
+					];
+					for (var i = 0; i < ss.length; i++) {
+						sTmpl = sTmpl.replace(ss[i][0], ss[i][1]);
+					}
+					if (N >= 0) {throw new Error("Lose end Tag: " + NStat[N].tagG); }
+					
+					sTmpl = sTmpl.replace(/##7b/g,'{').replace(/##7d/g,'}').replace(/##23/g,'#'); //替换特殊符号{}#
+					sTmpl = 'var ' + sArrName + '=[];' + sLeft + sTmpl + '");return ' + sArrName + '.join("");';
+					
+					//alert('转化结果\n'+sTmpl);
+					tmplFuns[sTmpl] = fun = new Function('opts', sTmpl);
 				}
-				if (N >= 0) {throw new Error("Lose end Tag: " + NStat[N].tagG); }
-				
-				sTmpl = sTmpl.replace(/##7b/g,'{').replace(/##7d/g,'}').replace(/##23/g,'#'); //替换特殊符号{}#
-				sTmpl = 'var ' + sArrName + '=[];' + sLeft + sTmpl + '");return ' + sArrName + '.join("");';
-				
-				//alert('转化结果\n'+sTmpl);
-				var fun = new Function('opts', sTmpl);
+
 				if (arguments.length > 1) {return fun(opts); }
 				return fun;
 			};
@@ -957,11 +990,11 @@ if (QW.Browser.ie) {
 			url.replace(/(^|&)([^&=]+)=([^&]*)/g, function (a, b, key , value){
 				//对url这样不可信的内容进行decode，可能会抛异常，try一下；另外为了得到最合适的结果，这里要分别try
 				try {
-				key = decodeURIComponent(key);
+					key = decodeURIComponent(key);
 				} catch(e) {}
 
 				try {
-				value = decodeURIComponent(value);
+					value = decodeURIComponent(value);
 				} catch(e) {}
 
 				if (!(key in json)) {
@@ -989,7 +1022,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: 月影、JK
 */
 
@@ -1382,7 +1415,7 @@ if (QW.Browser.ie) {
 	QW.ObjectH = ObjectH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -1769,7 +1802,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: 月影
 */
 
@@ -1869,7 +1902,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -1920,7 +1953,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: 月影、JK
 */
 
@@ -2032,7 +2065,7 @@ if (QW.Browser.ie) {
 					ret = arguments[opt];
 				} else if(opt == "this" || opt == "context"){
 					ret = this;
-				} 
+				}
 				return wrapper ? new wrapper(ret) : ret;
 			};
 		},
@@ -2127,7 +2160,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: 月影
 */
 
@@ -2198,7 +2231,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: 月影、JK
 */
 
@@ -2387,7 +2420,7 @@ if (QW.Browser.ie) {
 	QW.HelperH = HelperH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: Miller
 */
 
@@ -2432,7 +2465,7 @@ if (QW.Browser.ie) {
 	};
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -2634,7 +2667,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -3507,7 +3540,8 @@ if (QW.Browser.ie) {
 		 */
 		ready: function(handler, doc) {
 			doc = doc || document;
-			var cbs = doc.__QWDomReadyCbs = doc.__QWDomReadyCbs || [];
+			var win = doc.defaultView || doc.parentWindow,
+				cbs = doc.__QWDomReadyCbs = doc.__QWDomReadyCbs || [];
 			cbs.push(handler);
 
 			function execCbs(){//JK：这里需要保证：每一个回调都执行，并且按顺序，并且每一个回调的异常都被抛出以方便工程师发现错误
@@ -3522,34 +3556,29 @@ if (QW.Browser.ie) {
 			}
 
 			setTimeout(function(){ //延迟执行，而不是立即执行，以保证ready方法的键壮
-			if (/complete/.test(doc.readyState)) {
+				if ('complete' == doc.readyState) {
 					execCbs();
-			} else {
-				if (doc.addEventListener) {
-					if (!Browser.ie && ('interactive' == doc.readyState)) { // IE9下doc.readyState有些异常
-							execCbs();
-					} else {
-							doc.addEventListener('DOMContentLoaded', execCbs, false);
-					}
 				} else {
-					var fireDOMReadyEvent = function() {
-						fireDOMReadyEvent = new Function();
+					if (doc.addEventListener) {
+						doc.addEventListener('DOMContentLoaded', execCbs, false);
+						win.addEventListener( "load", execCbs, false ); //添加load来避免DOMContentLoaded没有执行的情况，例如interactive状态
+					} else {
+						(function() {
+							try {
+								doc.body.doScroll('left');
+							} catch (exp) {
+								return setTimeout(arguments.callee, 1);
+							}
 							execCbs();
-					};
-					(function() {
-						try {
-							doc.body.doScroll('left');
-						} catch (exp) {
-							return setTimeout(arguments.callee, 1);
-						}
-						fireDOMReadyEvent();
-					}());
-					doc.attachEvent('onreadystatechange', function() {
-						('complete' == doc.readyState) && fireDOMReadyEvent();
-					});
+						}());
+						doc.attachEvent('onreadystatechange', function() {
+							if ('complete' == doc.readyState) {
+								execCbs();
+							}
+						});
+					}
 				}
-			}
-			},0);
+			},1);
 		},
 
 
@@ -3655,6 +3684,7 @@ if (QW.Browser.ie) {
 	 */
 	function g(el, doc) {
 		if ('string' == typeof el) {
+			el = el.replace(/^\s+/,'');
 			if (el.indexOf('<') == 0) {return DomU.create(el, false, doc); }
 			var retEl = (doc || document).getElementById(el),els;
 			if (retEl && retEl.id != el) {
@@ -3689,6 +3719,16 @@ if (QW.Browser.ie) {
 		el.style.right = right;
 		el.runtimeStyle.right = runtimeRight;
 		return result;
+	}
+
+	function getCommonCurrentStyle(el, attribute, pseudo) {
+		var displayAttribute = StringH.camelize(attribute);
+		if (Browser.ie) {
+			return el.currentStyle[displayAttribute];
+		} else {
+			var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
+			return style ? style.getPropertyValue(StringH.decamelize(attribute)) : null;
+		}
 	}
 
 	var cssNumber = {
@@ -3860,7 +3900,7 @@ if (QW.Browser.ie) {
 			el = g(el);
 			pEl = g(pEl, el.ownerDocument);
 			if (el.parentNode){//如果元素还不在dom树上，则只wrap不append
-			el.parentNode.insertBefore(pEl,el);
+				el.parentNode.insertBefore(pEl,el);
 			}
 			pEl.appendChild(el);
 		},
@@ -4880,7 +4920,7 @@ if (QW.Browser.ie) {
 				result = el.style[attribute];
 			}
 
-			return (!result || result == 'auto') ? null : result;
+			return result;
 		},
 
 		/** 
@@ -4893,21 +4933,14 @@ if (QW.Browser.ie) {
 		getCurrentStyle: function(el, attribute, pseudo) {
 			el = g(el);
 
-			var displayAttribute = StringH.camelize(attribute);
-
-			var hook = NodeH.cssHooks[displayAttribute],
-				result;
+			var displayAttribute = StringH.camelize(attribute),
+				hook = NodeH.cssHooks[displayAttribute];
 
 			if (hook && hook.get) {
-				result = hook.get(el, true, pseudo);
-			} else if (Browser.ie) {
-				result = el.currentStyle[displayAttribute];
+				return hook.get(el, true, pseudo);
 			} else {
-				var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
-				result = style ? style.getPropertyValue(StringH.decamelize(attribute)) : null;
-			}
-
-			return (!result || result == 'auto') ? null : result;
+				return getCommonCurrentStyle(el, attribute, pseudo);
+			} 
 		},
 
 		/** 
@@ -5012,7 +5045,7 @@ if (QW.Browser.ie) {
 		 * @return	{string}	
 		 * @see StringH.tmpl
 		 */
-		tmpl : function(el, data){
+		tmpl: function(el, data){
 			el = g(el);
 			return StringH.tmpl(el.innerHTML, data); 
 		},
@@ -5033,34 +5066,49 @@ if (QW.Browser.ie) {
 		},
 
 		cssHooks: (function() {
+
 			var hooks = {
-					'float': {
-						get: function(el, current, pseudo) {
-							if (current) {
-								var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
+				'float': {
+					get: function(el, current, pseudo) {
+						if (current) {
+							var style = el.ownerDocument.defaultView.getComputedStyle(el, pseudo || null);
 								return style ? style.getPropertyValue('float') : null;
-							} else {
-								return el.style.cssFloat;
-							}
-						},
-						set: function(el, value) {
-							el.style.cssFloat = value;
-						},
-						remove : function (el) {
-							el.style.removeProperty('float');
+						} else {
+							return el.style.cssFloat;
 						}
 					},
-					'width' : {
-						get: function(el) {
-							return NodeH.getSize(el)['width'] + 'px';
-						}
+					set: function(el, value) {
+						el.style.cssFloat = value;
 					},
-					'height' : {
-						get: function(el) {
-							return NodeH.getSize(el)['height'] + 'px';
-						}
+					remove : function (el) {
+						el.style.removeProperty('float');
 					}
-				};
+				},
+				'width' : {
+					get: function(el, current, pseudo) {
+						if (!current) {
+							return el.style.width;
+						}
+						var result = getCommonCurrentStyle(el, 'width', pseudo);
+						if (result && (/^\d*(px)*$/).test(result)) {
+								return result;
+						}
+						return NodeH.getSize(el)['width'] + 'px';
+					}
+				},
+				'height' : {
+					get: function(el, current, pseudo) {
+						if (!current) {
+							return el.style.height;
+						}
+						var result = getCommonCurrentStyle(el, 'height', pseudo);
+						if (result && (/^\d*(px)*$/).test(result)) {
+								return result;
+						}
+						return NodeH.getSize(el)['height'] + 'px';
+					}
+				}
+			};
 
 
 			if (Browser.ie) {
@@ -5163,6 +5211,7 @@ if (QW.Browser.ie) {
 		}
 		var arg1 = arguments[1];
 		if (isString(core)) {
+			core = core.replace(/^\s+/,'');
 			if (/^</.test(core)) { //用法：var w=NodeW(html); 
 				var list = create(core, true, arg1).childNodes,
 					els = [];
@@ -5196,6 +5245,7 @@ if (QW.Browser.ie) {
 		}
 		var arg1 = arguments[1];
 		if (isString(core)) { //用法：var w=NodeW.one(sSelector); 
+			core = core.replace(/^\s+/,'');
 			if (/^</.test(core)) { //用法：var w=NodeW.one(html); 
 				return new NodeW(create(core, false, arg1));
 			} else { //用法：var w=NodeW(sSelector);
@@ -5532,7 +5582,7 @@ if (QW.Browser.ie) {
 	QW.EventH = EventH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -5817,7 +5867,7 @@ if (QW.Browser.ie) {
 						//避免死循环
 						EventTargetH.removeEventListener(el, i, _listener);
 					}else{
-					EventTargetH.un(el, i, _listener);
+						EventTargetH.un(el, i, _listener);
 					}
 					Cache.remove(el, i+'.'+sEvent, handler);
 				}
@@ -5913,7 +5963,7 @@ if (QW.Browser.ie) {
 						//避免死循环
 						EventTargetH.removeEventListener(el, i, _listener, needCapture);
 					}else{
-					EventTargetH.undelegate(el, selector, i, _listener);
+						EventTargetH.undelegate(el, selector, i, _listener);
 					}
 					Cache.remove(el, i+'.'+sEvent, handler, selector);
 				}
@@ -5962,7 +6012,7 @@ if (QW.Browser.ie) {
 					} else if (el[type]){
 						//ie低版本中，focus不可见元素会抛异常，容错下
 						try {
-							el[type]();
+						el[type]();
 						} catch (e) {}
 					} else {
 						EventTargetH.fire(el, type);
@@ -6071,8 +6121,8 @@ if (QW.Browser.ie) {
 				}
 			}
 			function setPreVal(el,e){
-						var target = e.target || e.srcElement;
-						target.__QWETH_pre_val = getElementVal(target);
+				var target = e.target || e.srcElement;
+				target.__QWETH_pre_val = getElementVal(target);
 			}
 			mix(EventTargetH._DelegateHooks, {
 				'change': {
@@ -6523,9 +6573,12 @@ if (QW.Browser.ie) {
 		var ban = (el.getAttribute && el.getAttribute('data--ban')) | 0;
 		if (ban) {
 			if (!el.__BAN_preTime || (new Date() - el.__BAN_preTime) > ban) {
-				el.__BAN_preTime = new Date() * 1;
+				setTimeout(function(){//月影：setTimeout来避免“在el上注册多个事件时只能执行第一个”。
+					el.__BAN_preTime = new Date() * 1;
+				});
 				return true;
 			}
+			QW.EventH.preventDefault(e);
 			return;
 		}
 		return true;
@@ -6731,30 +6784,48 @@ QW.provide("AsyncH", AsyncH);
 		 * EVENTS: Ajax的CustEvents：'succeed','error','cancel','timeout','complete'
 		 */
 		EVENTS: ['succeed', 'error', 'cancel', 'timeout','complete'],
-		/**
-		 *XHRVersions: IE下XMLHttpRequest的版本
-		 */
-		XHRVersions: ['Microsoft.XMLHTTP'],//JK: 应对IE6与SE5.0beta的错误，仅用最原始版xmlhttp。['MSXML2.XMLHttp.6.0', 'MSXML2.XMLHttp.3.0', 'MSXML2.XMLHttp.5.0', 'MSXML2.XMLHttp.4.0', 'Msxml2.XMLHTTP', 'MSXML.XMLHttp', 'Microsoft.XMLHTTP'],
 		/* 
 		 * getXHR(): 得到一个XMLHttpRequest对象
 		 * @returns {XMLHttpRequest} : 返回一个XMLHttpRequest对象。
 		 */
-		getXHR: function() {
-			var versions = Ajax.XHRVersions;
-			if (window.ActiveXObject) {
-				while (versions.length > 0) {
-					try {
-						return new ActiveXObject(versions[0]);
-					} catch (ex) {
-						versions.shift();
-					}
-				}
-			} 
-			if (window.XMLHttpRequest) {
-				return new XMLHttpRequest();
+		getXHR: (function() {
+			//JK： 以下代码，参考自jquery1.8.2
+			var ajaxLocation;
+			try {
+				ajaxLocation = location.href;
+			} catch( e ) {
+				// Use the href attribute of an A element
+				// since IE will modify it given document.location
+				ajaxLocation = document.createElement( "a" );
+				ajaxLocation.href = "";
+				ajaxLocation = ajaxLocation.href;
 			}
-			return null;
-		},
+			var isLocal = (/^(about|app|app\-storage|.+\-extension|file|res|widget):/i).test(ajaxLocation);
+			function createStandardXHR() {
+				try {
+					return new window.XMLHttpRequest();
+				} catch( e ) {}
+			}
+
+			function createActiveXHR() {
+				try {
+					return new window.ActiveXObject( "Microsoft.XMLHTTP" );
+				} catch( e ) {}
+			}
+
+			return window.ActiveXObject ?
+				/* Microsoft failed to properly
+				 * implement the XMLHttpRequest in IE7 (can't request local files),
+				 * so we use the ActiveXObject when it is available
+				 * Additionally XMLHttpRequest can be disabled in IE7/IE8 so
+				 * we need a fallback.
+				 */
+				function() {
+					return !isLocal && createStandardXHR() || createActiveXHR();
+				} :
+				// For all other browsers, use the standard XMLHttpRequest object
+				createStandardXHR;
+		}()),
 		/**
 		 * 静态request方法
 		 * @method request
@@ -7030,7 +7101,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Ajax', Ajax);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.5 2013-04-08 released
+ *	version: 1.1.6 2013-11-28 released
  *	author: JK
  *  description: ajax推荐retouch....
 */
@@ -7114,7 +7185,7 @@ QW.provide("AsyncH", AsyncH);
 	NodeW.pluginHelper(FormH, 'operator');
 }());/*
 	Copyright QWrap
-	version: 1.1.5 2013-04-08 released
+	version: 1.1.6 2013-11-28 released
 	author: JK
 */
 
@@ -7699,7 +7770,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Easing', Easing);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.5 2013-04-08 released
+ *	version: 1.1.6 2013-11-28 released
  *	author:Jerry(屈光宇)、JK（加宽）
  *  description: Anim推荐retouch....
 */
