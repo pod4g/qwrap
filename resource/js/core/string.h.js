@@ -24,7 +24,7 @@
 		 return s.replace(/^[\s\xa0\u3000]+/g,"").replace(/([^\u3000\xa0\s])[\u3000\xa0\s]+$/g,"$1");
 		 */
 		trim: function(s) {
-			return s.replace(/^[\s\xa0\u3000]+|[\u3000\xa0\s]+$/g, "");
+			return s.replace(/^[\s\uFEFF\xa0\u3000]+|[\uFEFF\xa0\u3000\s]+$/g, "");
 		},
 
 		/** 

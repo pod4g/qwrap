@@ -9,6 +9,7 @@
 
 		'trim': function() {
 			value_of(StringH.trim("  aaa  ")).should_be("aaa");
+			value_of(StringH.trim("﻿aaaaa﻿")).should_be("aaaaa"); //string with BOM(\ufeff)
 		},
 		'mulReplace': function() {
 			value_of(StringH.mulReplace("ab", [
