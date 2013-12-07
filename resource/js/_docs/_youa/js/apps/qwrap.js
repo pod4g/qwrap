@@ -1,6 +1,6 @@
 /*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: QWrap 月影、JK、屈屈
 */
 
@@ -18,9 +18,9 @@
 		VERSION: "1.1.6",
 		/**
 		 * @property {string} RELEASE 脚本库的发布号（小版本）
-		 * @default 2013-11-28
+		 * @default 2013-12-07
 		 */
-		RELEASE: "2013-11-28",
+		RELEASE: "2013-12-07",
 		/**
 		 * @property {string} PATH 脚本库的运行路径
 		 * @type string
@@ -176,7 +176,7 @@
 	window.QW = QW;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -418,7 +418,7 @@
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -471,7 +471,7 @@ if (QW.Browser.ie) {
 	} catch (e) {}
 }/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -495,7 +495,7 @@ if (QW.Browser.ie) {
 		 return s.replace(/^[\s\xa0\u3000]+/g,"").replace(/([^\u3000\xa0\s])[\u3000\xa0\s]+$/g,"$1");
 		 */
 		trim: function(s) {
-			return s.replace(/^[\s\xa0\u3000]+|[\u3000\xa0\s]+$/g, "");
+			return s.replace(/^[\s\uFEFF\xa0\u3000]+|[\uFEFF\xa0\u3000\s]+$/g, "");
 		},
 
 		/** 
@@ -1022,7 +1022,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: 月影、JK
 */
 
@@ -1415,7 +1415,7 @@ if (QW.Browser.ie) {
 	QW.ObjectH = ObjectH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -1802,7 +1802,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: 月影
 */
 
@@ -1902,7 +1902,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -1953,7 +1953,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: 月影、JK
 */
 
@@ -2160,7 +2160,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: 月影
 */
 
@@ -2231,7 +2231,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: 月影、JK
 */
 
@@ -2420,7 +2420,7 @@ if (QW.Browser.ie) {
 	QW.HelperH = HelperH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: Miller
 */
 
@@ -2465,7 +2465,7 @@ if (QW.Browser.ie) {
 	};
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -2667,7 +2667,7 @@ if (QW.Browser.ie) {
 
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -5582,7 +5582,7 @@ if (QW.Browser.ie) {
 	QW.EventH = EventH;
 }());/*
 	Copyright (c) Baidu Youa Wed QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: WC(好奇)、JK(加宽)
 */
 
@@ -7101,7 +7101,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Ajax', Ajax);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.6 2013-11-28 released
+ *	version: 1.1.6 2013-12-07 released
  *	author: JK
  *  description: ajax推荐retouch....
 */
@@ -7185,7 +7185,7 @@ QW.provide("AsyncH", AsyncH);
 	NodeW.pluginHelper(FormH, 'operator');
 }());/*
 	Copyright QWrap
-	version: 1.1.6 2013-11-28 released
+	version: 1.1.6 2013-12-07 released
 	author: JK
 */
 
@@ -7770,7 +7770,7 @@ QW.provide("AsyncH", AsyncH);
 	QW.provide('Easing', Easing);
 }());/*
  *	Copyright (c) QWrap
- *	version: 1.1.6 2013-11-28 released
+ *	version: 1.1.6 2013-12-07 released
  *	author:Jerry(屈光宇)、JK（加宽）
  *  description: Anim推荐retouch....
 */
