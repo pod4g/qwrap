@@ -501,7 +501,8 @@
 		 * @return {any} 根据字符结果进行返回。
 		 */
 		evalExp: function(s, opts) {
-			return new Function("opts", "return (" + s + ");")(opts);
+			//unicode的行分隔符，参考http://msdn.microsoft.com/zh-cn/library/ie/2yfce773
+			return new Function("opts", "return (" + (s+'').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029') + ");")(opts);
 		},
 
 		/** 
